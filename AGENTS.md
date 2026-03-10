@@ -21,10 +21,14 @@ This is a Next.js 16 app providing a multi-device responsive design viewer. User
 - Ctrl/Cmd+scroll for zooming towards cursor
 - CSS transforms applied to canvas container
 
-### Scroll Synchronization
+### Event Synchronization
 - Uses postMessage API for cross-iframe communication
-- Scroll position stored as percentage (0-1) for device-agnostic sync
-- `broadcastScroll()` in provider sends to all iframe elements
+- Events synced: scroll, mouse position, click, hover, navigation
+- All positions stored as percentages (0-1) for device-agnostic sync
+- `broadcastScroll/Mouse/Click/Hover/Navigation()` functions in provider
+- Sync settings stored in state and toggleable via toolbar panel
+- **Important**: Full sync only works for same-origin sites (localhost)
+- `createSyncedIframeHtml()` in viewport-frame.tsx generates the sync wrapper script
 
 ## Adding Features
 

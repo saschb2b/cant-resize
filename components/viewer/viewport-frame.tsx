@@ -1,12 +1,195 @@
 'use client'
 
 import { useRef, useState, useCallback, useEffect } from 'react'
-import { X, RotateCcw, Maximize2, Loader2, AlertTriangle } from 'lucide-react'
+import { X, RotateCcw, Maximize2, Loader2, AlertTriangle, Link2Off } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useViewer } from './viewer-provider'
 import { getDeviceById } from '@/lib/viewer/device-presets'
 import type { Viewport } from '@/lib/viewer/types'
+
+// Generate the HTML wrapper with full sync script
+function createSyncedIframeHtml(url: string, viewportId: string): string {
+  return `<!DOCTYPE html>
+<html style="height:100%;margin:0;padding:0;">
+<head>
+  <style>
+    * { margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    iframe { width: 100%; height: 100%; border: none; }
+    .sync-cursor {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.6);
+      border: 2px solid rgba(59, 130, 246, 0.9);
+      pointer-events: none;
+      z-index: 999999;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.15s;
+      display: none;
+    }
+    .sync-hover {
+      outline: 2px dashed rgba(59, 130, 246, 0.7) !important;
+      outline-offset: 2px !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="sync-cursor" class="sync-cursor"></div>
+  <iframe id="inner" src="${url}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+  <script>
+    (function() {
+      const viewportId = '${viewportId}';
+      const inner = document.getElementById('inner');
+      const syncCursor = document.getElementById('sync-cursor');
+      let lastScrollY = 0;
+      let isReceiving = false;
+      let innerWindow = null;
+      let innerDoc = null;
+      let isSameOrigin = false;
+      let lastHovered = null;
+      let cursorHideTimeout = null;
+
+      function getUniqueSelector(el) {
+        if (!el || el === innerDoc.body) return 'body';
+        if (el.id) return '#' + el.id;
+        let path = [];
+        while (el && el.nodeType === 1 && el !== innerDoc.body) {
+          let selector = el.tagName.toLowerCase();
+          if (el.className && typeof el.className === 'string') {
+            selector += '.' + el.className.trim().split(/\\s+/).slice(0, 2).join('.');
+          }
+          const siblings = el.parentNode ? Array.from(el.parentNode.children).filter(c => c.tagName === el.tagName) : [];
+          if (siblings.length > 1) {
+            selector += ':nth-of-type(' + (siblings.indexOf(el) + 1) + ')';
+          }
+          path.unshift(selector);
+          el = el.parentNode;
+        }
+        return path.join(' > ');
+      }
+
+      function findElement(selector) {
+        try { return innerDoc.querySelector(selector); } catch { return null; }
+      }
+      
+      inner.addEventListener('load', function() {
+        try {
+          innerWindow = inner.contentWindow;
+          innerDoc = inner.contentDocument || inner.contentWindow.document;
+          isSameOrigin = true;
+          
+          // Scroll sync
+          innerWindow.addEventListener('scroll', function() {
+            if (isReceiving) return;
+            const maxScroll = Math.max(1, innerDoc.documentElement.scrollHeight - innerWindow.innerHeight);
+            const scrollY = innerWindow.scrollY / maxScroll;
+            if (Math.abs(scrollY - lastScrollY) > 0.001) {
+              lastScrollY = scrollY;
+              window.parent.postMessage({ type: 'SCROLL', scrollY, sourceId: viewportId }, '*');
+            }
+          }, { passive: true });
+
+          // Mouse move sync
+          innerDoc.addEventListener('mousemove', function(e) {
+            if (isReceiving) return;
+            const x = e.clientX / innerWindow.innerWidth;
+            const y = e.clientY / innerWindow.innerHeight;
+            window.parent.postMessage({ type: 'MOUSE_MOVE', mouseX: x, mouseY: y, sourceId: viewportId }, '*');
+          }, { passive: true });
+
+          // Click sync
+          innerDoc.addEventListener('click', function(e) {
+            if (isReceiving) return;
+            const x = e.clientX / innerWindow.innerWidth;
+            const y = e.clientY / innerWindow.innerHeight;
+            const selector = getUniqueSelector(e.target);
+            window.parent.postMessage({ type: 'CLICK', mouseX: x, mouseY: y, selector, sourceId: viewportId }, '*');
+          }, { passive: true });
+
+          // Hover sync
+          innerDoc.addEventListener('mouseover', function(e) {
+            if (isReceiving) return;
+            const selector = getUniqueSelector(e.target);
+            window.parent.postMessage({ type: 'HOVER', selector, sourceId: viewportId }, '*');
+          }, { passive: true });
+
+          // Navigation sync - check for URL changes periodically
+          let lastUrl = innerWindow.location.href;
+          console.log('[v0] Viewport ' + viewportId + ' initial URL:', lastUrl);
+          const checkNav = setInterval(function() {
+            try {
+              const currentUrl = innerWindow.location.href;
+              if (currentUrl !== lastUrl) {
+                console.log('[v0] Viewport ' + viewportId + ' URL changed:', lastUrl, '->', currentUrl);
+                lastUrl = currentUrl;
+                window.parent.postMessage({ type: 'NAVIGATE', url: currentUrl, sourceId: viewportId }, '*');
+              }
+            } catch (e) {
+              // Cross-origin navigation - can't read URL anymore
+              console.log('[v0] Viewport ' + viewportId + ' cross-origin navigation detected');
+            }
+          }, 500);
+          
+          window.parent.postMessage({ type: 'VIEWPORT_READY', sourceId: viewportId, sameOrigin: true }, '*');
+        } catch (e) {
+          window.parent.postMessage({ type: 'VIEWPORT_READY', sourceId: viewportId, sameOrigin: false }, '*');
+        }
+      });
+      
+      // Handle incoming sync commands
+      window.addEventListener('message', function(e) {
+        if (!e.data?.type || !isSameOrigin) return;
+        isReceiving = true;
+
+        if (e.data.type === 'SCROLL_TO' && typeof e.data.scrollY === 'number') {
+          const maxScroll = Math.max(1, innerDoc.documentElement.scrollHeight - innerWindow.innerHeight);
+          innerWindow.scrollTo({ top: e.data.scrollY * maxScroll, behavior: 'instant' });
+          lastScrollY = e.data.scrollY;
+        }
+
+        if (e.data.type === 'MOUSE_MOVE' && typeof e.data.mouseX === 'number') {
+          syncCursor.style.display = 'block';
+          syncCursor.style.left = (e.data.mouseX * innerWindow.innerWidth) + 'px';
+          syncCursor.style.top = (e.data.mouseY * innerWindow.innerHeight) + 'px';
+          clearTimeout(cursorHideTimeout);
+          cursorHideTimeout = setTimeout(() => { syncCursor.style.display = 'none'; }, 2000);
+        }
+
+        if (e.data.type === 'CLICK' && e.data.selector) {
+          const el = findElement(e.data.selector);
+          if (el) {
+            el.click();
+            el.style.transition = 'box-shadow 0.15s';
+            el.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.5)';
+            setTimeout(() => { el.style.boxShadow = ''; }, 300);
+          }
+        }
+
+        if (e.data.type === 'HOVER' && e.data.selector) {
+          if (lastHovered) lastHovered.classList.remove('sync-hover');
+          const el = findElement(e.data.selector);
+          if (el) {
+            el.classList.add('sync-hover');
+            lastHovered = el;
+          }
+        }
+
+        if (e.data.type === 'NAVIGATE' && e.data.url) {
+          console.log('[v0] Viewport ' + viewportId + ' receiving NAVIGATE to:', e.data.url);
+          inner.src = e.data.url;
+        }
+
+        setTimeout(() => { isReceiving = false; }, 50);
+      });
+    })();
+  </script>
+</body>
+</html>`
+}
 
 interface ViewportFrameProps {
   viewport: Viewport
@@ -14,7 +197,7 @@ interface ViewportFrameProps {
 }
 
 export function ViewportFrame({ viewport, isGridMode = false }: ViewportFrameProps) {
-  const { state, removeViewport, toggleOrientation, selectViewport, dispatch, broadcastScroll } = useViewer()
+  const { state, removeViewport, toggleOrientation, selectViewport, dispatch, broadcastScroll, broadcastMouse, broadcastClick, broadcastHover, broadcastNavigation } = useViewer()
   const device = getDeviceById(viewport.deviceId)
   const frameRef = useRef<HTMLDivElement>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
@@ -23,6 +206,7 @@ export function ViewportFrame({ viewport, isGridMode = false }: ViewportFramePro
   const [isResizing, setIsResizing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
+  const [isSyncEnabled, setIsSyncEnabled] = useState<boolean | null>(null)
   const [localSize, setLocalSize] = useState({ width: viewport.width, height: viewport.height })
   
   const dragStart = useRef({ x: 0, y: 0, viewportX: 0, viewportY: 0 })
@@ -131,17 +315,37 @@ export function ViewportFrame({ viewport, isGridMode = false }: ViewportFramePro
     setHasError(true)
   }, [])
 
-  // Listen for scroll messages from iframe
+  // Listen for messages from iframe (all sync events)
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
-      if (e.data?.type === 'SCROLL' && e.data.sourceId === viewport.id) {
-        broadcastScroll(e.data.scrollY, viewport.id)
+      if (e.data?.sourceId !== viewport.id) return
+      
+      switch (e.data?.type) {
+        case 'SCROLL':
+          broadcastScroll(e.data.scrollY, viewport.id)
+          break
+        case 'MOUSE_MOVE':
+          broadcastMouse(e.data.mouseX, e.data.mouseY, viewport.id)
+          break
+        case 'CLICK':
+          broadcastClick(e.data.mouseX, e.data.mouseY, e.data.selector, viewport.id)
+          break
+        case 'HOVER':
+          broadcastHover(e.data.selector, viewport.id)
+          break
+        case 'NAVIGATE':
+          console.log('[v0] NAVIGATE received from viewport', viewport.id, 'url:', e.data.url)
+          broadcastNavigation(e.data.url, viewport.id)
+          break
+        case 'VIEWPORT_READY':
+          setIsSyncEnabled(e.data.sameOrigin)
+          break
       }
     }
     
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
-  }, [viewport.id, broadcastScroll])
+  }, [viewport.id, broadcastScroll, broadcastMouse, broadcastClick, broadcastHover, broadcastNavigation])
 
   // Receive scroll sync
   useEffect(() => {
@@ -197,6 +401,18 @@ export function ViewportFrame({ viewport, isGridMode = false }: ViewportFramePro
           <span className="text-xs text-muted-foreground">
             {Math.round(displayWidth)} x {Math.round(displayHeight)}
           </span>
+          {isSyncEnabled === false && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link2Off className="h-3 w-3 text-amber-500" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs">
+                  <p className="text-xs">Scroll sync unavailable for cross-origin sites. Use localhost for full sync.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
         <div className="flex items-center gap-1">
           <Button
@@ -250,7 +466,7 @@ export function ViewportFrame({ viewport, isGridMode = false }: ViewportFramePro
           ref={iframeRef}
           data-viewport-iframe
           data-viewport-id={viewport.id}
-          src={state.url}
+          srcDoc={createSyncedIframeHtml(state.url, viewport.id)}
           className="w-full h-full border-0"
           style={
             isGridMode

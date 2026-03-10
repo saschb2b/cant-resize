@@ -9,6 +9,11 @@ import {
   Maximize,
   RefreshCw,
   ExternalLink,
+  Link2,
+  MousePointer2,
+  Hand,
+  Navigation,
+  ArrowUpDown,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,11 +25,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
 import { useViewer } from './viewer-provider'
 import { DevicePicker } from './device-picker'
 
 export function Toolbar() {
-  const { state, setUrl, setLayoutMode, setCanvasTransform } = useViewer()
+  const { state, setUrl, setLayoutMode, setCanvasTransform, setSyncSettings } = useViewer()
   const [urlInput, setUrlInput] = useState(state.url)
 
   const handleUrlSubmit = useCallback(
@@ -228,6 +240,84 @@ export function Toolbar() {
             </Tooltip>
           </div>
         )}
+
+        {/* Sync Settings */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-8 gap-2">
+              <Link2 className="h-4 w-4" />
+              <span className="text-xs">Sync</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-56" align="end">
+            <div className="space-y-4">
+              <h4 className="font-medium text-sm">Sync Events</h4>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="sync-scroll" className="flex items-center gap-2 text-sm">
+                    <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+                    Scroll
+                  </Label>
+                  <Switch
+                    id="sync-scroll"
+                    checked={state.syncSettings.scroll}
+                    onCheckedChange={(v) => setSyncSettings({ scroll: v })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="sync-mouse" className="flex items-center gap-2 text-sm">
+                    <MousePointer2 className="h-3.5 w-3.5 text-muted-foreground" />
+                    Mouse
+                  </Label>
+                  <Switch
+                    id="sync-mouse"
+                    checked={state.syncSettings.mouse}
+                    onCheckedChange={(v) => setSyncSettings({ mouse: v })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="sync-click" className="flex items-center gap-2 text-sm">
+                    <Hand className="h-3.5 w-3.5 text-muted-foreground" />
+                    Click
+                  </Label>
+                  <Switch
+                    id="sync-click"
+                    checked={state.syncSettings.click}
+                    onCheckedChange={(v) => setSyncSettings({ click: v })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="sync-hover" className="flex items-center gap-2 text-sm">
+                    <MousePointer2 className="h-3.5 w-3.5 text-muted-foreground" />
+                    Hover
+                  </Label>
+                  <Switch
+                    id="sync-hover"
+                    checked={state.syncSettings.hover}
+                    onCheckedChange={(v) => setSyncSettings({ hover: v })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="sync-nav" className="flex items-center gap-2 text-sm">
+                    <Navigation className="h-3.5 w-3.5 text-muted-foreground" />
+                    Navigation
+                  </Label>
+                  <Switch
+                    id="sync-nav"
+                    checked={state.syncSettings.navigation}
+                    onCheckedChange={(v) => setSyncSettings({ navigation: v })}
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Sync only works for same-origin sites (e.g., localhost).
+              </p>
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        {/* Divider */}
+        <div className="h-6 w-px bg-border" />
 
         {/* Refresh */}
         <Tooltip>
