@@ -1,12 +1,84 @@
 'use client'
 
 import { useRef, useState, useCallback, useEffect } from 'react'
-import { X, RotateCcw, Maximize2, Loader2, AlertTriangle } from 'lucide-react'
+import { X, RotateCcw, Maximize2, Loader2, AlertTriangle, Link2Off } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useViewer } from './viewer-provider'
 import { getDeviceById } from '@/lib/viewer/device-presets'
 import type { Viewport } from '@/lib/viewer/types'
+
+// Generate the HTML wrapper with scroll sync script
+function createSyncedIframeHtml(url: string, viewportId: string): string {
+  return `<!DOCTYPE html>
+<html style="height:100%;margin:0;padding:0;">
+<head>
+  <style>
+    * { margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    iframe { width: 100%; height: 100%; border: none; }
+  </style>
+</head>
+<body>
+  <iframe id="inner" src="${url}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+  <script>
+    (function() {
+      const viewportId = '${viewportId}';
+      const inner = document.getElementById('inner');
+      let lastScrollY = 0;
+      let isReceivingScroll = false;
+      let innerWindow = null;
+      let innerDoc = null;
+      let isSameOrigin = false;
+      
+      // Check if we can access the inner iframe (same-origin)
+      inner.addEventListener('load', function() {
+        try {
+          innerWindow = inner.contentWindow;
+          innerDoc = inner.contentDocument || inner.contentWindow.document;
+          isSameOrigin = true;
+          console.log('[v0] Viewport ' + viewportId + ': Same-origin detected, scroll sync enabled');
+          
+          // Listen to inner scroll
+          innerWindow.addEventListener('scroll', function() {
+            if (isReceivingScroll) return;
+            const maxScroll = Math.max(1, innerDoc.documentElement.scrollHeight - innerWindow.innerHeight);
+            const scrollY = innerWindow.scrollY / maxScroll;
+            if (Math.abs(scrollY - lastScrollY) > 0.001) {
+              lastScrollY = scrollY;
+              window.parent.postMessage({ 
+                type: 'SCROLL', 
+                scrollY: scrollY,
+                sourceId: viewportId 
+              }, '*');
+            }
+          }, { passive: true });
+          
+          // Notify parent we're ready
+          window.parent.postMessage({ type: 'VIEWPORT_READY', sourceId: viewportId, sameOrigin: true }, '*');
+        } catch (e) {
+          console.log('[v0] Viewport ' + viewportId + ': Cross-origin detected, scroll sync limited');
+          window.parent.postMessage({ type: 'VIEWPORT_READY', sourceId: viewportId, sameOrigin: false }, '*');
+        }
+      });
+      
+      // Listen for scroll commands from parent
+      window.addEventListener('message', function(e) {
+        if (e.data?.type === 'SCROLL_TO' && typeof e.data.scrollY === 'number' && isSameOrigin) {
+          isReceivingScroll = true;
+          const maxScroll = Math.max(1, innerDoc.documentElement.scrollHeight - innerWindow.innerHeight);
+          const targetY = e.data.scrollY * maxScroll;
+          innerWindow.scrollTo({ top: targetY, behavior: 'instant' });
+          lastScrollY = e.data.scrollY;
+          setTimeout(function() { isReceivingScroll = false; }, 50);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>`
+}
 
 interface ViewportFrameProps {
   viewport: Viewport
@@ -23,6 +95,7 @@ export function ViewportFrame({ viewport, isGridMode = false }: ViewportFramePro
   const [isResizing, setIsResizing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [hasError, setHasError] = useState(false)
+  const [isSyncEnabled, setIsSyncEnabled] = useState<boolean | null>(null)
   const [localSize, setLocalSize] = useState({ width: viewport.width, height: viewport.height })
   
   const dragStart = useRef({ x: 0, y: 0, viewportX: 0, viewportY: 0 })
@@ -131,11 +204,18 @@ export function ViewportFrame({ viewport, isGridMode = false }: ViewportFramePro
     setHasError(true)
   }, [])
 
-  // Listen for scroll messages from iframe
+  // Listen for messages from iframe (scroll events and ready status)
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
+      // Handle scroll events
       if (e.data?.type === 'SCROLL' && e.data.sourceId === viewport.id) {
+        console.log('[v0] Scroll received from viewport', viewport.id, e.data.scrollY)
         broadcastScroll(e.data.scrollY, viewport.id)
+      }
+      // Handle ready status
+      if (e.data?.type === 'VIEWPORT_READY' && e.data.sourceId === viewport.id) {
+        console.log('[v0] Viewport ready:', viewport.id, 'sameOrigin:', e.data.sameOrigin)
+        setIsSyncEnabled(e.data.sameOrigin)
       }
     }
     
@@ -197,6 +277,18 @@ export function ViewportFrame({ viewport, isGridMode = false }: ViewportFramePro
           <span className="text-xs text-muted-foreground">
             {Math.round(displayWidth)} x {Math.round(displayHeight)}
           </span>
+          {isSyncEnabled === false && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link2Off className="h-3 w-3 text-amber-500" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs">
+                  <p className="text-xs">Scroll sync unavailable for cross-origin sites. Use localhost for full sync.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
         <div className="flex items-center gap-1">
           <Button
@@ -250,7 +342,7 @@ export function ViewportFrame({ viewport, isGridMode = false }: ViewportFramePro
           ref={iframeRef}
           data-viewport-iframe
           data-viewport-id={viewport.id}
-          src={state.url}
+          srcDoc={createSyncedIframeHtml(state.url, viewport.id)}
           className="w-full h-full border-0"
           style={
             isGridMode
