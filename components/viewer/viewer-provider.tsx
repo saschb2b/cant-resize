@@ -211,7 +211,9 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
 
   const broadcastNavigation = useCallback((url: string, sourceId: string) => {
     if (!state.syncSettings.navigation) return
-    dispatch({ type: 'SET_URL', url })
+    console.log('[v0] broadcastNavigation called, url:', url, 'sourceId:', sourceId)
+    // Don't update state.url here - that would cause all iframes to reload via srcDoc change
+    // Instead, just send NAVIGATE message to other viewports which will update their inner iframe src
     broadcastToViewports({ type: 'NAVIGATE', url }, sourceId)
   }, [state.syncSettings.navigation, broadcastToViewports])
 

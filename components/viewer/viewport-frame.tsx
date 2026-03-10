@@ -117,12 +117,20 @@ function createSyncedIframeHtml(url: string, viewportId: string): string {
             window.parent.postMessage({ type: 'HOVER', selector, sourceId: viewportId }, '*');
           }, { passive: true });
 
-          // Navigation sync
+          // Navigation sync - check for URL changes periodically
           let lastUrl = innerWindow.location.href;
+          console.log('[v0] Viewport ' + viewportId + ' initial URL:', lastUrl);
           const checkNav = setInterval(function() {
-            if (innerWindow.location.href !== lastUrl) {
-              lastUrl = innerWindow.location.href;
-              window.parent.postMessage({ type: 'NAVIGATE', url: lastUrl, sourceId: viewportId }, '*');
+            try {
+              const currentUrl = innerWindow.location.href;
+              if (currentUrl !== lastUrl) {
+                console.log('[v0] Viewport ' + viewportId + ' URL changed:', lastUrl, '->', currentUrl);
+                lastUrl = currentUrl;
+                window.parent.postMessage({ type: 'NAVIGATE', url: currentUrl, sourceId: viewportId }, '*');
+              }
+            } catch (e) {
+              // Cross-origin navigation - can't read URL anymore
+              console.log('[v0] Viewport ' + viewportId + ' cross-origin navigation detected');
             }
           }, 500);
           
@@ -171,6 +179,7 @@ function createSyncedIframeHtml(url: string, viewportId: string): string {
         }
 
         if (e.data.type === 'NAVIGATE' && e.data.url) {
+          console.log('[v0] Viewport ' + viewportId + ' receiving NAVIGATE to:', e.data.url);
           inner.src = e.data.url;
         }
 
@@ -325,6 +334,7 @@ export function ViewportFrame({ viewport, isGridMode = false }: ViewportFramePro
           broadcastHover(e.data.selector, viewport.id)
           break
         case 'NAVIGATE':
+          console.log('[v0] NAVIGATE received from viewport', viewport.id, 'url:', e.data.url)
           broadcastNavigation(e.data.url, viewport.id)
           break
         case 'VIEWPORT_READY':
