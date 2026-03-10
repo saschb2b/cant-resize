@@ -26,6 +26,14 @@ export interface CanvasTransform {
 
 export type LayoutMode = 'freeform' | 'grid'
 
+export interface SyncSettings {
+  scroll: boolean
+  mouse: boolean
+  click: boolean
+  hover: boolean
+  navigation: boolean
+}
+
 export interface ViewerState {
   url: string
   viewports: Viewport[]
@@ -33,6 +41,7 @@ export interface ViewerState {
   canvasTransform: CanvasTransform
   selectedViewportId: string | null
   scrollPosition: number // 0-1 percentage
+  syncSettings: SyncSettings
 }
 
 export type ViewerAction =
@@ -46,10 +55,15 @@ export type ViewerAction =
   | { type: 'SET_SCROLL_POSITION'; position: number }
   | { type: 'TOGGLE_ORIENTATION'; id: string }
   | { type: 'LOAD_STATE'; state: ViewerState }
+  | { type: 'SET_SYNC_SETTINGS'; settings: Partial<SyncSettings> }
 
 export interface SyncMessage {
-  type: 'SCROLL' | 'SCROLL_TO' | 'NAVIGATE' | 'READY'
+  type: 'SCROLL' | 'SCROLL_TO' | 'MOUSE_MOVE' | 'CLICK' | 'HOVER' | 'NAVIGATE' | 'VIEWPORT_READY'
   scrollY?: number
+  mouseX?: number // 0-1 percentage
+  mouseY?: number // 0-1 percentage  
+  selector?: string // CSS selector for hover/click target
   url?: string
   sourceId?: string
+  sameOrigin?: boolean
 }

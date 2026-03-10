@@ -8,10 +8,18 @@ import {
   useEffect,
   type ReactNode,
 } from 'react'
-import type { ViewerState, ViewerAction, Viewport, CanvasTransform, LayoutMode } from '@/lib/viewer/types'
+import type { ViewerState, ViewerAction, Viewport, CanvasTransform, LayoutMode, SyncSettings } from '@/lib/viewer/types'
 import { getDeviceById } from '@/lib/viewer/device-presets'
 
 const STORAGE_KEY = 'responsive-viewer-state'
+
+const defaultSyncSettings: SyncSettings = {
+  scroll: true,
+  mouse: true,
+  click: true,
+  hover: true,
+  navigation: true,
+}
 
 const initialState: ViewerState = {
   url: 'https://example.com',
@@ -20,6 +28,7 @@ const initialState: ViewerState = {
   canvasTransform: { x: 0, y: 0, scale: 0.5 },
   selectedViewportId: null,
   scrollPosition: 0,
+  syncSettings: defaultSyncSettings,
 }
 
 function viewerReducer(state: ViewerState, action: ViewerAction): ViewerState {
@@ -65,7 +74,9 @@ function viewerReducer(state: ViewerState, action: ViewerAction): ViewerState {
       }
     }
     case 'LOAD_STATE':
-      return action.state
+      return { ...action.state, syncSettings: action.state.syncSettings || defaultSyncSettings }
+    case 'SET_SYNC_SETTINGS':
+      return { ...state, syncSettings: { ...state.syncSettings, ...action.settings } }
     default:
       return state
   }
@@ -83,6 +94,11 @@ interface ViewerContextValue {
   selectViewport: (id: string | null) => void
   toggleOrientation: (id: string) => void
   broadcastScroll: (position: number, sourceId: string) => void
+  broadcastMouse: (x: number, y: number, sourceId: string) => void
+  broadcastClick: (x: number, y: number, selector: string, sourceId: string) => void
+  broadcastHover: (selector: string, sourceId: string) => void
+  broadcastNavigation: (url: string, sourceId: string) => void
+  setSyncSettings: (settings: Partial<SyncSettings>) => void
 }
 
 const ViewerContext = createContext<ViewerContextValue | null>(null)
@@ -163,18 +179,44 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'TOGGLE_ORIENTATION', id })
   }, [])
 
-  const broadcastScroll = useCallback((position: number, sourceId: string) => {
-    dispatch({ type: 'SET_SCROLL_POSITION', position })
-    // Broadcast to all iframes via postMessage
+  const broadcastToViewports = useCallback((message: object, sourceId: string) => {
     const iframes = document.querySelectorAll<HTMLIFrameElement>('[data-viewport-iframe]')
     iframes.forEach((iframe) => {
       if (iframe.dataset.viewportId !== sourceId) {
-        iframe.contentWindow?.postMessage(
-          { type: 'SCROLL_TO', scrollY: position },
-          '*'
-        )
+        iframe.contentWindow?.postMessage(message, '*')
       }
     })
+  }, [])
+
+  const broadcastScroll = useCallback((position: number, sourceId: string) => {
+    if (!state.syncSettings.scroll) return
+    dispatch({ type: 'SET_SCROLL_POSITION', position })
+    broadcastToViewports({ type: 'SCROLL_TO', scrollY: position }, sourceId)
+  }, [state.syncSettings.scroll, broadcastToViewports])
+
+  const broadcastMouse = useCallback((x: number, y: number, sourceId: string) => {
+    if (!state.syncSettings.mouse) return
+    broadcastToViewports({ type: 'MOUSE_MOVE', mouseX: x, mouseY: y }, sourceId)
+  }, [state.syncSettings.mouse, broadcastToViewports])
+
+  const broadcastClick = useCallback((x: number, y: number, selector: string, sourceId: string) => {
+    if (!state.syncSettings.click) return
+    broadcastToViewports({ type: 'CLICK', mouseX: x, mouseY: y, selector }, sourceId)
+  }, [state.syncSettings.click, broadcastToViewports])
+
+  const broadcastHover = useCallback((selector: string, sourceId: string) => {
+    if (!state.syncSettings.hover) return
+    broadcastToViewports({ type: 'HOVER', selector }, sourceId)
+  }, [state.syncSettings.hover, broadcastToViewports])
+
+  const broadcastNavigation = useCallback((url: string, sourceId: string) => {
+    if (!state.syncSettings.navigation) return
+    dispatch({ type: 'SET_URL', url })
+    broadcastToViewports({ type: 'NAVIGATE', url }, sourceId)
+  }, [state.syncSettings.navigation, broadcastToViewports])
+
+  const setSyncSettings = useCallback((settings: Partial<SyncSettings>) => {
+    dispatch({ type: 'SET_SYNC_SETTINGS', settings })
   }, [])
 
   return (
@@ -191,6 +233,11 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
         selectViewport,
         toggleOrientation,
         broadcastScroll,
+        broadcastMouse,
+        broadcastClick,
+        broadcastHover,
+        broadcastNavigation,
+        setSyncSettings,
       }}
     >
       {children}

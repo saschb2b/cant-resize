@@ -10,7 +10,13 @@ A multi-device responsive design viewer for testing web applications across diff
 - **Dual Layout Modes**:
   - **Freeform Canvas**: Infinite pan/zoom canvas with draggable, resizable device frames
   - **Grid Layout**: Auto-arranged grid view for quick comparison
-- **Synchronized Scrolling**: Scroll position syncs across all viewports (percentage-based)
+- **Full Event Synchronization** (same-origin sites):
+  - **Scroll**: Scroll position syncs across all viewports
+  - **Mouse Position**: Cursor indicator shows in all viewports
+  - **Click**: Clicks are replicated across devices
+  - **Hover**: Hover states highlighted across viewports
+  - **Navigation**: URL changes sync to all devices
+- **Sync Settings Panel**: Toggle individual sync events on/off
 - **Persistent State**: Layout and device configuration saved to localStorage
 
 ## Architecture
@@ -42,8 +48,8 @@ A multi-device responsive design viewer for testing web applications across diff
 
 ## Limitations
 
-- Cross-origin iframes: Some websites block iframe embedding via X-Frame-Options headers
-- Scroll sync works best with same-origin URLs (localhost development)
+- **Cross-origin iframes**: Some websites block iframe embedding via X-Frame-Options headers
+- **Event sync requires same-origin**: Full event synchronization (scroll, mouse, click, hover, navigation) only works with same-origin sites (e.g., localhost development). Cross-origin sites will show an amber indicator in the device header.
 
 ## Development
 
