@@ -124,87 +124,101 @@ export function Toolbar() {
       {/* Device Picker */}
       <DevicePicker />
 
-      <Divider orientation="vertical" flexItem />
-
-      {/* Layout Toggle */}
-      <ToggleButtonGroup
-        value={state.layoutMode}
-        exclusive
-        onChange={(_, val: LayoutMode | null) => val && setLayoutMode(val)}
-        size="small"
-      >
-        <ToggleButton value="freeform" sx={{ px: 1 }}>
-          <Tooltip title="Freeform canvas">
-            <Box sx={{ display: "flex" }}>
-              <Move size={16} />
-            </Box>
-          </Tooltip>
-        </ToggleButton>
-        <ToggleButton value="grid" sx={{ px: 1 }}>
-          <Tooltip title="Grid layout">
-            <Box sx={{ display: "flex" }}>
-              <LayoutGrid size={16} />
-            </Box>
-          </Tooltip>
-        </ToggleButton>
-      </ToggleButtonGroup>
-
-      <Divider orientation="vertical" flexItem />
-
-      {/* Zoom Controls - only in freeform mode */}
-      {state.layoutMode === "freeform" && (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Tooltip title="Zoom out">
-            <IconButton size="small" onClick={zoomOut}>
-              <ZoomOut size={16} />
-            </IconButton>
-          </Tooltip>
-
-          <Box
-            sx={{ display: "flex", alignItems: "center", gap: 1, width: 140 }}
+      {/* Layout Toggle - only show when devices exist */}
+      {state.viewports.length > 0 && (
+        <>
+          <Divider orientation="vertical" flexItem />
+          <ToggleButtonGroup
+            value={state.layoutMode}
+            exclusive
+            onChange={(_, val: LayoutMode | null) => val && setLayoutMode(val)}
+            size="small"
           >
-            <Slider
-              value={scale}
-              onChange={handleZoomSlider}
-              min={minScale}
-              max={maxScale}
-              step={0.05}
-              size="small"
-              sx={{ width: 80 }}
-            />
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ width: 40, textAlign: "right" }}
-            >
-              {zoomPercentage}%
-            </Typography>
-          </Box>
-
-          <Tooltip title="Zoom in">
-            <IconButton size="small" onClick={zoomIn}>
-              <ZoomIn size={16} />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Fit to content">
-            <IconButton size="small" onClick={fitToContent}>
-              <Maximize size={16} />
-            </IconButton>
-          </Tooltip>
-        </Box>
+            <ToggleButton value="freeform" sx={{ px: 1 }}>
+              <Tooltip title="Freeform canvas">
+                <Box sx={{ display: "flex" }}>
+                  <Move size={16} />
+                </Box>
+              </Tooltip>
+            </ToggleButton>
+            <ToggleButton value="grid" sx={{ px: 1 }}>
+              <Tooltip title="Grid layout">
+                <Box sx={{ display: "flex" }}>
+                  <LayoutGrid size={16} />
+                </Box>
+              </Tooltip>
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </>
       )}
 
-      {/* Sync Settings */}
-      <Button
-        variant="text"
-        size="small"
-        startIcon={<Link2 size={16} />}
-        onClick={(e) => setSyncAnchorEl(e.currentTarget)}
-        sx={{ color: "text.secondary" }}
-      >
-        Sync
-      </Button>
+      {/* Zoom Controls - only in freeform mode with devices */}
+      {state.layoutMode === "freeform" && state.viewports.length > 0 && (
+        <>
+          <Divider orientation="vertical" flexItem />
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Tooltip title="Zoom out">
+              <IconButton size="small" onClick={zoomOut}>
+                <ZoomOut size={16} />
+              </IconButton>
+            </Tooltip>
+
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                width: 140,
+              }}
+            >
+              <Slider
+                value={scale}
+                onChange={handleZoomSlider}
+                min={minScale}
+                max={maxScale}
+                step={0.05}
+                size="small"
+                sx={{ width: 80 }}
+              />
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ width: 40, textAlign: "right" }}
+              >
+                {zoomPercentage}%
+              </Typography>
+            </Box>
+
+            <Tooltip title="Zoom in">
+              <IconButton size="small" onClick={zoomIn}>
+                <ZoomIn size={16} />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Fit to content">
+              <IconButton size="small" onClick={fitToContent}>
+                <Maximize size={16} />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </>
+      )}
+
+      {/* Sync & Refresh - only show when devices exist */}
+      {state.viewports.length > 0 && (
+        <>
+          <Divider orientation="vertical" flexItem />
+          <Button
+            variant="text"
+            size="small"
+            startIcon={<Link2 size={16} />}
+            onClick={(e) => setSyncAnchorEl(e.currentTarget)}
+            sx={{ color: "text.secondary" }}
+          >
+            Sync
+          </Button>
+        </>
+      )}
       <Popover
         open={Boolean(syncAnchorEl)}
         anchorEl={syncAnchorEl}
@@ -317,14 +331,16 @@ export function Toolbar() {
         </Box>
       </Popover>
 
-      <Divider orientation="vertical" flexItem />
-
-      {/* Refresh */}
-      <Tooltip title="Refresh all viewports">
-        <IconButton size="small" onClick={handleRefresh}>
-          <RefreshCw size={16} />
-        </IconButton>
-      </Tooltip>
+      {state.viewports.length > 0 && (
+        <>
+          <Divider orientation="vertical" flexItem />
+          <Tooltip title="Refresh all viewports">
+            <IconButton size="small" onClick={handleRefresh}>
+              <RefreshCw size={16} />
+            </IconButton>
+          </Tooltip>
+        </>
+      )}
     </Box>
   );
 }

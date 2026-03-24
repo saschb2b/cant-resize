@@ -83,7 +83,11 @@ function DeviceList({
   );
 }
 
-export function DevicePicker() {
+interface DevicePickerProps {
+  renderTrigger?: (open: () => void) => React.ReactNode;
+}
+
+export function DevicePicker({ renderTrigger }: DevicePickerProps = {}) {
   const { addViewport, addCustomViewport } = useViewer();
   const [open, setOpen] = useState(false);
   const [tabValue, setTabValue] = useState(0);
@@ -112,14 +116,18 @@ export function DevicePicker() {
 
   return (
     <>
-      <Button
-        variant="contained"
-        size="small"
-        startIcon={<Plus size={16} />}
-        onClick={() => setOpen(true)}
-      >
-        Add Device
-      </Button>
+      {renderTrigger ? (
+        renderTrigger(() => setOpen(true))
+      ) : (
+        <Button
+          variant="contained"
+          size="small"
+          startIcon={<Plus size={16} />}
+          onClick={() => setOpen(true)}
+        >
+          Add Device
+        </Button>
+      )}
       <Dialog
         open={open}
         onClose={() => setOpen(false)}
