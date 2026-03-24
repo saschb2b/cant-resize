@@ -101,7 +101,7 @@ export function DevicePicker() {
     const height = parseInt(customHeight, 10);
 
     if (width > 0 && height > 0) {
-      addCustomViewport(width, height, customName || undefined);
+      addCustomViewport(width, height);
       setOpen(false);
     }
   };
@@ -130,7 +130,7 @@ export function DevicePicker() {
         <DialogContent>
           <Tabs
             value={tabValue}
-            onChange={(_, v) => setTabValue(v)}
+            onChange={(_, v: number) => setTabValue(v)}
             variant="fullWidth"
             sx={{ mb: 2 }}
           >
@@ -166,7 +166,9 @@ export function DevicePicker() {
             <DeviceList devices={desktops} onSelect={handleSelect} />
           )}
           {tabValue === 3 && (
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 0.5 }}>
+            <Box
+              sx={{ display: "flex", flexDirection: "column", gap: 2, p: 0.5 }}
+            >
               <TextField
                 label="Device Name (optional)"
                 placeholder="My Custom Device"
@@ -175,7 +177,9 @@ export function DevicePicker() {
                 size="small"
                 fullWidth
               />
-              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
+              <Box
+                sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}
+              >
                 <TextField
                   label="Width (px)"
                   type="number"
@@ -193,11 +197,7 @@ export function DevicePicker() {
                   size="small"
                 />
               </Box>
-              <Button
-                variant="contained"
-                onClick={handleAddCustom}
-                fullWidth
-              >
+              <Button variant="contained" onClick={handleAddCustom} fullWidth>
                 Add Custom Device
               </Button>
             </Box>

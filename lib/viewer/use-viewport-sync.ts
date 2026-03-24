@@ -1,84 +1,82 @@
-'use client'
+"use client";
 
-import { useEffect, useCallback, useRef } from 'react'
-import type { SyncMessage } from './types'
+import { useEffect, useCallback, useRef } from "react";
+import type { SyncMessage } from "./types";
 
 interface UseViewportSyncOptions {
-  viewportId: string
-  onScroll?: (position: number, sourceId: string) => void
-  onNavigate?: (url: string, sourceId: string) => void
+  viewportId: string;
+  onScroll?: (position: number, sourceId: string) => void;
+  onNavigate?: (url: string, sourceId: string) => void;
 }
 
 export function useViewportSync(options: UseViewportSyncOptions) {
-  const { viewportId, onScroll, onNavigate } = options
-  const iframeRef = useRef<HTMLIFrameElement>(null)
-  const isReceivingSync = useRef(false)
+  const { viewportId, onScroll, onNavigate } = options;
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const isReceivingSync = useRef(false);
 
   // Handle messages from iframes
   useEffect(() => {
     const handleMessage = (event: MessageEvent<SyncMessage>) => {
-      if (!event.data?.type) return
-      
-      const sourceId = event.data.sourceId
-      if (sourceId === viewportId) return // Ignore own messages
+      const sourceId = event.data.sourceId;
+      if (sourceId === viewportId) return; // Ignore own messages
 
       switch (event.data.type) {
-        case 'SCROLL':
+        case "SCROLL":
           if (event.data.scrollY !== undefined && onScroll) {
-            onScroll(event.data.scrollY, sourceId || 'unknown')
+            onScroll(event.data.scrollY, sourceId ?? "unknown");
           }
-          break
-        case 'NAVIGATE':
+          break;
+        case "NAVIGATE":
           if (event.data.url && onNavigate) {
-            onNavigate(event.data.url, sourceId || 'unknown')
+            onNavigate(event.data.url, sourceId ?? "unknown");
           }
-          break
+          break;
       }
-    }
+    };
 
-    window.addEventListener('message', handleMessage)
-    return () => window.removeEventListener('message', handleMessage)
-  }, [viewportId, onScroll, onNavigate])
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [viewportId, onScroll, onNavigate]);
 
   // Send scroll position to other viewports
   const broadcastScroll = useCallback(
     (position: number) => {
-      if (isReceivingSync.current) return
-      
+      if (isReceivingSync.current) return;
+
       const message: SyncMessage = {
-        type: 'SCROLL',
+        type: "SCROLL",
         scrollY: position,
         sourceId: viewportId,
-      }
-      
+      };
+
       // Post to parent (main app)
-      window.parent?.postMessage(message, '*')
+      window.parent.postMessage(message, "*");
     },
-    [viewportId]
-  )
+    [viewportId],
+  );
 
   // Receive scroll commands
   const handleScrollCommand = useCallback((position: number) => {
-    const iframe = iframeRef.current
-    if (!iframe?.contentWindow) return
+    const iframe = iframeRef.current;
+    if (!iframe?.contentWindow) return;
 
-    isReceivingSync.current = true
+    isReceivingSync.current = true;
     iframe.contentWindow.postMessage(
-      { type: 'SCROLL_TO', scrollY: position },
-      '*'
-    )
-    
+      { type: "SCROLL_TO", scrollY: position },
+      "*",
+    );
+
     // Reset flag after a short delay
     setTimeout(() => {
-      isReceivingSync.current = false
-    }, 100)
-  }, [])
+      isReceivingSync.current = false;
+    }, 100);
+  }, []);
 
   return {
     iframeRef,
     broadcastScroll,
     handleScrollCommand,
-  }
+  };
 }
 
 // Script to inject into same-origin iframes for full sync support
@@ -124,4 +122,4 @@ export const SYNC_INJECTION_SCRIPT = `
   }, { passive: true });
 })();
 </script>
-`
+`;

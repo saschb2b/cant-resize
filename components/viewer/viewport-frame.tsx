@@ -5,7 +5,14 @@ import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import { X, RotateCcw, Maximize2, Loader2, AlertTriangle, Link2Off } from "lucide-react";
+import {
+  X,
+  RotateCcw,
+  Maximize2,
+  Loader2,
+  AlertTriangle,
+  Link2Off,
+} from "lucide-react";
 import { useViewer } from "./viewer-provider";
 import { getDeviceById } from "@/lib/viewer/device-presets";
 import type { Viewport } from "@/lib/viewer/types";
@@ -219,9 +226,13 @@ export function ViewportFrame({
 
   const isSelected = state.selectedViewportId === viewport.id;
 
-  useEffect(() => {
+  // Sync local size with viewport when not actively resizing
+  if (
+    !isResizing &&
+    (localSize.width !== viewport.width || localSize.height !== viewport.height)
+  ) {
     setLocalSize({ width: viewport.width, height: viewport.height });
-  }, [viewport.width, viewport.height]);
+  }
 
   const handleDragStart = useCallback(
     (e: React.PointerEvent) => {
@@ -240,7 +251,7 @@ export function ViewportFrame({
 
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
     },
-    [isGridMode, viewport.id, viewport.x, viewport.y, selectViewport]
+    [isGridMode, viewport.id, viewport.x, viewport.y, selectViewport],
   );
 
   const handleDragMove = useCallback(
@@ -260,7 +271,7 @@ export function ViewportFrame({
         },
       });
     },
-    [isDragging, state.canvasTransform.scale, viewport.id, dispatch]
+    [isDragging, state.canvasTransform.scale, viewport.id, dispatch],
   );
 
   const handleDragEnd = useCallback(() => {
@@ -283,7 +294,7 @@ export function ViewportFrame({
 
       (e.target as HTMLElement).setPointerCapture(e.pointerId);
     },
-    [viewport.id, localSize, selectViewport]
+    [viewport.id, localSize, selectViewport],
   );
 
   const handleResizeMove = useCallback(
@@ -299,7 +310,7 @@ export function ViewportFrame({
 
       setLocalSize({ width: newWidth, height: newHeight });
     },
-    [isResizing, state.canvasTransform.scale]
+    [isResizing, state.canvasTransform.scale],
   );
 
   const handleResizeEnd = useCallback(() => {
@@ -324,32 +335,50 @@ export function ViewportFrame({
   }, []);
 
   useEffect(() => {
-    const handleMessage = (e: MessageEvent) => {
-      if (e.data?.sourceId !== viewport.id) return;
+    interface SyncMessageData {
+      type?: string;
+      sourceId?: string;
+      scrollY?: number;
+      mouseX?: number;
+      mouseY?: number;
+      selector?: string;
+      url?: string;
+      sameOrigin?: boolean;
+    }
 
-      switch (e.data?.type) {
+    const handleMessage = (e: MessageEvent<SyncMessageData>) => {
+      const data = e.data;
+      if (data.sourceId !== viewport.id) return;
+
+      switch (data.type) {
         case "SCROLL":
-          broadcastScroll(e.data.scrollY, viewport.id);
+          if (data.scrollY != null) broadcastScroll(data.scrollY, viewport.id);
           break;
         case "MOUSE_MOVE":
-          broadcastMouse(e.data.mouseX, e.data.mouseY, viewport.id);
+          if (data.mouseX != null && data.mouseY != null)
+            broadcastMouse(data.mouseX, data.mouseY, viewport.id);
           break;
         case "CLICK":
-          broadcastClick(
-            e.data.mouseX,
-            e.data.mouseY,
-            e.data.selector,
-            viewport.id
-          );
+          if (
+            data.mouseX != null &&
+            data.mouseY != null &&
+            data.selector != null
+          )
+            broadcastClick(
+              data.mouseX,
+              data.mouseY,
+              data.selector,
+              viewport.id,
+            );
           break;
         case "HOVER":
-          broadcastHover(e.data.selector, viewport.id);
+          if (data.selector != null) broadcastHover(data.selector, viewport.id);
           break;
         case "NAVIGATE":
-          broadcastNavigation(e.data.url, viewport.id);
+          if (data.url != null) broadcastNavigation(data.url, viewport.id);
           break;
         case "VIEWPORT_READY":
-          setIsSyncEnabled(e.data.sameOrigin);
+          setIsSyncEnabled(data.sameOrigin ?? false);
           break;
       }
     };
@@ -371,7 +400,7 @@ export function ViewportFrame({
 
     iframe.contentWindow.postMessage(
       { type: "SCROLL_TO", scrollY: state.scrollPosition },
-      "*"
+      "*",
     );
   }, [state.scrollPosition]);
 
@@ -396,9 +425,7 @@ export function ViewportFrame({
         },
         isSelected && { boxShadow: 12, zIndex: 10 },
         isDragging && { cursor: "grabbing" },
-        isGridMode
-          ? { position: "relative" }
-          : { position: "absolute" },
+        isGridMode ? { position: "relative" } : { position: "absolute" },
       ]}
       style={
         isGridMode
@@ -450,7 +477,7 @@ export function ViewportFrame({
             noWrap
             color="text.primary"
           >
-            {device?.name || "Custom"}
+            {device?.name ?? "Custom"}
           </Typography>
           <Typography variant="caption" color="text.secondary">
             {Math.round(displayWidth)} x {Math.round(displayHeight)}
@@ -560,7 +587,7 @@ export function ViewportFrame({
           sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
           onLoad={handleIframeLoad}
           onError={handleIframeError}
-          title={device?.name || "Viewport"}
+          title={device?.name ?? "Viewport"}
         />
       </Box>
 

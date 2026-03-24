@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { useViewer } from "./viewer-provider";
 import { DevicePicker } from "./device-picker";
+import type { LayoutMode } from "@/lib/viewer/types";
 
 export function Toolbar() {
   const { state, setUrl, setLayoutMode, setCanvasTransform, setSyncSettings } =
@@ -38,7 +39,7 @@ export function Toolbar() {
   const [syncAnchorEl, setSyncAnchorEl] = useState<HTMLElement | null>(null);
 
   const handleUrlSubmit = useCallback(
-    (e: React.FormEvent) => {
+    (e: React.SyntheticEvent) => {
       e.preventDefault();
       let url = urlInput.trim();
 
@@ -49,26 +50,26 @@ export function Toolbar() {
 
       setUrl(url);
     },
-    [urlInput, setUrl]
+    [urlInput, setUrl],
   );
 
   const handleZoom = useCallback(
     (delta: number) => {
       const newScale = Math.min(
         2,
-        Math.max(0.1, state.canvasTransform.scale + delta)
+        Math.max(0.1, state.canvasTransform.scale + delta),
       );
       setCanvasTransform({ ...state.canvasTransform, scale: newScale });
     },
-    [state.canvasTransform, setCanvasTransform]
+    [state.canvasTransform, setCanvasTransform],
   );
 
   const handleZoomSlider = useCallback(
     (_: Event, value: number | number[]) => {
-      const scale = typeof value === "number" ? value : value[0];
+      const scale = typeof value === "number" ? value : (value[0] ?? 1);
       setCanvasTransform({ ...state.canvasTransform, scale });
     },
-    [state.canvasTransform, setCanvasTransform]
+    [state.canvasTransform, setCanvasTransform],
   );
 
   const handleFitToContent = useCallback(() => {
@@ -87,10 +88,7 @@ export function Toolbar() {
 
     const contentWidth = maxX - minX;
     const contentHeight = maxY - minY;
-    const scale = Math.min(
-      0.8,
-      800 / Math.max(contentWidth, contentHeight)
-    );
+    const scale = Math.min(0.8, 800 / Math.max(contentWidth, contentHeight));
 
     setCanvasTransform({
       x: -minX * scale + 50,
@@ -160,7 +158,7 @@ export function Toolbar() {
       <ToggleButtonGroup
         value={state.layoutMode}
         exclusive
-        onChange={(_, val) => val && setLayoutMode(val)}
+        onChange={(_, val: LayoutMode | null) => val && setLayoutMode(val)}
         size="small"
       >
         <ToggleButton value="freeform" sx={{ px: 1 }}>
@@ -190,7 +188,9 @@ export function Toolbar() {
             </IconButton>
           </Tooltip>
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, width: 140 }}>
+          <Box
+            sx={{ display: "flex", alignItems: "center", gap: 1, width: 140 }}
+          >
             <Slider
               value={state.canvasTransform.scale}
               onChange={handleZoomSlider}
@@ -200,7 +200,11 @@ export function Toolbar() {
               size="small"
               sx={{ width: 80 }}
             />
-            <Typography variant="caption" color="text.secondary" sx={{ width: 40, textAlign: "right" }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ width: 40, textAlign: "right" }}
+            >
               {Math.round(state.canvasTransform.scale * 100)}%
             </Typography>
           </Box>
@@ -246,7 +250,9 @@ export function Toolbar() {
                 <Switch
                   size="small"
                   checked={state.syncSettings.scroll}
-                  onChange={(e) => setSyncSettings({ scroll: e.target.checked })}
+                  onChange={(e) =>
+                    setSyncSettings({ scroll: e.target.checked })
+                  }
                 />
               }
               label={
@@ -329,7 +335,11 @@ export function Toolbar() {
               sx={{ mx: 0, justifyContent: "space-between" }}
             />
           </Box>
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: "block" }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ mt: 2, display: "block" }}
+          >
             Sync only works for same-origin sites (e.g., localhost).
           </Typography>
         </Box>

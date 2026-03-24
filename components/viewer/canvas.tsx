@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useViewer } from "./viewer-provider";
@@ -22,28 +21,6 @@ export function Canvas() {
     initialTransform: state.canvasTransform,
     onTransformChange: setCanvasTransform,
   });
-
-  const contentBounds = useMemo(() => {
-    if (state.viewports.length === 0) return null;
-
-    let minX = Infinity,
-      minY = Infinity,
-      maxX = -Infinity,
-      maxY = -Infinity;
-
-    state.viewports.forEach((v) => {
-      minX = Math.min(minX, v.x);
-      minY = Math.min(minY, v.y);
-      maxX = Math.max(maxX, v.x + v.width);
-      maxY = Math.max(maxY, v.y + v.height + 36);
-    });
-
-    return { minX, minY, maxX, maxY };
-  }, [state.viewports]);
-
-  const handleCanvasClick = useCallback((e: React.MouseEvent) => {
-    // Deselect handled by viewportFrame
-  }, []);
 
   if (state.layoutMode === "grid") {
     return (
@@ -104,21 +81,20 @@ export function Canvas() {
         backgroundColor: "var(--mui-palette-action-hover)",
         backgroundImage:
           "radial-gradient(circle at 1px 1px, var(--mui-palette-divider) 1px, transparent 0)",
-        backgroundSize: `${20 * transform.scale}px ${20 * transform.scale}px`,
-        backgroundPosition: `${transform.x}px ${transform.y}px`,
+        backgroundSize: `${String(20 * transform.scale)}px ${String(20 * transform.scale)}px`,
+        backgroundPosition: `${String(transform.x)}px ${String(transform.y)}px`,
       }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
-      onClick={handleCanvasClick}
     >
       {/* Transformed canvas content */}
       <Box
         data-canvas-background
         sx={{ position: "absolute", transformOrigin: "top left" }}
         style={{
-          transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
+          transform: `translate(${String(transform.x)}px, ${String(transform.y)}px) scale(${String(transform.scale)})`,
           width: "10000px",
           height: "10000px",
         }}
