@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import { useRef, useState, useCallback, useEffect } from 'react'
-import { X, RotateCcw, Maximize2, Loader2, AlertTriangle, Link2Off } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { useViewer } from './viewer-provider'
-import { getDeviceById } from '@/lib/viewer/device-presets'
-import type { Viewport } from '@/lib/viewer/types'
+import { useRef, useState, useCallback, useEffect } from "react";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import Typography from "@mui/material/Typography";
+import { X, RotateCcw, Maximize2, Loader2, AlertTriangle, Link2Off } from "lucide-react";
+import { useViewer } from "./viewer-provider";
+import { getDeviceById } from "@/lib/viewer/device-presets";
+import type { Viewport } from "@/lib/viewer/types";
 
-// Generate the HTML wrapper with full sync script
 function createSyncedIframeHtml(url: string, viewportId: string): string {
   return `<!DOCTYPE html>
 <html style="height:100%;margin:0;padding:0;">
@@ -75,14 +75,13 @@ function createSyncedIframeHtml(url: string, viewportId: string): string {
       function findElement(selector) {
         try { return innerDoc.querySelector(selector); } catch { return null; }
       }
-      
+
       inner.addEventListener('load', function() {
         try {
           innerWindow = inner.contentWindow;
           innerDoc = inner.contentDocument || inner.contentWindow.document;
           isSameOrigin = true;
-          
-          // Scroll sync
+
           innerWindow.addEventListener('scroll', function() {
             if (isReceiving) return;
             const maxScroll = Math.max(1, innerDoc.documentElement.scrollHeight - innerWindow.innerHeight);
@@ -93,7 +92,6 @@ function createSyncedIframeHtml(url: string, viewportId: string): string {
             }
           }, { passive: true });
 
-          // Mouse move sync
           innerDoc.addEventListener('mousemove', function(e) {
             if (isReceiving) return;
             const x = e.clientX / innerWindow.innerWidth;
@@ -101,7 +99,6 @@ function createSyncedIframeHtml(url: string, viewportId: string): string {
             window.parent.postMessage({ type: 'MOUSE_MOVE', mouseX: x, mouseY: y, sourceId: viewportId }, '*');
           }, { passive: true });
 
-          // Click sync
           innerDoc.addEventListener('click', function(e) {
             if (isReceiving) return;
             const x = e.clientX / innerWindow.innerWidth;
@@ -110,37 +107,29 @@ function createSyncedIframeHtml(url: string, viewportId: string): string {
             window.parent.postMessage({ type: 'CLICK', mouseX: x, mouseY: y, selector, sourceId: viewportId }, '*');
           }, { passive: true });
 
-          // Hover sync
           innerDoc.addEventListener('mouseover', function(e) {
             if (isReceiving) return;
             const selector = getUniqueSelector(e.target);
             window.parent.postMessage({ type: 'HOVER', selector, sourceId: viewportId }, '*');
           }, { passive: true });
 
-          // Navigation sync - check for URL changes periodically
           let lastUrl = innerWindow.location.href;
-          console.log('[v0] Viewport ' + viewportId + ' initial URL:', lastUrl);
           const checkNav = setInterval(function() {
             try {
               const currentUrl = innerWindow.location.href;
               if (currentUrl !== lastUrl) {
-                console.log('[v0] Viewport ' + viewportId + ' URL changed:', lastUrl, '->', currentUrl);
                 lastUrl = currentUrl;
                 window.parent.postMessage({ type: 'NAVIGATE', url: currentUrl, sourceId: viewportId }, '*');
               }
-            } catch (e) {
-              // Cross-origin navigation - can't read URL anymore
-              console.log('[v0] Viewport ' + viewportId + ' cross-origin navigation detected');
-            }
+            } catch (e) {}
           }, 500);
-          
+
           window.parent.postMessage({ type: 'VIEWPORT_READY', sourceId: viewportId, sameOrigin: true }, '*');
         } catch (e) {
           window.parent.postMessage({ type: 'VIEWPORT_READY', sourceId: viewportId, sameOrigin: false }, '*');
         }
       });
-      
-      // Handle incoming sync commands
+
       window.addEventListener('message', function(e) {
         if (!e.data?.type || !isSameOrigin) return;
         isReceiving = true;
@@ -179,7 +168,6 @@ function createSyncedIframeHtml(url: string, viewportId: string): string {
         }
 
         if (e.data.type === 'NAVIGATE' && e.data.url) {
-          console.log('[v0] Viewport ' + viewportId + ' receiving NAVIGATE to:', e.data.url);
           inner.src = e.data.url;
         }
 
@@ -188,278 +176,369 @@ function createSyncedIframeHtml(url: string, viewportId: string): string {
     })();
   </script>
 </body>
-</html>`
+</html>`;
 }
 
 interface ViewportFrameProps {
-  viewport: Viewport
-  isGridMode?: boolean
+  viewport: Viewport;
+  isGridMode?: boolean;
 }
 
-export function ViewportFrame({ viewport, isGridMode = false }: ViewportFrameProps) {
-  const { state, removeViewport, toggleOrientation, selectViewport, dispatch, broadcastScroll, broadcastMouse, broadcastClick, broadcastHover, broadcastNavigation } = useViewer()
-  const device = getDeviceById(viewport.deviceId)
-  const frameRef = useRef<HTMLDivElement>(null)
-  const iframeRef = useRef<HTMLIFrameElement>(null)
-  
-  const [isDragging, setIsDragging] = useState(false)
-  const [isResizing, setIsResizing] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [hasError, setHasError] = useState(false)
-  const [isSyncEnabled, setIsSyncEnabled] = useState<boolean | null>(null)
-  const [localSize, setLocalSize] = useState({ width: viewport.width, height: viewport.height })
-  
-  const dragStart = useRef({ x: 0, y: 0, viewportX: 0, viewportY: 0 })
-  const resizeStart = useRef({ x: 0, y: 0, width: 0, height: 0 })
+export function ViewportFrame({
+  viewport,
+  isGridMode = false,
+}: ViewportFrameProps) {
+  const {
+    state,
+    removeViewport,
+    toggleOrientation,
+    selectViewport,
+    dispatch,
+    broadcastScroll,
+    broadcastMouse,
+    broadcastClick,
+    broadcastHover,
+    broadcastNavigation,
+  } = useViewer();
+  const device = getDeviceById(viewport.deviceId);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const isSelected = state.selectedViewportId === viewport.id
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [isSyncEnabled, setIsSyncEnabled] = useState<boolean | null>(null);
+  const [localSize, setLocalSize] = useState({
+    width: viewport.width,
+    height: viewport.height,
+  });
 
-  // Sync local size with viewport
+  const dragStart = useRef({ x: 0, y: 0, viewportX: 0, viewportY: 0 });
+  const resizeStart = useRef({ x: 0, y: 0, width: 0, height: 0 });
+
+  const isSelected = state.selectedViewportId === viewport.id;
+
   useEffect(() => {
-    setLocalSize({ width: viewport.width, height: viewport.height })
-  }, [viewport.width, viewport.height])
+    setLocalSize({ width: viewport.width, height: viewport.height });
+  }, [viewport.width, viewport.height]);
 
-  // Handle drag start
-  const handleDragStart = useCallback((e: React.PointerEvent) => {
-    if (isGridMode) return
-    e.preventDefault()
-    e.stopPropagation()
-    
-    setIsDragging(true)
-    selectViewport(viewport.id)
-    dragStart.current = {
-      x: e.clientX,
-      y: e.clientY,
-      viewportX: viewport.x,
-      viewportY: viewport.y,
-    }
-    
-    ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
-  }, [isGridMode, viewport.id, viewport.x, viewport.y, selectViewport])
+  const handleDragStart = useCallback(
+    (e: React.PointerEvent) => {
+      if (isGridMode) return;
+      e.preventDefault();
+      e.stopPropagation();
 
-  // Handle drag move
-  const handleDragMove = useCallback((e: React.PointerEvent) => {
-    if (!isDragging) return
-    
-    const scale = state.canvasTransform.scale
-    const deltaX = (e.clientX - dragStart.current.x) / scale
-    const deltaY = (e.clientY - dragStart.current.y) / scale
-    
-    dispatch({
-      type: 'UPDATE_VIEWPORT',
-      id: viewport.id,
-      updates: {
-        x: dragStart.current.viewportX + deltaX,
-        y: dragStart.current.viewportY + deltaY,
-      },
-    })
-  }, [isDragging, state.canvasTransform.scale, viewport.id, dispatch])
+      setIsDragging(true);
+      selectViewport(viewport.id);
+      dragStart.current = {
+        x: e.clientX,
+        y: e.clientY,
+        viewportX: viewport.x,
+        viewportY: viewport.y,
+      };
 
-  // Handle drag end
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    },
+    [isGridMode, viewport.id, viewport.x, viewport.y, selectViewport]
+  );
+
+  const handleDragMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!isDragging) return;
+
+      const scale = state.canvasTransform.scale;
+      const deltaX = (e.clientX - dragStart.current.x) / scale;
+      const deltaY = (e.clientY - dragStart.current.y) / scale;
+
+      dispatch({
+        type: "UPDATE_VIEWPORT",
+        id: viewport.id,
+        updates: {
+          x: dragStart.current.viewportX + deltaX,
+          y: dragStart.current.viewportY + deltaY,
+        },
+      });
+    },
+    [isDragging, state.canvasTransform.scale, viewport.id, dispatch]
+  );
+
   const handleDragEnd = useCallback(() => {
-    setIsDragging(false)
-  }, [])
+    setIsDragging(false);
+  }, []);
 
-  // Handle resize start
-  const handleResizeStart = useCallback((e: React.PointerEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    
-    setIsResizing(true)
-    selectViewport(viewport.id)
-    resizeStart.current = {
-      x: e.clientX,
-      y: e.clientY,
-      width: localSize.width,
-      height: localSize.height,
-    }
-    
-    ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
-  }, [viewport.id, localSize, selectViewport])
+  const handleResizeStart = useCallback(
+    (e: React.PointerEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
 
-  // Handle resize move
-  const handleResizeMove = useCallback((e: React.PointerEvent) => {
-    if (!isResizing) return
-    
-    const scale = state.canvasTransform.scale
-    const deltaX = (e.clientX - resizeStart.current.x) / scale
-    const deltaY = (e.clientY - resizeStart.current.y) / scale
-    
-    const newWidth = Math.max(200, resizeStart.current.width + deltaX)
-    const newHeight = Math.max(200, resizeStart.current.height + deltaY)
-    
-    setLocalSize({ width: newWidth, height: newHeight })
-  }, [isResizing, state.canvasTransform.scale])
+      setIsResizing(true);
+      selectViewport(viewport.id);
+      resizeStart.current = {
+        x: e.clientX,
+        y: e.clientY,
+        width: localSize.width,
+        height: localSize.height,
+      };
 
-  // Handle resize end
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    },
+    [viewport.id, localSize, selectViewport]
+  );
+
+  const handleResizeMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!isResizing) return;
+
+      const scale = state.canvasTransform.scale;
+      const deltaX = (e.clientX - resizeStart.current.x) / scale;
+      const deltaY = (e.clientY - resizeStart.current.y) / scale;
+
+      const newWidth = Math.max(200, resizeStart.current.width + deltaX);
+      const newHeight = Math.max(200, resizeStart.current.height + deltaY);
+
+      setLocalSize({ width: newWidth, height: newHeight });
+    },
+    [isResizing, state.canvasTransform.scale]
+  );
+
   const handleResizeEnd = useCallback(() => {
     if (isResizing) {
       dispatch({
-        type: 'UPDATE_VIEWPORT',
+        type: "UPDATE_VIEWPORT",
         id: viewport.id,
         updates: { width: localSize.width, height: localSize.height },
-      })
+      });
     }
-    setIsResizing(false)
-  }, [isResizing, viewport.id, localSize, dispatch])
+    setIsResizing(false);
+  }, [isResizing, viewport.id, localSize, dispatch]);
 
-  // Handle iframe load
   const handleIframeLoad = useCallback(() => {
-    setIsLoading(false)
-    setHasError(false)
-  }, [])
+    setIsLoading(false);
+    setHasError(false);
+  }, []);
 
-  // Handle iframe error
   const handleIframeError = useCallback(() => {
-    setIsLoading(false)
-    setHasError(true)
-  }, [])
+    setIsLoading(false);
+    setHasError(true);
+  }, []);
 
-  // Listen for messages from iframe (all sync events)
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
-      if (e.data?.sourceId !== viewport.id) return
-      
+      if (e.data?.sourceId !== viewport.id) return;
+
       switch (e.data?.type) {
-        case 'SCROLL':
-          broadcastScroll(e.data.scrollY, viewport.id)
-          break
-        case 'MOUSE_MOVE':
-          broadcastMouse(e.data.mouseX, e.data.mouseY, viewport.id)
-          break
-        case 'CLICK':
-          broadcastClick(e.data.mouseX, e.data.mouseY, e.data.selector, viewport.id)
-          break
-        case 'HOVER':
-          broadcastHover(e.data.selector, viewport.id)
-          break
-        case 'NAVIGATE':
-          console.log('[v0] NAVIGATE received from viewport', viewport.id, 'url:', e.data.url)
-          broadcastNavigation(e.data.url, viewport.id)
-          break
-        case 'VIEWPORT_READY':
-          setIsSyncEnabled(e.data.sameOrigin)
-          break
+        case "SCROLL":
+          broadcastScroll(e.data.scrollY, viewport.id);
+          break;
+        case "MOUSE_MOVE":
+          broadcastMouse(e.data.mouseX, e.data.mouseY, viewport.id);
+          break;
+        case "CLICK":
+          broadcastClick(
+            e.data.mouseX,
+            e.data.mouseY,
+            e.data.selector,
+            viewport.id
+          );
+          break;
+        case "HOVER":
+          broadcastHover(e.data.selector, viewport.id);
+          break;
+        case "NAVIGATE":
+          broadcastNavigation(e.data.url, viewport.id);
+          break;
+        case "VIEWPORT_READY":
+          setIsSyncEnabled(e.data.sameOrigin);
+          break;
       }
-    }
-    
-    window.addEventListener('message', handleMessage)
-    return () => window.removeEventListener('message', handleMessage)
-  }, [viewport.id, broadcastScroll, broadcastMouse, broadcastClick, broadcastHover, broadcastNavigation])
+    };
 
-  // Receive scroll sync
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [
+    viewport.id,
+    broadcastScroll,
+    broadcastMouse,
+    broadcastClick,
+    broadcastHover,
+    broadcastNavigation,
+  ]);
+
   useEffect(() => {
-    const iframe = iframeRef.current
-    if (!iframe?.contentWindow) return
-    
-    // When scrollPosition changes from another viewport, sync this one
-    iframe.contentWindow.postMessage(
-      { type: 'SCROLL_TO', scrollY: state.scrollPosition },
-      '*'
-    )
-  }, [state.scrollPosition])
+    const iframe = iframeRef.current;
+    if (!iframe?.contentWindow) return;
 
-  const displayWidth = isResizing ? localSize.width : viewport.width
-  const displayHeight = isResizing ? localSize.height : viewport.height
+    iframe.contentWindow.postMessage(
+      { type: "SCROLL_TO", scrollY: state.scrollPosition },
+      "*"
+    );
+  }, [state.scrollPosition]);
+
+  const displayWidth = isResizing ? localSize.width : viewport.width;
+  const displayHeight = isResizing ? localSize.height : viewport.height;
 
   return (
-    <div
+    <Box
       ref={frameRef}
-      className={cn(
-        'absolute flex flex-col bg-card rounded-xl overflow-hidden shadow-xl border-2 transition-shadow',
-        isSelected ? 'border-primary shadow-2xl z-10' : 'border-border',
-        isDragging && 'cursor-grabbing',
-        isGridMode && 'relative'
-      )}
+      onClick={() => selectViewport(viewport.id)}
+      sx={[
+        {
+          display: "flex",
+          flexDirection: "column",
+          bgcolor: "background.paper",
+          borderRadius: 3,
+          overflow: "hidden",
+          boxShadow: 6,
+          border: 2,
+          borderColor: isSelected ? "primary.main" : "divider",
+          transition: "box-shadow 0.2s",
+        },
+        isSelected && { boxShadow: 12, zIndex: 10 },
+        isDragging && { cursor: "grabbing" },
+        isGridMode
+          ? { position: "relative" }
+          : { position: "absolute" },
+      ]}
       style={
         isGridMode
-          ? { width: displayWidth * 0.3, height: displayHeight * 0.3 + 36 }
+          ? {
+              width: displayWidth * 0.3,
+              height: displayHeight * 0.3 + 36,
+            }
           : {
               left: viewport.x,
               top: viewport.y,
               width: displayWidth,
-              height: displayHeight + 36, // Header height
+              height: displayHeight + 36,
             }
       }
-      onClick={() => selectViewport(viewport.id)}
     >
       {/* Header */}
-      <div
-        className={cn(
-          'flex items-center justify-between h-9 px-3 bg-muted/80 backdrop-blur-sm border-b border-border select-none',
-          !isGridMode && 'cursor-grab'
-        )}
+      <Box
         onPointerDown={handleDragStart}
         onPointerMove={handleDragMove}
         onPointerUp={handleDragEnd}
         onPointerCancel={handleDragEnd}
+        sx={[
+          {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            height: 36,
+            px: 1.5,
+            bgcolor: "action.hover",
+            backdropFilter: "blur(8px)",
+            borderBottom: 1,
+            borderColor: "divider",
+            userSelect: "none",
+          },
+          !isGridMode && { cursor: "grab" },
+        ]}
       >
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-xs font-medium text-foreground truncate">
-            {device?.name || 'Custom'}
-          </span>
-          <span className="text-xs text-muted-foreground">
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            minWidth: 0,
+          }}
+        >
+          <Typography
+            variant="caption"
+            fontWeight={500}
+            noWrap
+            color="text.primary"
+          >
+            {device?.name || "Custom"}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
             {Math.round(displayWidth)} x {Math.round(displayHeight)}
-          </span>
+          </Typography>
           {isSyncEnabled === false && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Link2Off className="h-3 w-3 text-amber-500" />
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="max-w-xs">
-                  <p className="text-xs">Scroll sync unavailable for cross-origin sites. Use localhost for full sync.</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Tooltip title="Scroll sync unavailable for cross-origin sites. Use localhost for full sync.">
+              <Link2Off size={12} color="#f59e0b" />
+            </Tooltip>
           )}
-        </div>
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6"
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <IconButton
+            size="small"
             onClick={(e) => {
-              e.stopPropagation()
-              toggleOrientation(viewport.id)
+              e.stopPropagation();
+              toggleOrientation(viewport.id);
             }}
             title="Toggle orientation"
+            sx={{ width: 24, height: 24 }}
           >
-            <RotateCcw className="h-3 w-3" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 text-destructive hover:text-destructive"
+            <RotateCcw size={12} />
+          </IconButton>
+          <IconButton
+            size="small"
             onClick={(e) => {
-              e.stopPropagation()
-              removeViewport(viewport.id)
+              e.stopPropagation();
+              removeViewport(viewport.id);
             }}
             title="Remove device"
+            sx={{ width: 24, height: 24, color: "error.main" }}
           >
-            <X className="h-3 w-3" />
-          </Button>
-        </div>
-      </div>
+            <X size={12} />
+          </IconButton>
+        </Box>
+      </Box>
 
       {/* Iframe container */}
-      <div className="relative flex-1 bg-background overflow-hidden">
+      <Box
+        sx={{
+          position: "relative",
+          flex: 1,
+          bgcolor: "background.default",
+          overflow: "hidden",
+        }}
+      >
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-muted/50 z-10">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          </div>
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              bgcolor: "rgba(0,0,0,0.05)",
+              zIndex: 10,
+            }}
+          >
+            <Loader2
+              size={24}
+              style={{ animation: "spin 1s linear infinite" }}
+            />
+            <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+          </Box>
         )}
-        
+
         {hasError && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-muted/50 z-10 p-4 text-center">
-            <AlertTriangle className="h-8 w-8 text-destructive mb-2" />
-            <p className="text-sm text-muted-foreground">
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              bgcolor: "rgba(0,0,0,0.05)",
+              zIndex: 10,
+              p: 2,
+              textAlign: "center",
+            }}
+          >
+            <AlertTriangle size={32} color="#dc2626" />
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
               This site cannot be displayed in an iframe
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
               (X-Frame-Options restriction)
-            </p>
-          </div>
+            </Typography>
+          </Box>
         )}
 
         <iframe
@@ -467,41 +546,48 @@ export function ViewportFrame({ viewport, isGridMode = false }: ViewportFramePro
           data-viewport-iframe
           data-viewport-id={viewport.id}
           srcDoc={createSyncedIframeHtml(state.url, viewport.id)}
-          className="w-full h-full border-0"
-          style={
-            isGridMode
+          style={{
+            width: isGridMode ? displayWidth : "100%",
+            height: isGridMode ? displayHeight : "100%",
+            border: "none",
+            ...(isGridMode
               ? {
-                  width: displayWidth,
-                  height: displayHeight,
-                  transform: 'scale(0.3)',
-                  transformOrigin: 'top left',
+                  transform: "scale(0.3)",
+                  transformOrigin: "top left",
                 }
-              : undefined
-          }
+              : {}),
+          }}
           sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
           onLoad={handleIframeLoad}
           onError={handleIframeError}
-          title={device?.name || 'Viewport'}
+          title={device?.name || "Viewport"}
         />
-      </div>
+      </Box>
 
       {/* Resize handle */}
       {!isGridMode && (
-        <div
-          className={cn(
-            'absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-20',
-            'after:absolute after:bottom-1 after:right-1 after:w-2 after:h-2',
-            'after:border-r-2 after:border-b-2 after:border-muted-foreground/50',
-            'hover:after:border-foreground'
-          )}
+        <Box
           onPointerDown={handleResizeStart}
           onPointerMove={handleResizeMove}
           onPointerUp={handleResizeEnd}
           onPointerCancel={handleResizeEnd}
+          sx={{
+            position: "absolute",
+            bottom: 0,
+            right: 0,
+            width: 16,
+            height: 16,
+            cursor: "se-resize",
+            zIndex: 20,
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "flex-end",
+            p: 0.25,
+          }}
         >
-          <Maximize2 className="h-3 w-3 absolute bottom-0.5 right-0.5 text-muted-foreground/50" />
-        </div>
+          <Maximize2 size={12} style={{ opacity: 0.5 }} />
+        </Box>
       )}
-    </div>
-  )
+    </Box>
+  );
 }

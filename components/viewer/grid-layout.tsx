@@ -1,24 +1,45 @@
-'use client'
+"use client";
 
-import { useViewer } from './viewer-provider'
-import { ViewportFrame } from './viewport-frame'
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import { useViewer } from "./viewer-provider";
+import { ViewportFrame } from "./viewport-frame";
 
 export function GridLayout() {
-  const { state } = useViewer()
+  const { state } = useViewer();
 
   return (
-    <div className="flex-1 overflow-auto p-6 bg-muted/30">
-      <div className="flex flex-wrap gap-6 justify-center items-start">
+    <Box sx={{ flex: 1, overflow: "auto", p: 3, bgcolor: "action.hover" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 3,
+          justifyContent: "center",
+          alignItems: "flex-start",
+        }}
+      >
         {state.viewports.map((viewport) => (
           <ViewportFrame key={viewport.id} viewport={viewport} isGridMode />
         ))}
         {state.viewports.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
-            <p className="text-lg font-medium">No devices added</p>
-            <p className="text-sm">Click &quot;Add Device&quot; to get started</p>
-          </div>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              height: 256,
+              color: "text.secondary",
+            }}
+          >
+            <Typography variant="h6">No devices added</Typography>
+            <Typography variant="body2">
+              Click &quot;Add Device&quot; to get started
+            </Typography>
+          </Box>
         )}
-      </div>
-    </div>
-  )
+      </Box>
+    </Box>
+  );
 }

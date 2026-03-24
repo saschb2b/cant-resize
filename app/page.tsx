@@ -1,16 +1,24 @@
-'use client'
+"use client";
 
-import { ViewerProvider } from '@/components/viewer/viewer-provider'
-import { Toolbar } from '@/components/viewer/toolbar'
-import { Canvas } from '@/components/viewer/canvas'
+import Box from "@mui/material/Box";
+import { ViewerProvider } from "@/components/viewer/viewer-provider";
+import { Toolbar } from "@/components/viewer/toolbar";
+import { Canvas } from "@/components/viewer/canvas";
 
 export default function ResponsiveViewerPage() {
   return (
     <ViewerProvider>
-      <div className="flex flex-col h-screen bg-background">
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          bgcolor: "background.default",
+        }}
+      >
         <Toolbar />
         <Canvas />
-      </div>
+      </Box>
     </ViewerProvider>
-  )
+  );
 }

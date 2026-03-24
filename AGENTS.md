@@ -53,6 +53,6 @@ Modify `components/viewer/viewport-frame.tsx` - handles drag, resize, iframe loa
 ## Tech Stack
 - Next.js 16 (App Router)
 - React 19
-- Tailwind CSS 4
-- shadcn/ui components
+- Material UI 7 + Emotion (CSS-in-JS)
+- Lucide React icons
 - No external drag/drop libraries - native pointer events

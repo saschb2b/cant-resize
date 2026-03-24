@@ -1,6 +1,19 @@
-'use client'
+"use client";
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import TextField from "@mui/material/TextField";
+import Tooltip from "@mui/material/Tooltip";
+import Popover from "@mui/material/Popover";
+import Switch from "@mui/material/Switch";
+import Slider from "@mui/material/Slider";
+import Typography from "@mui/material/Typography";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Divider from "@mui/material/Divider";
 import {
   LayoutGrid,
   Move,
@@ -14,326 +27,322 @@ import {
   Hand,
   Navigation,
   ArrowUpDown,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Toggle } from '@/components/ui/toggle'
-import { Slider } from '@/components/ui/slider'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { useViewer } from './viewer-provider'
-import { DevicePicker } from './device-picker'
+} from "lucide-react";
+import { useViewer } from "./viewer-provider";
+import { DevicePicker } from "./device-picker";
 
 export function Toolbar() {
-  const { state, setUrl, setLayoutMode, setCanvasTransform, setSyncSettings } = useViewer()
-  const [urlInput, setUrlInput] = useState(state.url)
+  const { state, setUrl, setLayoutMode, setCanvasTransform, setSyncSettings } =
+    useViewer();
+  const [urlInput, setUrlInput] = useState(state.url);
+  const [syncAnchorEl, setSyncAnchorEl] = useState<HTMLElement | null>(null);
 
   const handleUrlSubmit = useCallback(
     (e: React.FormEvent) => {
-      e.preventDefault()
-      let url = urlInput.trim()
-      
-      // Add protocol if missing
-      if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
-        url = 'https://' + url
-        setUrlInput(url)
+      e.preventDefault();
+      let url = urlInput.trim();
+
+      if (url && !url.startsWith("http://") && !url.startsWith("https://")) {
+        url = "https://" + url;
+        setUrlInput(url);
       }
-      
-      setUrl(url)
+
+      setUrl(url);
     },
     [urlInput, setUrl]
-  )
+  );
 
   const handleZoom = useCallback(
     (delta: number) => {
-      const newScale = Math.min(2, Math.max(0.1, state.canvasTransform.scale + delta))
-      setCanvasTransform({ ...state.canvasTransform, scale: newScale })
+      const newScale = Math.min(
+        2,
+        Math.max(0.1, state.canvasTransform.scale + delta)
+      );
+      setCanvasTransform({ ...state.canvasTransform, scale: newScale });
     },
     [state.canvasTransform, setCanvasTransform]
-  )
+  );
 
   const handleZoomSlider = useCallback(
-    (value: number[]) => {
-      setCanvasTransform({ ...state.canvasTransform, scale: value[0] })
+    (_: Event, value: number | number[]) => {
+      const scale = typeof value === "number" ? value : value[0];
+      setCanvasTransform({ ...state.canvasTransform, scale });
     },
     [state.canvasTransform, setCanvasTransform]
-  )
+  );
 
   const handleFitToContent = useCallback(() => {
-    // Calculate bounds of all viewports
-    if (state.viewports.length === 0) return
+    if (state.viewports.length === 0) return;
 
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+    let minX = Infinity,
+      minY = Infinity,
+      maxX = -Infinity,
+      maxY = -Infinity;
     state.viewports.forEach((v) => {
-      minX = Math.min(minX, v.x)
-      minY = Math.min(minY, v.y)
-      maxX = Math.max(maxX, v.x + v.width)
-      maxY = Math.max(maxY, v.y + v.height)
-    })
+      minX = Math.min(minX, v.x);
+      minY = Math.min(minY, v.y);
+      maxX = Math.max(maxX, v.x + v.width);
+      maxY = Math.max(maxY, v.y + v.height);
+    });
 
-    // This is a simplified fit - in reality we'd need canvas dimensions
-    const contentWidth = maxX - minX
-    const contentHeight = maxY - minY
-    const scale = Math.min(0.8, 800 / Math.max(contentWidth, contentHeight))
-    
+    const contentWidth = maxX - minX;
+    const contentHeight = maxY - minY;
+    const scale = Math.min(
+      0.8,
+      800 / Math.max(contentWidth, contentHeight)
+    );
+
     setCanvasTransform({
       x: -minX * scale + 50,
       y: -minY * scale + 50,
       scale,
-    })
-  }, [state.viewports, setCanvasTransform])
+    });
+  }, [state.viewports, setCanvasTransform]);
 
   const handleRefresh = useCallback(() => {
-    // Force refresh all iframes by toggling URL
-    const currentUrl = state.url
-    setUrl('')
-    setTimeout(() => setUrl(currentUrl), 50)
-  }, [state.url, setUrl])
+    const currentUrl = state.url;
+    setUrl("");
+    setTimeout(() => setUrl(currentUrl), 50);
+  }, [state.url, setUrl]);
 
   const openInNewTab = useCallback(() => {
     if (state.url) {
-      window.open(state.url, '_blank')
+      window.open(state.url, "_blank");
     }
-  }, [state.url])
+  }, [state.url]);
 
   return (
-    <TooltipProvider>
-      <div className="flex items-center gap-4 px-4 py-2 border-b border-border bg-background">
-        {/* URL Input */}
-        <form onSubmit={handleUrlSubmit} className="flex-1 flex gap-2 max-w-xl">
-          <Input
-            type="url"
-            placeholder="Enter URL to preview..."
-            value={urlInput}
-            onChange={(e) => setUrlInput(e.target.value)}
-            className="h-9"
-          />
-          <Button type="submit" variant="secondary" size="sm">
-            Go
-          </Button>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9"
-                onClick={openInNewTab}
-              >
-                <ExternalLink className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Open in new tab</TooltipContent>
-          </Tooltip>
-        </form>
-
-        {/* Divider */}
-        <div className="h-6 w-px bg-border" />
-
-        {/* Device Picker */}
-        <DevicePicker />
-
-        {/* Divider */}
-        <div className="h-6 w-px bg-border" />
-
-        {/* Layout Toggle */}
-        <div className="flex items-center gap-1 bg-muted rounded-md p-1">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Toggle
-                pressed={state.layoutMode === 'freeform'}
-                onPressedChange={() => setLayoutMode('freeform')}
-                size="sm"
-                className="h-7 w-7 p-0"
-              >
-                <Move className="h-4 w-4" />
-              </Toggle>
-            </TooltipTrigger>
-            <TooltipContent>Freeform canvas</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Toggle
-                pressed={state.layoutMode === 'grid'}
-                onPressedChange={() => setLayoutMode('grid')}
-                size="sm"
-                className="h-7 w-7 p-0"
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </Toggle>
-            </TooltipTrigger>
-            <TooltipContent>Grid layout</TooltipContent>
-          </Tooltip>
-        </div>
-
-        {/* Divider */}
-        <div className="h-6 w-px bg-border" />
-
-        {/* Zoom Controls - only in freeform mode */}
-        {state.layoutMode === 'freeform' && (
-          <div className="flex items-center gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => handleZoom(-0.1)}
-                >
-                  <ZoomOut className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Zoom out</TooltipContent>
-            </Tooltip>
-            
-            <div className="flex items-center gap-2 w-32">
-              <Slider
-                value={[state.canvasTransform.scale]}
-                onValueChange={handleZoomSlider}
-                min={0.1}
-                max={2}
-                step={0.05}
-                className="w-20"
-              />
-              <span className="text-xs text-muted-foreground w-10 text-right">
-                {Math.round(state.canvasTransform.scale * 100)}%
-              </span>
-            </div>
-            
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => handleZoom(0.1)}
-                >
-                  <ZoomIn className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Zoom in</TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={handleFitToContent}
-                >
-                  <Maximize className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Fit to content</TooltipContent>
-            </Tooltip>
-          </div>
-        )}
-
-        {/* Sync Settings */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 gap-2">
-              <Link2 className="h-4 w-4" />
-              <span className="text-xs">Sync</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-56" align="end">
-            <div className="space-y-4">
-              <h4 className="font-medium text-sm">Sync Events</h4>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="sync-scroll" className="flex items-center gap-2 text-sm">
-                    <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-                    Scroll
-                  </Label>
-                  <Switch
-                    id="sync-scroll"
-                    checked={state.syncSettings.scroll}
-                    onCheckedChange={(v) => setSyncSettings({ scroll: v })}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="sync-mouse" className="flex items-center gap-2 text-sm">
-                    <MousePointer2 className="h-3.5 w-3.5 text-muted-foreground" />
-                    Mouse
-                  </Label>
-                  <Switch
-                    id="sync-mouse"
-                    checked={state.syncSettings.mouse}
-                    onCheckedChange={(v) => setSyncSettings({ mouse: v })}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="sync-click" className="flex items-center gap-2 text-sm">
-                    <Hand className="h-3.5 w-3.5 text-muted-foreground" />
-                    Click
-                  </Label>
-                  <Switch
-                    id="sync-click"
-                    checked={state.syncSettings.click}
-                    onCheckedChange={(v) => setSyncSettings({ click: v })}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="sync-hover" className="flex items-center gap-2 text-sm">
-                    <MousePointer2 className="h-3.5 w-3.5 text-muted-foreground" />
-                    Hover
-                  </Label>
-                  <Switch
-                    id="sync-hover"
-                    checked={state.syncSettings.hover}
-                    onCheckedChange={(v) => setSyncSettings({ hover: v })}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="sync-nav" className="flex items-center gap-2 text-sm">
-                    <Navigation className="h-3.5 w-3.5 text-muted-foreground" />
-                    Navigation
-                  </Label>
-                  <Switch
-                    id="sync-nav"
-                    checked={state.syncSettings.navigation}
-                    onCheckedChange={(v) => setSyncSettings({ navigation: v })}
-                  />
-                </div>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Sync only works for same-origin sites (e.g., localhost).
-              </p>
-            </div>
-          </PopoverContent>
-        </Popover>
-
-        {/* Divider */}
-        <div className="h-6 w-px bg-border" />
-
-        {/* Refresh */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={handleRefresh}
-            >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Refresh all viewports</TooltipContent>
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 2,
+        px: 2,
+        py: 1,
+        borderBottom: 1,
+        borderColor: "divider",
+        bgcolor: "background.paper",
+      }}
+    >
+      {/* URL Input */}
+      <Box
+        component="form"
+        onSubmit={handleUrlSubmit}
+        sx={{ flex: 1, display: "flex", gap: 1, maxWidth: 560 }}
+      >
+        <TextField
+          type="url"
+          placeholder="Enter URL to preview..."
+          value={urlInput}
+          onChange={(e) => setUrlInput(e.target.value)}
+          size="small"
+          fullWidth
+          slotProps={{ input: { sx: { fontSize: "0.875rem" } } }}
+        />
+        <Button type="submit" variant="outlined" size="small">
+          Go
+        </Button>
+        <Tooltip title="Open in new tab">
+          <IconButton size="small" onClick={openInNewTab}>
+            <ExternalLink size={16} />
+          </IconButton>
         </Tooltip>
-      </div>
-    </TooltipProvider>
-  )
+      </Box>
+
+      <Divider orientation="vertical" flexItem />
+
+      {/* Device Picker */}
+      <DevicePicker />
+
+      <Divider orientation="vertical" flexItem />
+
+      {/* Layout Toggle */}
+      <ToggleButtonGroup
+        value={state.layoutMode}
+        exclusive
+        onChange={(_, val) => val && setLayoutMode(val)}
+        size="small"
+      >
+        <ToggleButton value="freeform" sx={{ px: 1 }}>
+          <Tooltip title="Freeform canvas">
+            <Box sx={{ display: "flex" }}>
+              <Move size={16} />
+            </Box>
+          </Tooltip>
+        </ToggleButton>
+        <ToggleButton value="grid" sx={{ px: 1 }}>
+          <Tooltip title="Grid layout">
+            <Box sx={{ display: "flex" }}>
+              <LayoutGrid size={16} />
+            </Box>
+          </Tooltip>
+        </ToggleButton>
+      </ToggleButtonGroup>
+
+      <Divider orientation="vertical" flexItem />
+
+      {/* Zoom Controls - only in freeform mode */}
+      {state.layoutMode === "freeform" && (
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Tooltip title="Zoom out">
+            <IconButton size="small" onClick={() => handleZoom(-0.1)}>
+              <ZoomOut size={16} />
+            </IconButton>
+          </Tooltip>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, width: 140 }}>
+            <Slider
+              value={state.canvasTransform.scale}
+              onChange={handleZoomSlider}
+              min={0.1}
+              max={2}
+              step={0.05}
+              size="small"
+              sx={{ width: 80 }}
+            />
+            <Typography variant="caption" color="text.secondary" sx={{ width: 40, textAlign: "right" }}>
+              {Math.round(state.canvasTransform.scale * 100)}%
+            </Typography>
+          </Box>
+
+          <Tooltip title="Zoom in">
+            <IconButton size="small" onClick={() => handleZoom(0.1)}>
+              <ZoomIn size={16} />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title="Fit to content">
+            <IconButton size="small" onClick={handleFitToContent}>
+              <Maximize size={16} />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      )}
+
+      {/* Sync Settings */}
+      <Button
+        variant="text"
+        size="small"
+        startIcon={<Link2 size={16} />}
+        onClick={(e) => setSyncAnchorEl(e.currentTarget)}
+        sx={{ color: "text.secondary" }}
+      >
+        Sync
+      </Button>
+      <Popover
+        open={Boolean(syncAnchorEl)}
+        anchorEl={syncAnchorEl}
+        onClose={() => setSyncAnchorEl(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Box sx={{ p: 2, width: 240 }}>
+          <Typography variant="subtitle2" sx={{ mb: 2 }}>
+            Sync Events
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  size="small"
+                  checked={state.syncSettings.scroll}
+                  onChange={(e) => setSyncSettings({ scroll: e.target.checked })}
+                />
+              }
+              label={
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <ArrowUpDown size={14} />
+                  <Typography variant="body2">Scroll</Typography>
+                </Box>
+              }
+              labelPlacement="start"
+              sx={{ mx: 0, justifyContent: "space-between" }}
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  size="small"
+                  checked={state.syncSettings.mouse}
+                  onChange={(e) => setSyncSettings({ mouse: e.target.checked })}
+                />
+              }
+              label={
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <MousePointer2 size={14} />
+                  <Typography variant="body2">Mouse</Typography>
+                </Box>
+              }
+              labelPlacement="start"
+              sx={{ mx: 0, justifyContent: "space-between" }}
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  size="small"
+                  checked={state.syncSettings.click}
+                  onChange={(e) => setSyncSettings({ click: e.target.checked })}
+                />
+              }
+              label={
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Hand size={14} />
+                  <Typography variant="body2">Click</Typography>
+                </Box>
+              }
+              labelPlacement="start"
+              sx={{ mx: 0, justifyContent: "space-between" }}
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  size="small"
+                  checked={state.syncSettings.hover}
+                  onChange={(e) => setSyncSettings({ hover: e.target.checked })}
+                />
+              }
+              label={
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <MousePointer2 size={14} />
+                  <Typography variant="body2">Hover</Typography>
+                </Box>
+              }
+              labelPlacement="start"
+              sx={{ mx: 0, justifyContent: "space-between" }}
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  size="small"
+                  checked={state.syncSettings.navigation}
+                  onChange={(e) =>
+                    setSyncSettings({ navigation: e.target.checked })
+                  }
+                />
+              }
+              label={
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Navigation size={14} />
+                  <Typography variant="body2">Navigation</Typography>
+                </Box>
+              }
+              labelPlacement="start"
+              sx={{ mx: 0, justifyContent: "space-between" }}
+            />
+          </Box>
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: "block" }}>
+            Sync only works for same-origin sites (e.g., localhost).
+          </Typography>
+        </Box>
+      </Popover>
+
+      <Divider orientation="vertical" flexItem />
+
+      {/* Refresh */}
+      <Tooltip title="Refresh all viewports">
+        <IconButton size="small" onClick={handleRefresh}>
+          <RefreshCw size={16} />
+        </IconButton>
+      </Tooltip>
+    </Box>
+  );
 }

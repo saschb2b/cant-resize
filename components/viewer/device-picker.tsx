@@ -1,165 +1,209 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Plus, Smartphone, Tablet, Monitor, Ruler } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useViewer } from './viewer-provider'
-import { getDevicesByCategory } from '@/lib/viewer/device-presets'
-import type { DevicePreset } from '@/lib/viewer/types'
+import { useState } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import Tab from "@mui/material/Tab";
+import Tabs from "@mui/material/Tabs";
+import ButtonBase from "@mui/material/ButtonBase";
+import { Plus, Smartphone, Tablet, Monitor, Ruler } from "lucide-react";
+import { useViewer } from "./viewer-provider";
+import { getDevicesByCategory } from "@/lib/viewer/device-presets";
+import type { DevicePreset } from "@/lib/viewer/types";
 
-function DeviceButton({ device, onSelect }: { device: DevicePreset; onSelect: (id: string) => void }) {
+function DeviceButton({
+  device,
+  onSelect,
+}: {
+  device: DevicePreset;
+  onSelect: (id: string) => void;
+}) {
   return (
-    <button
+    <ButtonBase
       onClick={() => onSelect(device.id)}
-      className="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-accent text-left transition-colors"
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1.5,
+        width: "100%",
+        p: 1.5,
+        borderRadius: 2,
+        textAlign: "left",
+        "&:hover": { bgcolor: "action.hover" },
+      }}
     >
-      <div className="flex-shrink-0 w-10 h-10 rounded-md bg-muted flex items-center justify-center">
-        {device.category === 'phone' && <Smartphone className="h-5 w-5 text-muted-foreground" />}
-        {device.category === 'tablet' && <Tablet className="h-5 w-5 text-muted-foreground" />}
-        {device.category === 'desktop' && <Monitor className="h-5 w-5 text-muted-foreground" />}
-        {device.category === 'custom' && <Ruler className="h-5 w-5 text-muted-foreground" />}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-sm truncate text-foreground">{device.name}</p>
-        <p className="text-xs text-muted-foreground">
+      <Box
+        sx={{
+          flexShrink: 0,
+          width: 40,
+          height: 40,
+          borderRadius: 1,
+          bgcolor: "action.hover",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "text.secondary",
+        }}
+      >
+        {device.category === "phone" && <Smartphone size={20} />}
+        {device.category === "tablet" && <Tablet size={20} />}
+        {device.category === "desktop" && <Monitor size={20} />}
+        {device.category === "custom" && <Ruler size={20} />}
+      </Box>
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Typography variant="body2" fontWeight={500} noWrap>
+          {device.name}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
           {device.width} x {device.height}
-        </p>
-      </div>
-    </button>
-  )
+        </Typography>
+      </Box>
+    </ButtonBase>
+  );
 }
 
-function DeviceList({ devices, onSelect }: { devices: DevicePreset[]; onSelect: (id: string) => void }) {
+function DeviceList({
+  devices,
+  onSelect,
+}: {
+  devices: DevicePreset[];
+  onSelect: (id: string) => void;
+}) {
   return (
-    <ScrollArea className="h-[300px]">
-      <div className="space-y-1 p-1">
-        {devices.map((device) => (
-          <DeviceButton key={device.id} device={device} onSelect={onSelect} />
-        ))}
-      </div>
-    </ScrollArea>
-  )
+    <Box sx={{ maxHeight: 300, overflow: "auto", px: 0.5, py: 0.5 }}>
+      {devices.map((device) => (
+        <DeviceButton key={device.id} device={device} onSelect={onSelect} />
+      ))}
+    </Box>
+  );
 }
 
 export function DevicePicker() {
-  const { addViewport, addCustomViewport } = useViewer()
-  const [open, setOpen] = useState(false)
-  const [customWidth, setCustomWidth] = useState('1280')
-  const [customHeight, setCustomHeight] = useState('720')
-  const [customName, setCustomName] = useState('')
+  const { addViewport, addCustomViewport } = useViewer();
+  const [open, setOpen] = useState(false);
+  const [tabValue, setTabValue] = useState(0);
+  const [customWidth, setCustomWidth] = useState("1280");
+  const [customHeight, setCustomHeight] = useState("720");
+  const [customName, setCustomName] = useState("");
 
   const handleSelect = (deviceId: string) => {
-    addViewport(deviceId)
-    setOpen(false)
-  }
+    addViewport(deviceId);
+    setOpen(false);
+  };
 
   const handleAddCustom = () => {
-    const width = parseInt(customWidth, 10)
-    const height = parseInt(customHeight, 10)
-    
-    if (width > 0 && height > 0) {
-      addCustomViewport(width, height, customName || undefined)
-      setOpen(false)
-    }
-  }
+    const width = parseInt(customWidth, 10);
+    const height = parseInt(customHeight, 10);
 
-  const phones = getDevicesByCategory('phone')
-  const tablets = getDevicesByCategory('tablet')
-  const desktops = getDevicesByCategory('desktop')
+    if (width > 0 && height > 0) {
+      addCustomViewport(width, height, customName || undefined);
+      setOpen(false);
+    }
+  };
+
+  const phones = getDevicesByCategory("phone");
+  const tablets = getDevicesByCategory("tablet");
+  const desktops = getDevicesByCategory("desktop");
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="default" size="sm" className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Device
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Add Device Viewport</DialogTitle>
-        </DialogHeader>
-        <Tabs defaultValue="phones" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="phones" className="gap-1.5">
-              <Smartphone className="h-3.5 w-3.5" />
-              Phones
-            </TabsTrigger>
-            <TabsTrigger value="tablets" className="gap-1.5">
-              <Tablet className="h-3.5 w-3.5" />
-              Tablets
-            </TabsTrigger>
-            <TabsTrigger value="desktops" className="gap-1.5">
-              <Monitor className="h-3.5 w-3.5" />
-              Desktop
-            </TabsTrigger>
-            <TabsTrigger value="custom" className="gap-1.5">
-              <Ruler className="h-3.5 w-3.5" />
-              Custom
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="phones" className="mt-4">
+    <>
+      <Button
+        variant="contained"
+        size="small"
+        startIcon={<Plus size={16} />}
+        onClick={() => setOpen(true)}
+      >
+        Add Device
+      </Button>
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Add Device Viewport</DialogTitle>
+        <DialogContent>
+          <Tabs
+            value={tabValue}
+            onChange={(_, v) => setTabValue(v)}
+            variant="fullWidth"
+            sx={{ mb: 2 }}
+          >
+            <Tab
+              icon={<Smartphone size={14} />}
+              iconPosition="start"
+              label="Phones"
+            />
+            <Tab
+              icon={<Tablet size={14} />}
+              iconPosition="start"
+              label="Tablets"
+            />
+            <Tab
+              icon={<Monitor size={14} />}
+              iconPosition="start"
+              label="Desktop"
+            />
+            <Tab
+              icon={<Ruler size={14} />}
+              iconPosition="start"
+              label="Custom"
+            />
+          </Tabs>
+
+          {tabValue === 0 && (
             <DeviceList devices={phones} onSelect={handleSelect} />
-          </TabsContent>
-          <TabsContent value="tablets" className="mt-4">
+          )}
+          {tabValue === 1 && (
             <DeviceList devices={tablets} onSelect={handleSelect} />
-          </TabsContent>
-          <TabsContent value="desktops" className="mt-4">
+          )}
+          {tabValue === 2 && (
             <DeviceList devices={desktops} onSelect={handleSelect} />
-          </TabsContent>
-          <TabsContent value="custom" className="mt-4">
-            <div className="space-y-4 p-1">
-              <div className="space-y-2">
-                <Label htmlFor="custom-name">Device Name (optional)</Label>
-                <Input
-                  id="custom-name"
-                  placeholder="My Custom Device"
-                  value={customName}
-                  onChange={(e) => setCustomName(e.target.value)}
+          )}
+          {tabValue === 3 && (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 0.5 }}>
+              <TextField
+                label="Device Name (optional)"
+                placeholder="My Custom Device"
+                value={customName}
+                onChange={(e) => setCustomName(e.target.value)}
+                size="small"
+                fullWidth
+              />
+              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2 }}>
+                <TextField
+                  label="Width (px)"
+                  type="number"
+                  slotProps={{ htmlInput: { min: 100, max: 5000 } }}
+                  value={customWidth}
+                  onChange={(e) => setCustomWidth(e.target.value)}
+                  size="small"
                 />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="custom-width">Width (px)</Label>
-                  <Input
-                    id="custom-width"
-                    type="number"
-                    min={100}
-                    max={5000}
-                    value={customWidth}
-                    onChange={(e) => setCustomWidth(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="custom-height">Height (px)</Label>
-                  <Input
-                    id="custom-height"
-                    type="number"
-                    min={100}
-                    max={5000}
-                    value={customHeight}
-                    onChange={(e) => setCustomHeight(e.target.value)}
-                  />
-                </div>
-              </div>
-              <Button onClick={handleAddCustom} className="w-full">
+                <TextField
+                  label="Height (px)"
+                  type="number"
+                  slotProps={{ htmlInput: { min: 100, max: 5000 } }}
+                  value={customHeight}
+                  onChange={(e) => setCustomHeight(e.target.value)}
+                  size="small"
+                />
+              </Box>
+              <Button
+                variant="contained"
+                onClick={handleAddCustom}
+                fullWidth
+              >
                 Add Custom Device
               </Button>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </DialogContent>
-    </Dialog>
-  )
+            </Box>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }

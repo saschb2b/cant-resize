@@ -1,14 +1,15 @@
-'use client'
+"use client";
 
-import { useCallback, useMemo } from 'react'
-import { cn } from '@/lib/utils'
-import { useViewer } from './viewer-provider'
-import { useCanvas } from '@/lib/viewer/use-canvas'
-import { ViewportFrame } from './viewport-frame'
+import { useCallback, useMemo } from "react";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import { useViewer } from "./viewer-provider";
+import { useCanvas } from "@/lib/viewer/use-canvas";
+import { ViewportFrame } from "./viewport-frame";
 
 export function Canvas() {
-  const { state, setCanvasTransform } = useViewer()
-  
+  const { state, setCanvasTransform } = useViewer();
+
   const {
     containerRef,
     transform,
@@ -20,62 +21,89 @@ export function Canvas() {
   } = useCanvas({
     initialTransform: state.canvasTransform,
     onTransformChange: setCanvasTransform,
-  })
+  });
 
-  // Calculate content bounds for fit-to-content
   const contentBounds = useMemo(() => {
-    if (state.viewports.length === 0) return null
-    
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
-    
+    if (state.viewports.length === 0) return null;
+
+    let minX = Infinity,
+      minY = Infinity,
+      maxX = -Infinity,
+      maxY = -Infinity;
+
     state.viewports.forEach((v) => {
-      minX = Math.min(minX, v.x)
-      minY = Math.min(minY, v.y)
-      maxX = Math.max(maxX, v.x + v.width)
-      maxY = Math.max(maxY, v.y + v.height + 36) // Include header
-    })
-    
-    return { minX, minY, maxX, maxY }
-  }, [state.viewports])
+      minX = Math.min(minX, v.x);
+      minY = Math.min(minY, v.y);
+      maxX = Math.max(maxX, v.x + v.width);
+      maxY = Math.max(maxY, v.y + v.height + 36);
+    });
+
+    return { minX, minY, maxX, maxY };
+  }, [state.viewports]);
 
   const handleCanvasClick = useCallback((e: React.MouseEvent) => {
-    // Deselect when clicking on empty canvas
-    if (e.target === e.currentTarget || (e.target as HTMLElement).dataset.canvasBackground) {
-      // Handled by the viewportFrame component
-    }
-  }, [])
+    // Deselect handled by viewportFrame
+  }, []);
 
-  if (state.layoutMode === 'grid') {
+  if (state.layoutMode === "grid") {
     return (
-      <div className="flex-1 overflow-auto p-6 bg-muted/30">
-        <div className="flex flex-wrap gap-6 justify-center">
+      <Box
+        sx={{
+          flex: 1,
+          overflow: "auto",
+          p: 3,
+          bgcolor: "action.hover",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 3,
+            justifyContent: "center",
+          }}
+        >
           {state.viewports.map((viewport) => (
             <ViewportFrame key={viewport.id} viewport={viewport} isGridMode />
           ))}
           {state.viewports.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
-              <p className="text-lg font-medium">No devices added</p>
-              <p className="text-sm">Click &quot;Add Device&quot; to get started</p>
-            </div>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                height: 256,
+                color: "text.secondary",
+              }}
+            >
+              <Typography variant="h6">No devices added</Typography>
+              <Typography variant="body2">
+                Click &quot;Add Device&quot; to get started
+              </Typography>
+            </Box>
           )}
-        </div>
-      </div>
-    )
+        </Box>
+      </Box>
+    );
   }
 
   return (
-    <div
+    <Box
       ref={containerRef}
-      className={cn(
-        'flex-1 overflow-hidden relative',
-        isSpacePressed && 'cursor-grab',
-        isPanning && 'cursor-grabbing'
-      )}
+      sx={[
+        {
+          flex: 1,
+          overflow: "hidden",
+          position: "relative",
+        },
+        isSpacePressed && { cursor: "grab" },
+        isPanning && { cursor: "grabbing" },
+      ]}
       style={{
-        backgroundColor: 'var(--muted)',
-        backgroundImage: `
-          radial-gradient(circle at 1px 1px, var(--border) 1px, transparent 0)
-        `,
+        backgroundColor: "var(--mui-palette-action-hover)",
+        backgroundImage:
+          "radial-gradient(circle at 1px 1px, var(--mui-palette-divider) 1px, transparent 0)",
         backgroundSize: `${20 * transform.scale}px ${20 * transform.scale}px`,
         backgroundPosition: `${transform.x}px ${transform.y}px`,
       }}
@@ -86,33 +114,65 @@ export function Canvas() {
       onClick={handleCanvasClick}
     >
       {/* Transformed canvas content */}
-      <div
+      <Box
         data-canvas-background
-        className="absolute origin-top-left"
+        sx={{ position: "absolute", transformOrigin: "top left" }}
         style={{
           transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
-          width: '10000px',
-          height: '10000px',
+          width: "10000px",
+          height: "10000px",
         }}
       >
         {state.viewports.map((viewport) => (
           <ViewportFrame key={viewport.id} viewport={viewport} />
         ))}
-      </div>
+      </Box>
 
       {/* Empty state */}
       {state.viewports.length === 0 && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground pointer-events-none">
-          <p className="text-lg font-medium">No devices added</p>
-          <p className="text-sm">Click &quot;Add Device&quot; to get started</p>
-          <p className="text-xs mt-4">Space + Drag to pan | Scroll to zoom</p>
-        </div>
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "text.secondary",
+            pointerEvents: "none",
+          }}
+        >
+          <Typography variant="h6">No devices added</Typography>
+          <Typography variant="body2">
+            Click &quot;Add Device&quot; to get started
+          </Typography>
+          <Typography variant="caption" sx={{ mt: 2 }}>
+            Space + Drag to pan | Scroll to zoom
+          </Typography>
+        </Box>
       )}
 
       {/* Canvas info */}
-      <div className="absolute bottom-4 left-4 text-xs text-muted-foreground bg-background/80 backdrop-blur-sm px-2 py-1 rounded border border-border">
-        {Math.round(transform.scale * 100)}% | {state.viewports.length} device{state.viewports.length !== 1 ? 's' : ''}
-      </div>
-    </div>
-  )
+      <Box
+        sx={{
+          position: "absolute",
+          bottom: 16,
+          left: 16,
+          fontSize: "0.75rem",
+          color: "text.secondary",
+          bgcolor: "background.paper",
+          backdropFilter: "blur(8px)",
+          px: 1,
+          py: 0.5,
+          borderRadius: 1,
+          border: 1,
+          borderColor: "divider",
+          opacity: 0.8,
+        }}
+      >
+        {Math.round(transform.scale * 100)}% | {state.viewports.length} device
+        {state.viewports.length !== 1 ? "s" : ""}
+      </Box>
+    </Box>
+  );
 }
