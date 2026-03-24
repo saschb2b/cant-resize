@@ -101,7 +101,7 @@ export function DevicePicker() {
     const height = parseInt(customHeight, 10);
 
     if (width > 0 && height > 0) {
-      addCustomViewport(width, height);
+      addCustomViewport(width, height, customName.trim() || undefined);
       setOpen(false);
     }
   };

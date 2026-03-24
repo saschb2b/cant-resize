@@ -18,7 +18,7 @@ export function Canvas() {
     handleMouseMove,
     handleMouseUp,
   } = useCanvas({
-    initialTransform: state.canvasTransform,
+    transform: state.canvasTransform,
     onTransformChange: setCanvasTransform,
   });
 

@@ -16,6 +16,7 @@ export interface Viewport {
   height: number;
   orientation: "portrait" | "landscape";
   scale: number;
+  customName?: string;
 }
 
 export interface CanvasTransform {

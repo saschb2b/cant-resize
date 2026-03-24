@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { useViewer } from "./viewer-provider";
 import { DevicePicker } from "./device-picker";
+import { useZoomControls } from "@/lib/viewer/use-zoom-controls";
 import type { LayoutMode } from "@/lib/viewer/types";
 
 export function Toolbar() {
@@ -37,6 +38,21 @@ export function Toolbar() {
     useViewer();
   const [urlInput, setUrlInput] = useState(state.url);
   const [syncAnchorEl, setSyncAnchorEl] = useState<HTMLElement | null>(null);
+
+  const {
+    zoomPercentage,
+    zoomIn,
+    zoomOut,
+    handleZoomSlider,
+    fitToContent,
+    scale,
+    minScale,
+    maxScale,
+  } = useZoomControls({
+    canvasTransform: state.canvasTransform,
+    viewports: state.viewports,
+    onTransformChange: setCanvasTransform,
+  });
 
   const handleUrlSubmit = useCallback(
     (e: React.SyntheticEvent) => {
@@ -52,50 +68,6 @@ export function Toolbar() {
     },
     [urlInput, setUrl],
   );
-
-  const handleZoom = useCallback(
-    (delta: number) => {
-      const newScale = Math.min(
-        2,
-        Math.max(0.1, state.canvasTransform.scale + delta),
-      );
-      setCanvasTransform({ ...state.canvasTransform, scale: newScale });
-    },
-    [state.canvasTransform, setCanvasTransform],
-  );
-
-  const handleZoomSlider = useCallback(
-    (_: Event, value: number | number[]) => {
-      const scale = typeof value === "number" ? value : (value[0] ?? 1);
-      setCanvasTransform({ ...state.canvasTransform, scale });
-    },
-    [state.canvasTransform, setCanvasTransform],
-  );
-
-  const handleFitToContent = useCallback(() => {
-    if (state.viewports.length === 0) return;
-
-    let minX = Infinity,
-      minY = Infinity,
-      maxX = -Infinity,
-      maxY = -Infinity;
-    state.viewports.forEach((v) => {
-      minX = Math.min(minX, v.x);
-      minY = Math.min(minY, v.y);
-      maxX = Math.max(maxX, v.x + v.width);
-      maxY = Math.max(maxY, v.y + v.height);
-    });
-
-    const contentWidth = maxX - minX;
-    const contentHeight = maxY - minY;
-    const scale = Math.min(0.8, 800 / Math.max(contentWidth, contentHeight));
-
-    setCanvasTransform({
-      x: -minX * scale + 50,
-      y: -minY * scale + 50,
-      scale,
-    });
-  }, [state.viewports, setCanvasTransform]);
 
   const handleRefresh = useCallback(() => {
     const currentUrl = state.url;
@@ -183,7 +155,7 @@ export function Toolbar() {
       {state.layoutMode === "freeform" && (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Tooltip title="Zoom out">
-            <IconButton size="small" onClick={() => handleZoom(-0.1)}>
+            <IconButton size="small" onClick={zoomOut}>
               <ZoomOut size={16} />
             </IconButton>
           </Tooltip>
@@ -192,10 +164,10 @@ export function Toolbar() {
             sx={{ display: "flex", alignItems: "center", gap: 1, width: 140 }}
           >
             <Slider
-              value={state.canvasTransform.scale}
+              value={scale}
               onChange={handleZoomSlider}
-              min={0.1}
-              max={2}
+              min={minScale}
+              max={maxScale}
               step={0.05}
               size="small"
               sx={{ width: 80 }}
@@ -205,18 +177,18 @@ export function Toolbar() {
               color="text.secondary"
               sx={{ width: 40, textAlign: "right" }}
             >
-              {Math.round(state.canvasTransform.scale * 100)}%
+              {zoomPercentage}%
             </Typography>
           </Box>
 
           <Tooltip title="Zoom in">
-            <IconButton size="small" onClick={() => handleZoom(0.1)}>
+            <IconButton size="small" onClick={zoomIn}>
               <ZoomIn size={16} />
             </IconButton>
           </Tooltip>
 
           <Tooltip title="Fit to content">
-            <IconButton size="small" onClick={handleFitToContent}>
+            <IconButton size="small" onClick={fitToContent}>
               <Maximize size={16} />
             </IconButton>
           </Tooltip>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef } from "react";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
@@ -8,183 +8,16 @@ import Typography from "@mui/material/Typography";
 import {
   X,
   RotateCcw,
-  Maximize2,
   Loader2,
   AlertTriangle,
   Link2Off,
 } from "lucide-react";
 import { useViewer } from "./viewer-provider";
 import { getDeviceById } from "@/lib/viewer/device-presets";
+import { useViewportDrag } from "@/lib/viewer/use-viewport-drag";
+import { useViewportResize } from "@/lib/viewer/use-viewport-resize";
+import { useIframeSync } from "@/lib/viewer/use-iframe-sync";
 import type { Viewport } from "@/lib/viewer/types";
-
-function createSyncedIframeHtml(url: string, viewportId: string): string {
-  return `<!DOCTYPE html>
-<html style="height:100%;margin:0;padding:0;">
-<head>
-  <style>
-    * { margin: 0; padding: 0; }
-    html, body { height: 100%; overflow: hidden; }
-    iframe { width: 100%; height: 100%; border: none; }
-    .sync-cursor {
-      position: fixed;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: rgba(59, 130, 246, 0.6);
-      border: 2px solid rgba(59, 130, 246, 0.9);
-      pointer-events: none;
-      z-index: 999999;
-      transform: translate(-50%, -50%);
-      transition: opacity 0.15s;
-      display: none;
-    }
-    .sync-hover {
-      outline: 2px dashed rgba(59, 130, 246, 0.7) !important;
-      outline-offset: 2px !important;
-    }
-  </style>
-</head>
-<body>
-  <div id="sync-cursor" class="sync-cursor"></div>
-  <iframe id="inner" src="${url}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
-  <script>
-    (function() {
-      const viewportId = '${viewportId}';
-      const inner = document.getElementById('inner');
-      const syncCursor = document.getElementById('sync-cursor');
-      let lastScrollY = 0;
-      let isReceiving = false;
-      let innerWindow = null;
-      let innerDoc = null;
-      let isSameOrigin = false;
-      let lastHovered = null;
-      let cursorHideTimeout = null;
-
-      function getUniqueSelector(el) {
-        if (!el || el === innerDoc.body) return 'body';
-        if (el.id) return '#' + el.id;
-        let path = [];
-        while (el && el.nodeType === 1 && el !== innerDoc.body) {
-          let selector = el.tagName.toLowerCase();
-          if (el.className && typeof el.className === 'string') {
-            selector += '.' + el.className.trim().split(/\\s+/).slice(0, 2).join('.');
-          }
-          const siblings = el.parentNode ? Array.from(el.parentNode.children).filter(c => c.tagName === el.tagName) : [];
-          if (siblings.length > 1) {
-            selector += ':nth-of-type(' + (siblings.indexOf(el) + 1) + ')';
-          }
-          path.unshift(selector);
-          el = el.parentNode;
-        }
-        return path.join(' > ');
-      }
-
-      function findElement(selector) {
-        try { return innerDoc.querySelector(selector); } catch { return null; }
-      }
-
-      inner.addEventListener('load', function() {
-        try {
-          innerWindow = inner.contentWindow;
-          innerDoc = inner.contentDocument || inner.contentWindow.document;
-          isSameOrigin = true;
-
-          innerWindow.addEventListener('scroll', function() {
-            if (isReceiving) return;
-            const maxScroll = Math.max(1, innerDoc.documentElement.scrollHeight - innerWindow.innerHeight);
-            const scrollY = innerWindow.scrollY / maxScroll;
-            if (Math.abs(scrollY - lastScrollY) > 0.001) {
-              lastScrollY = scrollY;
-              window.parent.postMessage({ type: 'SCROLL', scrollY, sourceId: viewportId }, '*');
-            }
-          }, { passive: true });
-
-          innerDoc.addEventListener('mousemove', function(e) {
-            if (isReceiving) return;
-            const x = e.clientX / innerWindow.innerWidth;
-            const y = e.clientY / innerWindow.innerHeight;
-            window.parent.postMessage({ type: 'MOUSE_MOVE', mouseX: x, mouseY: y, sourceId: viewportId }, '*');
-          }, { passive: true });
-
-          innerDoc.addEventListener('click', function(e) {
-            if (isReceiving) return;
-            const x = e.clientX / innerWindow.innerWidth;
-            const y = e.clientY / innerWindow.innerHeight;
-            const selector = getUniqueSelector(e.target);
-            window.parent.postMessage({ type: 'CLICK', mouseX: x, mouseY: y, selector, sourceId: viewportId }, '*');
-          }, { passive: true });
-
-          innerDoc.addEventListener('mouseover', function(e) {
-            if (isReceiving) return;
-            const selector = getUniqueSelector(e.target);
-            window.parent.postMessage({ type: 'HOVER', selector, sourceId: viewportId }, '*');
-          }, { passive: true });
-
-          let lastUrl = innerWindow.location.href;
-          const checkNav = setInterval(function() {
-            try {
-              const currentUrl = innerWindow.location.href;
-              if (currentUrl !== lastUrl) {
-                lastUrl = currentUrl;
-                window.parent.postMessage({ type: 'NAVIGATE', url: currentUrl, sourceId: viewportId }, '*');
-              }
-            } catch (e) {}
-          }, 500);
-
-          window.parent.postMessage({ type: 'VIEWPORT_READY', sourceId: viewportId, sameOrigin: true }, '*');
-        } catch (e) {
-          window.parent.postMessage({ type: 'VIEWPORT_READY', sourceId: viewportId, sameOrigin: false }, '*');
-        }
-      });
-
-      window.addEventListener('message', function(e) {
-        if (!e.data?.type || !isSameOrigin) return;
-        isReceiving = true;
-
-        if (e.data.type === 'SCROLL_TO' && typeof e.data.scrollY === 'number') {
-          const maxScroll = Math.max(1, innerDoc.documentElement.scrollHeight - innerWindow.innerHeight);
-          innerWindow.scrollTo({ top: e.data.scrollY * maxScroll, behavior: 'instant' });
-          lastScrollY = e.data.scrollY;
-        }
-
-        if (e.data.type === 'MOUSE_MOVE' && typeof e.data.mouseX === 'number') {
-          syncCursor.style.display = 'block';
-          syncCursor.style.left = (e.data.mouseX * innerWindow.innerWidth) + 'px';
-          syncCursor.style.top = (e.data.mouseY * innerWindow.innerHeight) + 'px';
-          clearTimeout(cursorHideTimeout);
-          cursorHideTimeout = setTimeout(() => { syncCursor.style.display = 'none'; }, 2000);
-        }
-
-        if (e.data.type === 'CLICK' && e.data.selector) {
-          const el = findElement(e.data.selector);
-          if (el) {
-            el.click();
-            el.style.transition = 'box-shadow 0.15s';
-            el.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.5)';
-            setTimeout(() => { el.style.boxShadow = ''; }, 300);
-          }
-        }
-
-        if (e.data.type === 'HOVER' && e.data.selector) {
-          if (lastHovered) lastHovered.classList.remove('sync-hover');
-          const el = findElement(e.data.selector);
-          if (el) {
-            el.classList.add('sync-hover');
-            lastHovered = el;
-          }
-        }
-
-        if (e.data.type === 'NAVIGATE' && e.data.url) {
-          inner.src = e.data.url;
-        }
-
-        setTimeout(() => { isReceiving = false; }, 50);
-      });
-    })();
-  </script>
-</body>
-</html>`;
-}
 
 interface ViewportFrameProps {
   viewport: Viewport;
@@ -207,205 +40,59 @@ export function ViewportFrame({
     broadcastHover,
     broadcastNavigation,
   } = useViewer();
+
   const device = getDeviceById(viewport.deviceId);
   const frameRef = useRef<HTMLDivElement>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  const [isDragging, setIsDragging] = useState(false);
-  const [isResizing, setIsResizing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-  const [isSyncEnabled, setIsSyncEnabled] = useState<boolean | null>(null);
-  const [localSize, setLocalSize] = useState({
-    width: viewport.width,
-    height: viewport.height,
-  });
-
-  const dragStart = useRef({ x: 0, y: 0, viewportX: 0, viewportY: 0 });
-  const resizeStart = useRef({ x: 0, y: 0, width: 0, height: 0 });
-
   const isSelected = state.selectedViewportId === viewport.id;
 
-  // Sync local size with viewport when not actively resizing
-  if (
-    !isResizing &&
-    (localSize.width !== viewport.width || localSize.height !== viewport.height)
-  ) {
-    setLocalSize({ width: viewport.width, height: viewport.height });
-  }
+  const { isDragging, handleDragStart, handleDragMove, handleDragEnd } =
+    useViewportDrag({
+      viewportId: viewport.id,
+      viewportX: viewport.x,
+      viewportY: viewport.y,
+      canvasScale: state.canvasTransform.scale,
+      isGridMode,
+      onSelect: selectViewport,
+      onMove: (id, x, y) =>
+        dispatch({ type: "UPDATE_VIEWPORT", id, updates: { x, y } }),
+    });
 
-  const handleDragStart = useCallback(
-    (e: React.PointerEvent) => {
-      if (isGridMode) return;
-      e.preventDefault();
-      e.stopPropagation();
+  const {
+    isResizing,
+    displayWidth,
+    displayHeight,
+    localSize,
+    handleResizeStart,
+    handleResizeMove,
+    handleResizeEnd,
+  } = useViewportResize({
+    viewportId: viewport.id,
+    width: viewport.width,
+    height: viewport.height,
+    canvasScale: state.canvasTransform.scale,
+    onSelect: selectViewport,
+    onResize: (id, width, height) =>
+      dispatch({ type: "UPDATE_VIEWPORT", id, updates: { width, height } }),
+  });
 
-      setIsDragging(true);
-      selectViewport(viewport.id);
-      dragStart.current = {
-        x: e.clientX,
-        y: e.clientY,
-        viewportX: viewport.x,
-        viewportY: viewport.y,
-      };
-
-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    },
-    [isGridMode, viewport.id, viewport.x, viewport.y, selectViewport],
-  );
-
-  const handleDragMove = useCallback(
-    (e: React.PointerEvent) => {
-      if (!isDragging) return;
-
-      const scale = state.canvasTransform.scale;
-      const deltaX = (e.clientX - dragStart.current.x) / scale;
-      const deltaY = (e.clientY - dragStart.current.y) / scale;
-
-      dispatch({
-        type: "UPDATE_VIEWPORT",
-        id: viewport.id,
-        updates: {
-          x: dragStart.current.viewportX + deltaX,
-          y: dragStart.current.viewportY + deltaY,
-        },
-      });
-    },
-    [isDragging, state.canvasTransform.scale, viewport.id, dispatch],
-  );
-
-  const handleDragEnd = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
-  const handleResizeStart = useCallback(
-    (e: React.PointerEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      setIsResizing(true);
-      selectViewport(viewport.id);
-      resizeStart.current = {
-        x: e.clientX,
-        y: e.clientY,
-        width: localSize.width,
-        height: localSize.height,
-      };
-
-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    },
-    [viewport.id, localSize, selectViewport],
-  );
-
-  const handleResizeMove = useCallback(
-    (e: React.PointerEvent) => {
-      if (!isResizing) return;
-
-      const scale = state.canvasTransform.scale;
-      const deltaX = (e.clientX - resizeStart.current.x) / scale;
-      const deltaY = (e.clientY - resizeStart.current.y) / scale;
-
-      const newWidth = Math.max(200, resizeStart.current.width + deltaX);
-      const newHeight = Math.max(200, resizeStart.current.height + deltaY);
-
-      setLocalSize({ width: newWidth, height: newHeight });
-    },
-    [isResizing, state.canvasTransform.scale],
-  );
-
-  const handleResizeEnd = useCallback(() => {
-    if (isResizing) {
-      dispatch({
-        type: "UPDATE_VIEWPORT",
-        id: viewport.id,
-        updates: { width: localSize.width, height: localSize.height },
-      });
-    }
-    setIsResizing(false);
-  }, [isResizing, viewport.id, localSize, dispatch]);
-
-  const handleIframeLoad = useCallback(() => {
-    setIsLoading(false);
-    setHasError(false);
-  }, []);
-
-  const handleIframeError = useCallback(() => {
-    setIsLoading(false);
-    setHasError(true);
-  }, []);
-
-  useEffect(() => {
-    interface SyncMessageData {
-      type?: string;
-      sourceId?: string;
-      scrollY?: number;
-      mouseX?: number;
-      mouseY?: number;
-      selector?: string;
-      url?: string;
-      sameOrigin?: boolean;
-    }
-
-    const handleMessage = (e: MessageEvent<SyncMessageData>) => {
-      const data = e.data;
-      if (data.sourceId !== viewport.id) return;
-
-      switch (data.type) {
-        case "SCROLL":
-          if (data.scrollY != null) broadcastScroll(data.scrollY, viewport.id);
-          break;
-        case "MOUSE_MOVE":
-          if (data.mouseX != null && data.mouseY != null)
-            broadcastMouse(data.mouseX, data.mouseY, viewport.id);
-          break;
-        case "CLICK":
-          if (
-            data.mouseX != null &&
-            data.mouseY != null &&
-            data.selector != null
-          )
-            broadcastClick(
-              data.mouseX,
-              data.mouseY,
-              data.selector,
-              viewport.id,
-            );
-          break;
-        case "HOVER":
-          if (data.selector != null) broadcastHover(data.selector, viewport.id);
-          break;
-        case "NAVIGATE":
-          if (data.url != null) broadcastNavigation(data.url, viewport.id);
-          break;
-        case "VIEWPORT_READY":
-          setIsSyncEnabled(data.sameOrigin ?? false);
-          break;
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [
-    viewport.id,
+  const {
+    iframeRef,
+    isLoading,
+    hasError,
+    isSyncEnabled,
+    handleIframeLoad,
+    handleIframeError,
+    srcDoc,
+  } = useIframeSync({
+    viewportId: viewport.id,
+    url: state.url,
+    scrollPosition: state.scrollPosition,
     broadcastScroll,
     broadcastMouse,
     broadcastClick,
     broadcastHover,
     broadcastNavigation,
-  ]);
-
-  useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe?.contentWindow) return;
-
-    iframe.contentWindow.postMessage(
-      { type: "SCROLL_TO", scrollY: state.scrollPosition },
-      "*",
-    );
-  }, [state.scrollPosition]);
-
-  const displayWidth = isResizing ? localSize.width : viewport.width;
-  const displayHeight = isResizing ? localSize.height : viewport.height;
+  });
 
   return (
     <Box
@@ -477,7 +164,7 @@ export function ViewportFrame({
             noWrap
             color="text.primary"
           >
-            {device?.name ?? "Custom"}
+            {viewport.customName ?? device?.name ?? "Custom"}
           </Typography>
           <Typography variant="caption" color="text.secondary">
             {Math.round(displayWidth)} x {Math.round(displayHeight)}
@@ -560,10 +247,16 @@ export function ViewportFrame({
           >
             <AlertTriangle size={32} color="#dc2626" />
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              This site cannot be displayed in an iframe
+              Failed to load this site
             </Typography>
-            <Typography variant="caption" color="text.secondary">
-              (X-Frame-Options restriction)
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ maxWidth: 240 }}
+            >
+              The site may block iframe embedding (X-Frame-Options /
+              CSP), the URL may be invalid, or the server may be
+              unreachable.
             </Typography>
           </Box>
         )}
@@ -572,7 +265,7 @@ export function ViewportFrame({
           ref={iframeRef}
           data-viewport-iframe
           data-viewport-id={viewport.id}
-          srcDoc={createSyncedIframeHtml(state.url, viewport.id)}
+          srcDoc={srcDoc}
           style={{
             width: isGridMode ? displayWidth : "100%",
             height: isGridMode ? displayHeight : "100%",
@@ -591,29 +284,91 @@ export function ViewportFrame({
         />
       </Box>
 
-      {/* Resize handle */}
+      {/* Resize handles */}
       {!isGridMode && (
-        <Box
-          onPointerDown={handleResizeStart}
-          onPointerMove={handleResizeMove}
-          onPointerUp={handleResizeEnd}
-          onPointerCancel={handleResizeEnd}
-          sx={{
-            position: "absolute",
-            bottom: 0,
-            right: 0,
-            width: 16,
-            height: 16,
-            cursor: "se-resize",
-            zIndex: 20,
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "flex-end",
-            p: 0.25,
-          }}
-        >
-          <Maximize2 size={12} style={{ opacity: 0.5 }} />
-        </Box>
+        <>
+          {/* Dimension tooltip while resizing */}
+          {isResizing && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                bgcolor: "rgba(0,0,0,0.8)",
+                color: "#fff",
+                px: 1.5,
+                py: 0.5,
+                borderRadius: 1,
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                zIndex: 30,
+                pointerEvents: "none",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {Math.round(localSize.width)} × {Math.round(localSize.height)}
+            </Box>
+          )}
+
+          {/* Edge handles */}
+          {(
+            [
+              { dir: "n", cursor: "ns-resize", top: -4, left: 12, right: 12, height: 8 },
+              { dir: "s", cursor: "ns-resize", bottom: -4, left: 12, right: 12, height: 8 },
+              { dir: "w", cursor: "ew-resize", left: -4, top: 12, bottom: 12, width: 8 },
+              { dir: "e", cursor: "ew-resize", right: -4, top: 12, bottom: 12, width: 8 },
+            ] as const
+          ).map(({ dir, cursor, ...pos }) => (
+            <Box
+              key={dir}
+              onPointerDown={(e) => handleResizeStart(e, dir)}
+              onPointerMove={handleResizeMove}
+              onPointerUp={handleResizeEnd}
+              onPointerCancel={handleResizeEnd}
+              sx={{
+                position: "absolute",
+                cursor,
+                zIndex: 20,
+                "&:hover": { bgcolor: "rgba(59,130,246,0.15)" },
+                ...pos,
+              }}
+            />
+          ))}
+
+          {/* Corner handles */}
+          {(
+            [
+              { dir: "nw", cursor: "nwse-resize", top: -5, left: -5 },
+              { dir: "ne", cursor: "nesw-resize", top: -5, right: -5 },
+              { dir: "sw", cursor: "nesw-resize", bottom: -5, left: -5 },
+              { dir: "se", cursor: "nwse-resize", bottom: -5, right: -5 },
+            ] as const
+          ).map(({ dir, cursor, ...pos }) => (
+            <Box
+              key={dir}
+              onPointerDown={(e) => handleResizeStart(e, dir)}
+              onPointerMove={handleResizeMove}
+              onPointerUp={handleResizeEnd}
+              onPointerCancel={handleResizeEnd}
+              sx={{
+                position: "absolute",
+                width: 12,
+                height: 12,
+                cursor,
+                zIndex: 21,
+                borderRadius: "50%",
+                border: "2px solid",
+                borderColor: "primary.main",
+                bgcolor: "background.paper",
+                opacity: isSelected ? 1 : 0,
+                transition: "opacity 0.15s",
+                "&:hover": { opacity: 1, transform: "scale(1.3)" },
+                ...pos,
+              }}
+            />
+          ))}
+        </>
       )}
     </Box>
   );

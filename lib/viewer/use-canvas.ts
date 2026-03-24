@@ -4,33 +4,24 @@ import { useCallback, useRef, useState, useEffect } from "react";
 import type { CanvasTransform } from "./types";
 
 interface UseCanvasOptions {
-  initialTransform?: CanvasTransform;
+  transform: CanvasTransform;
+  onTransformChange: (transform: CanvasTransform) => void;
   minScale?: number;
   maxScale?: number;
-  onTransformChange?: (transform: CanvasTransform) => void;
 }
 
-export function useCanvas(options: UseCanvasOptions = {}) {
+export function useCanvas(options: UseCanvasOptions) {
   const {
-    initialTransform = { x: 0, y: 0, scale: 0.5 },
+    transform,
+    onTransformChange,
     minScale = 0.1,
     maxScale = 2,
-    onTransformChange,
   } = options;
 
-  const [transform, setTransform] = useState(initialTransform);
   const [isPanning, setIsPanning] = useState(false);
   const [isSpacePressed, setIsSpacePressed] = useState(false);
   const lastMousePos = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const updateTransform = useCallback(
-    (newTransform: CanvasTransform) => {
-      setTransform(newTransform);
-      onTransformChange?.(newTransform);
-    },
-    [onTransformChange],
-  );
 
   const handleWheel = useCallback(
     (e: WheelEvent) => {
@@ -51,7 +42,7 @@ export function useCanvas(options: UseCanvasOptions = {}) {
           const mouseY = e.clientY - rect.top;
           const scaleFactor = newScale / transform.scale;
 
-          updateTransform({
+          onTransformChange({
             x: mouseX - (mouseX - transform.x) * scaleFactor,
             y: mouseY - (mouseY - transform.y) * scaleFactor,
             scale: newScale,
@@ -59,14 +50,14 @@ export function useCanvas(options: UseCanvasOptions = {}) {
         }
       } else {
         // Pan
-        updateTransform({
+        onTransformChange({
           ...transform,
           x: transform.x - e.deltaX,
           y: transform.y - e.deltaY,
         });
       }
     },
-    [transform, minScale, maxScale, updateTransform],
+    [transform, minScale, maxScale, onTransformChange],
   );
 
   const handleMouseDown = useCallback(
@@ -88,72 +79,19 @@ export function useCanvas(options: UseCanvasOptions = {}) {
         const deltaY = e.clientY - lastMousePos.current.y;
         lastMousePos.current = { x: e.clientX, y: e.clientY };
 
-        updateTransform({
+        onTransformChange({
           ...transform,
           x: transform.x + deltaX,
           y: transform.y + deltaY,
         });
       }
     },
-    [isPanning, transform, updateTransform],
+    [isPanning, transform, onTransformChange],
   );
 
   const handleMouseUp = useCallback(() => {
     setIsPanning(false);
   }, []);
-
-  const zoomTo = useCallback(
-    (scale: number) => {
-      const rect = containerRef.current?.getBoundingClientRect();
-      if (rect) {
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const scaleFactor = scale / transform.scale;
-
-        updateTransform({
-          x: centerX - (centerX - transform.x) * scaleFactor,
-          y: centerY - (centerY - transform.y) * scaleFactor,
-          scale,
-        });
-      }
-    },
-    [transform, updateTransform],
-  );
-
-  const fitToContent = useCallback(
-    (contentBounds: {
-      minX: number;
-      minY: number;
-      maxX: number;
-      maxY: number;
-    }) => {
-      const rect = containerRef.current?.getBoundingClientRect();
-      if (!rect) return;
-
-      const contentWidth = contentBounds.maxX - contentBounds.minX;
-      const contentHeight = contentBounds.maxY - contentBounds.minY;
-
-      if (contentWidth === 0 || contentHeight === 0) return;
-
-      const scaleX = (rect.width - 100) / contentWidth;
-      const scaleY = (rect.height - 100) / contentHeight;
-      const scale = Math.min(scaleX, scaleY, maxScale);
-
-      const centerX = (contentBounds.minX + contentBounds.maxX) / 2;
-      const centerY = (contentBounds.minY + contentBounds.maxY) / 2;
-
-      updateTransform({
-        x: rect.width / 2 - centerX * scale,
-        y: rect.height / 2 - centerY * scale,
-        scale,
-      });
-    },
-    [maxScale, updateTransform],
-  );
-
-  const resetTransform = useCallback(() => {
-    updateTransform({ x: 0, y: 0, scale: 0.5 });
-  }, [updateTransform]);
 
   // Handle space key for pan mode
   useEffect(() => {
@@ -197,9 +135,5 @@ export function useCanvas(options: UseCanvasOptions = {}) {
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
-    zoomTo,
-    fitToContent,
-    resetTransform,
-    setTransform: updateTransform,
   };
 }

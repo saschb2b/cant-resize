@@ -106,7 +106,7 @@ interface ViewerContextValue {
   state: ViewerState;
   dispatch: React.Dispatch<ViewerAction>;
   addViewport: (deviceId: string, position?: { x: number; y: number }) => void;
-  addCustomViewport: (width: number, height: number) => void;
+  addCustomViewport: (width: number, height: number, name?: string) => void;
   removeViewport: (id: string) => void;
   setUrl: (url: string) => void;
   setLayoutMode: (mode: LayoutMode) => void;
@@ -172,19 +172,23 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const addCustomViewport = useCallback((width: number, height: number) => {
-    const viewport: Viewport = {
-      id: `viewport-${String(Date.now())}-${Math.random().toString(36).slice(2, 9)}`,
-      deviceId: `custom-${String(width)}x${String(height)}`,
-      x: Math.random() * 200,
-      y: Math.random() * 200,
-      width,
-      height,
-      orientation: "portrait",
-      scale: 1,
-    };
-    dispatch({ type: "ADD_VIEWPORT", viewport });
-  }, []);
+  const addCustomViewport = useCallback(
+    (width: number, height: number, name?: string) => {
+      const viewport: Viewport = {
+        id: `viewport-${String(Date.now())}-${Math.random().toString(36).slice(2, 9)}`,
+        deviceId: `custom-${String(width)}x${String(height)}`,
+        x: Math.random() * 200,
+        y: Math.random() * 200,
+        width,
+        height,
+        orientation: "portrait",
+        scale: 1,
+        ...(name ? { customName: name } : {}),
+      };
+      dispatch({ type: "ADD_VIEWPORT", viewport });
+    },
+    [],
+  );
 
   const removeViewport = useCallback((id: string) => {
     dispatch({ type: "REMOVE_VIEWPORT", id });
