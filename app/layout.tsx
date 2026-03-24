@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
+import Script from "next/script";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const geist = Geist({
@@ -69,9 +69,15 @@ export default function RootLayout({
       className={`${geist.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <Script
+          defer
+          src="http://umami-c9jjhg20x8jiqlc2pxt1mu7a.204.168.144.168.sslip.io/script.js"
+          data-website-id="24a9a7f0-ea82-4364-8eae-74f50b296d3e"
+        />
+      </head>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
-        <Analytics />
       </body>
     </html>
   );
