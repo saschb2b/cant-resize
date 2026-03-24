@@ -59,7 +59,7 @@ export function useZoomControls(options: UseZoomControlsOptions) {
       minX = Math.min(minX, v.x);
       minY = Math.min(minY, v.y);
       maxX = Math.max(maxX, v.x + v.width);
-      maxY = Math.max(maxY, v.y + v.height + 36); // +36 for header
+      maxY = Math.max(maxY, v.y + v.height);
     });
 
     const contentWidth = maxX - minX;

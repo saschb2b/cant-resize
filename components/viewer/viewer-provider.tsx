@@ -152,33 +152,86 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [state]);
 
+  const fitViewportToCanvas = useCallback(
+    (vp: Viewport) => {
+      const canvasEl = document.querySelector("[data-canvas-background]")
+        ?.parentElement;
+      const rect = canvasEl?.getBoundingClientRect();
+      if (!rect) return;
+
+      const padding = 80;
+      const scaleX = (rect.width - padding * 2) / vp.width;
+      const scaleY = (rect.height - padding * 2) / vp.height;
+      const scale = Math.min(scaleX, scaleY, 2);
+
+      const centerX = vp.x + vp.width / 2;
+      const centerY = vp.y + vp.height / 2;
+
+      dispatch({
+        type: "SET_CANVAS_TRANSFORM",
+        transform: {
+          x: rect.width / 2 - centerX * scale,
+          y: rect.height / 2 - centerY * scale,
+          scale,
+        },
+      });
+    },
+    [],
+  );
+
   const addViewport = useCallback(
     (deviceId: string, position?: { x: number; y: number }) => {
       const device = getDeviceById(deviceId);
       if (!device) return;
 
+      // Place new viewports next to existing ones
+      let x = position?.x ?? 50;
+      let y = position?.y ?? 50;
+      if (!position && state.viewports.length > 0) {
+        const rightmost = state.viewports.reduce((max, v) =>
+          v.x + v.width > max.x + max.width ? v : max,
+        );
+        x = rightmost.x + rightmost.width + 40;
+        y = rightmost.y;
+      }
+
       const viewport: Viewport = {
         id: `viewport-${String(Date.now())}-${Math.random().toString(36).slice(2, 9)}`,
         deviceId,
-        x: position?.x ?? Math.random() * 200,
-        y: position?.y ?? Math.random() * 200,
+        x,
+        y,
         width: device.width,
         height: device.height,
         orientation: "portrait",
         scale: 1,
       };
       dispatch({ type: "ADD_VIEWPORT", viewport });
+
+      // Auto-fit when adding the first device
+      if (state.viewports.length === 0) {
+        requestAnimationFrame(() => fitViewportToCanvas(viewport));
+      }
     },
-    [],
+    [state.viewports, fitViewportToCanvas],
   );
 
   const addCustomViewport = useCallback(
     (width: number, height: number, name?: string) => {
+      let x = 50;
+      let y = 50;
+      if (state.viewports.length > 0) {
+        const rightmost = state.viewports.reduce((max, v) =>
+          v.x + v.width > max.x + max.width ? v : max,
+        );
+        x = rightmost.x + rightmost.width + 40;
+        y = rightmost.y;
+      }
+
       const viewport: Viewport = {
         id: `viewport-${String(Date.now())}-${Math.random().toString(36).slice(2, 9)}`,
         deviceId: `custom-${String(width)}x${String(height)}`,
-        x: Math.random() * 200,
-        y: Math.random() * 200,
+        x,
+        y,
         width,
         height,
         orientation: "portrait",
@@ -186,8 +239,12 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
         ...(name ? { customName: name } : {}),
       };
       dispatch({ type: "ADD_VIEWPORT", viewport });
+
+      if (state.viewports.length === 0) {
+        requestAnimationFrame(() => fitViewportToCanvas(viewport));
+      }
     },
-    [],
+    [state.viewports, fitViewportToCanvas],
   );
 
   const removeViewport = useCallback((id: string) => {
