@@ -3,7 +3,8 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { Monitor, Plus } from "lucide-react";
+import Image from "next/image";
+import { Plus } from "lucide-react";
 import { useViewer } from "./viewer-provider";
 import { useCanvas } from "@/lib/viewer/use-canvas";
 import { ViewportFrame } from "./viewport-frame";
@@ -59,19 +60,8 @@ export function Canvas() {
                 gap: 2,
               }}
             >
-              <Box
-                sx={{
-                  width: 64,
-                  height: 64,
-                  borderRadius: 3,
-                  bgcolor: "action.hover",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  mb: 1,
-                }}
-              >
-                <Monitor size={32} strokeWidth={1.5} />
+              <Box sx={{ mb: 1 }}>
+                <Image src="/icon.svg" alt="" width={48} height={48} />
               </Box>
               <Typography variant="h6">No devices added</Typography>
               <Typography variant="body2" color="text.secondary">
@@ -149,19 +139,8 @@ export function Canvas() {
             gap: 2,
           }}
         >
-          <Box
-            sx={{
-              width: 64,
-              height: 64,
-              borderRadius: 3,
-              bgcolor: "action.hover",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              mb: 1,
-            }}
-          >
-            <Monitor size={32} strokeWidth={1.5} />
+          <Box sx={{ mb: 1 }}>
+            <Image src="/icon.svg" alt="" width={48} height={48} />
           </Box>
           <Typography variant="h6">No devices added</Typography>
           <Typography variant="body2" color="text.secondary">

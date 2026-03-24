@@ -1,6 +1,7 @@
 "use client";
 
 import NextLink from "next/link";
+import Image from "next/image";
 import { useCallback, useSyncExternalStore } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -11,7 +12,6 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Tooltip from "@mui/material/Tooltip";
 import { useColorScheme } from "@mui/material/styles";
-import { Monitor } from "lucide-react";
 
 function ThemeIcon({ isDark, size = 18 }: { isDark: boolean; size?: number }) {
   return (
@@ -143,20 +143,7 @@ export function SiteHeader() {
               gap: 10,
             }}
           >
-            <Box
-              sx={{
-                width: 28,
-                height: 28,
-                borderRadius: 1.5,
-                bgcolor: "action.selected",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "text.primary",
-              }}
-            >
-              <Monitor size={16} />
-            </Box>
+            <Image src="/icon.svg" alt="" width={28} height={28} priority />
             <Box sx={{ display: { xs: "none", sm: "block" } }}>
               <Typography variant="subtitle2" fontWeight={700} lineHeight={1.2}>
                 Responsive Viewer

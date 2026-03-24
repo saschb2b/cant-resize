@@ -13,26 +13,48 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
 });
 
+const siteUrl = "https://cant-resize.saschb2b.com";
+
 export const metadata: Metadata = {
-  title: "Responsive Viewer - Multi-Device Preview IDE",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Responsive Viewer — Multi-Device Preview",
+    template: "%s — Responsive Viewer",
+  },
   description:
-    "Preview any URL across multiple device viewports with synchronized scrolling. Test responsive designs on phones, tablets, and desktops simultaneously.",
+    "Preview any URL across phones, tablets, and desktops simultaneously. Scroll, click, and navigate — synced across every viewport in real time.",
+  keywords: [
+    "responsive design",
+    "multi-device preview",
+    "viewport testing",
+    "responsive viewer",
+    "device emulator",
+    "screen size testing",
+    "web development",
+    "CSS",
+    "mobile preview",
+    "tablet preview",
+    "desktop preview",
+    "synchronized scrolling",
+  ],
+  authors: [{ name: "Sascha", url: "https://saschb2b.com/" }],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "Responsive Viewer",
+    title: "Responsive Viewer — Multi-Device Preview",
+    description:
+      "One site. Every screen. Preview any URL across devices with synced scrolling, clicks, and navigation.",
+    url: siteUrl,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Responsive Viewer — Multi-Device Preview",
+    description:
+      "One site. Every screen. Preview any URL across devices with synced scrolling, clicks, and navigation.",
+  },
   icons: {
-    icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: "/apple-icon.png",
+    icon: "/icon.svg",
   },
 };
 
