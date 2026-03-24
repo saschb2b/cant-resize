@@ -7,9 +7,6 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {
   ArrowRight,
-  Monitor,
-  Smartphone,
-  Tablet,
   MousePointerClick,
   ScrollText,
   Move,
@@ -17,6 +14,7 @@ import {
   Heart,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
+import { HeroAnimation } from "@/components/hero-animation";
 
 export default function LandingPage() {
   return (
@@ -26,8 +24,24 @@ export default function LandingPage() {
         display: "flex",
         flexDirection: "column",
         bgcolor: "background.default",
+        position: "relative",
       }}
     >
+      {/* Mesh gradient background */}
+      <Box
+        sx={{
+          position: "fixed",
+          inset: 0,
+          pointerEvents: "none",
+          zIndex: 0,
+          background: [
+            "radial-gradient(ellipse 80% 60% at 10% 20%, rgba(var(--mui-palette-primary-mainChannel) / 0.08) 0%, transparent 100%)",
+            "radial-gradient(ellipse 60% 50% at 85% 75%, rgba(var(--mui-palette-primary-mainChannel) / 0.05) 0%, transparent 100%)",
+            "radial-gradient(circle at 50% 50%, rgba(var(--mui-palette-error-mainChannel) / 0.02) 0%, transparent 70%)",
+          ].join(", "),
+        }}
+      />
+
       <SiteHeader />
 
       {/* Hero */}
@@ -38,14 +52,16 @@ export default function LandingPage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          pt: { xs: 8, md: 12 },
+          pt: { xs: 6, md: 10 },
           pb: { xs: 6, md: 10 },
+          position: "relative",
+          zIndex: 1,
         }}
       >
         <Stack
           direction={{ xs: "column", md: "row" }}
           alignItems="center"
-          spacing={{ xs: 6, md: 10 }}
+          spacing={{ xs: 5, md: 8 }}
         >
           {/* Left — title, subtitle, CTA */}
           <Box
@@ -56,13 +72,14 @@ export default function LandingPage() {
             }}
           >
             <Typography
-              variant="h3"
+              variant="h2"
               component="h1"
-              fontWeight={700}
+              fontWeight={800}
               sx={{
-                lineHeight: 1.15,
-                mb: 2,
-                fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
+                lineHeight: 1.1,
+                mb: 2.5,
+                fontSize: { xs: "2.25rem", sm: "3rem", md: "3.5rem" },
+                letterSpacing: "-0.02em",
               }}
             >
               One site.
@@ -77,9 +94,9 @@ export default function LandingPage() {
               sx={{
                 lineHeight: 1.7,
                 mb: 4,
-                maxWidth: 440,
+                maxWidth: 420,
                 mx: { xs: "auto", md: 0 },
-                fontSize: { xs: "0.95rem", md: "1.05rem" },
+                fontSize: { xs: "1rem", md: "1.1rem" },
               }}
             >
               Preview any URL across phones, tablets, and desktops
@@ -99,9 +116,9 @@ export default function LandingPage() {
                   size="large"
                   endIcon={<ArrowRight size={18} />}
                   sx={{
-                    px: { xs: 3, md: 5 },
-                    py: { xs: 1, md: 1.5 },
-                    fontSize: { xs: "0.95rem", md: "1.05rem" },
+                    px: { xs: 4, md: 5 },
+                    py: { xs: 1.25, md: 1.5 },
+                    fontSize: { xs: "1rem", md: "1.05rem" },
                   }}
                 >
                   Open Viewer
@@ -113,100 +130,19 @@ export default function LandingPage() {
               color="text.secondary"
               fontFamily="var(--font-geist-mono), monospace"
               sx={{
-                mt: 1.5,
+                mt: 2,
                 display: "block",
                 textAlign: { xs: "center", md: "left" },
+                opacity: 0.7,
               }}
             >
               free &middot; no signup &middot; works with localhost
             </Typography>
           </Box>
 
-          {/* Right — device preview illustration */}
-          <Box sx={{ flex: 1, minWidth: 0, maxWidth: 480, width: "100%" }}>
-            <Paper
-              elevation={0}
-              sx={{
-                border: 1,
-                borderColor: "divider",
-                overflow: "hidden",
-                p: { xs: 3, md: 4 },
-              }}
-            >
-              <Stack
-                direction="row"
-                spacing={2}
-                alignItems="flex-end"
-                justifyContent="center"
-              >
-                {/* Phone */}
-                <Stack alignItems="center" spacing={1}>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      width: 56,
-                      height: 100,
-                      border: 2,
-                      borderColor: "divider",
-                      borderRadius: 2,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      bgcolor: "action.hover",
-                    }}
-                  >
-                    <Smartphone size={20} />
-                  </Paper>
-                  <Typography variant="caption" color="text.secondary">
-                    375px
-                  </Typography>
-                </Stack>
-                {/* Tablet */}
-                <Stack alignItems="center" spacing={1}>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      width: 90,
-                      height: 120,
-                      border: 2,
-                      borderColor: "divider",
-                      borderRadius: 2,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      bgcolor: "action.hover",
-                    }}
-                  >
-                    <Tablet size={24} />
-                  </Paper>
-                  <Typography variant="caption" color="text.secondary">
-                    768px
-                  </Typography>
-                </Stack>
-                {/* Desktop */}
-                <Stack alignItems="center" spacing={1}>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      width: 140,
-                      height: 90,
-                      border: 2,
-                      borderColor: "primary.main",
-                      borderRadius: 2,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      bgcolor: "action.hover",
-                    }}
-                  >
-                    <Monitor size={28} />
-                  </Paper>
-                  <Typography variant="caption" color="text.secondary">
-                    1920px
-                  </Typography>
-                </Stack>
-              </Stack>
-            </Paper>
+          {/* Right — animated device preview */}
+          <Box sx={{ flex: 1, minWidth: 0, maxWidth: 540, width: "100%" }}>
+            <HeroAnimation />
           </Box>
         </Stack>
       </Container>
@@ -214,11 +150,14 @@ export default function LandingPage() {
       {/* Features */}
       <Box
         sx={{
-          bgcolor: "action.hover",
+          bgcolor: "rgba(var(--mui-palette-background-defaultChannel) / 0.7)",
+          backdropFilter: "blur(40px)",
           borderTop: 1,
           borderBottom: 1,
           borderColor: "divider",
           py: { xs: 5, md: 6 },
+          position: "relative",
+          zIndex: 1,
         }}
       >
         <Container maxWidth="md">
@@ -300,7 +239,7 @@ export default function LandingPage() {
       {/* Open source CTA */}
       <Container
         maxWidth="lg"
-        sx={{ py: { xs: 5, md: 7 } }}
+        sx={{ py: { xs: 5, md: 7 }, position: "relative", zIndex: 1 }}
       >
         <Paper
           elevation={0}
@@ -358,7 +297,7 @@ export default function LandingPage() {
       </Container>
 
       {/* Footer */}
-      <Box component="footer" sx={{ mt: "auto" }}>
+      <Box component="footer" sx={{ mt: "auto", position: "relative", zIndex: 1 }}>
         <Box sx={{ borderTop: 1, borderColor: "divider" }}>
           <Container maxWidth="lg">
             <Stack
