@@ -225,7 +225,7 @@ function GridCanvas() {
                 position: "fixed",
                 zIndex: 9999,
                 pointerEvents: "none",
-                borderRadius: 3,
+                borderRadius: 2,
                 overflow: "hidden",
                 boxShadow: "0 20px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(var(--mui-palette-primary-mainChannel) / 0.3)",
               }}

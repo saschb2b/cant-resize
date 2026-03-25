@@ -268,7 +268,7 @@ export function ViewportFrame({
           bottom: 0,
           bgcolor: "background.paper",
           overflow: "hidden",
-          borderRadius: 2,
+          borderRadius: 1,
           boxShadow: isSelected ? 12 : 4,
           border: 1,
           borderColor: isSelected ? "primary.main" : "divider",
