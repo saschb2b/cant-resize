@@ -184,9 +184,9 @@ export const flexboxPatternChallenges: Challenge[] = [
 }`,
     correctSide: "right",
     explanationCorrect:
-      "A flex spacer (`flex: 1`) pushes nav and actions to the right. On mobile, nav is hidden with CSS and `ml: \"auto\"` centers the actions. No `useMediaQuery`, no hydration flash, and the layout is controlled entirely with CSS.",
+      "A flex spacer (`flex: 1`) pushes nav and actions to the right. On mobile, nav is hidden with CSS and `ml: \"auto\"` pushes the actions to the far right. No `useMediaQuery`, no hydration flash, and the layout is controlled entirely with CSS.",
     explanationWrong:
-      "`useMediaQuery` causes a hydration mismatch: the server renders `space-between` (desktop), then React corrects to `center` on mobile after hydration. The spacer + `display` approach avoids this entirely.",
+      "`useMediaQuery` causes a hydration mismatch: the server renders `space-between` (desktop), then React corrects to `center` on mobile after hydration. The spacer + `display` approach avoids this entirely. `ml: \"auto\"` pushes the actions to the right when nav is hidden.",
     sourceUrl:
       "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Aligning_items_in_a_flex_container#using_auto_margins_for_main_axis_alignment",
     sourceLabel: "MDN: Auto margins in flexbox",

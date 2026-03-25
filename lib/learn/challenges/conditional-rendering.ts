@@ -198,12 +198,11 @@ const MobileEditor = dynamic(
 );
 const DesktopEditor = dynamic(
   () => import("./DesktopEditor"),
+  { ssr: false },
 );
 
 function EditorPage() {
-  const isMobile = useMediaQuery("(max-width: 768px)", {
-    defaultMatches: false,
-  });
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   return isMobile ? <MobileEditor /> : <DesktopEditor />;
 }
@@ -211,7 +210,7 @@ function EditorPage() {
 // Only the needed editor is downloaded`,
     correctSide: "right",
     explanationCorrect:
-      "Dynamic imports with `next/dynamic` code-split each editor into its own chunk. Mobile users only download the mobile editor bundle. This is the correct use of `useMediaQuery` — when you need to avoid loading heavy code, not just hiding it with CSS.",
+      "Dynamic imports with `next/dynamic` code-split each editor into its own chunk. Mobile users only download the mobile editor bundle. This is the correct use of `useMediaQuery` — when you need to avoid *loading* heavy code, not just hiding it with CSS. The hydration flash tradeoff is acceptable here because the alternative (loading both heavy bundles) is worse.",
     explanationWrong:
       "Static imports bundle both editors into the main JavaScript file. Mobile users download the entire desktop editor they'll never use. For heavy, device-specific components, dynamic imports save significant bundle size.",
     sourceUrl:

@@ -106,7 +106,7 @@ export const viewportUnitChallenges: Challenge[] = [
   {
     id: "vu-005",
     category: "viewport-units",
-    difficulty: "hard",
+    difficulty: "easy",
     title: "Viewport units with fallbacks",
     badCode: `.hero {
   height: 100dvh;

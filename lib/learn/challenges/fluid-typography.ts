@@ -47,7 +47,7 @@ export const fluidTypographyChallenges: Challenge[] = [
     lang: "css",
     correctSide: "right",
     explanationCorrect:
-      "Pure `vw` has no minimum or maximum — on a 320px phone it's 16px (fine), but on a 2560px monitor it's 128px (enormous). `clamp()` provides guardrails. The `rem` base also respects the user's browser font-size preference.",
+      "Pure `vw` has no minimum or maximum — on a 320px phone it's just 16px (too small for a heading), and on a 2560px monitor it's 128px (enormous). `clamp()` provides guardrails at both ends. The `rem` base also respects the user's browser font-size preference.",
     explanationWrong:
       "`5vw` means the font is always 5% of the viewport width with no bounds. On ultrawide monitors the text becomes comically large; on small phones it may become unreadable. It also ignores the user's preferred font size setting.",
     sourceUrl:

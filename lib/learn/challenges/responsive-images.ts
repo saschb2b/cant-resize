@@ -16,15 +16,11 @@ export const responsiveImageChallenges: Challenge[] = [
   alt="Hero image"
   width={1200}
   height={630}
-  style={{
-    width: "100%",
-    height: "auto",
-    aspectRatio: "1200 / 630",
-  }}
+  style={{ width: "100%", height: "auto" }}
 />`,
     correctSide: "right",
     explanationCorrect:
-      "Setting `width`, `height`, and `aspect-ratio` lets the browser reserve the correct space before the image loads. This prevents Cumulative Layout Shift (CLS) — content below the image won't jump down when it finally renders.",
+      "Setting `width` and `height` attributes lets the browser calculate the aspect ratio and reserve space before the image loads. Combined with `width: 100%` and `height: auto`, the image scales responsively while preventing Cumulative Layout Shift (CLS).",
     explanationWrong:
       "Without dimensions, the browser doesn't know how tall the image will be until it downloads. The page content shifts downward when the image loads, causing a poor CLS score and a jarring user experience.",
     sourceUrl:

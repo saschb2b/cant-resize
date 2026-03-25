@@ -56,8 +56,8 @@ export const testingResponsiveChallenges: Challenge[] = [
       "A multi-device viewer shows all breakpoints at once, revealing issues you'd miss by manually resizing. Scroll sync helps verify that content alignment works across viewports. It's faster iteration and more thorough coverage.",
     explanationWrong:
       "Manually resizing a single browser window means you can only see one viewport at a time. You miss how changes at one breakpoint affect others, and the constant resizing is slow. Multi-device viewers solve both problems.",
-    sourceUrl: "https://cant-resize.saschb2b.com/canvas",
-    sourceLabel: "Responsive Viewer: can't resize",
+    sourceUrl: "https://developer.chrome.com/docs/devtools/device-mode/",
+    sourceLabel: "Chrome: Device mode testing",
   },
   {
     id: "tr-003",

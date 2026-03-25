@@ -45,40 +45,25 @@ export const mediaQueryChallenges: Challenge[] = [
     id: "mq-002",
     category: "media-queries",
     difficulty: "easy",
-    title: "Breakpoint naming",
-    badCode: `const breakpoints = {
-  small: 576,
-  medium: 768,
-  large: 992,
-  xlarge: 1200,
-};
-
-// Usage in styled-components
-const Wrapper = styled.div\`
-  @media (min-width: \${breakpoints.medium}px) {
-    display: grid;
-  }
-\`;`,
-    goodCode: `const breakpoints = {
-  sm: 640,
-  md: 768,
-  lg: 1024,
-  xl: 1280,
-} as const;
-
-// Usage in styled-components
-const Wrapper = styled.div\`
-  @media (min-width: \${breakpoints.md}px) {
-    display: grid;
-  }
-\`;`,
+    title: "Content-based breakpoints",
+    badCode: `/* Breakpoints based on device widths */
+@media (min-width: 375px) { /* iPhone */ }
+@media (min-width: 768px) { /* iPad */ }
+@media (min-width: 1024px) { /* laptop */ }
+@media (min-width: 1440px) { /* desktop */ }`,
+    goodCode: `/* Breakpoints based on content needs */
+@media (min-width: 32rem) { /* ~512px: cards need 2 columns */ }
+@media (min-width: 48rem) { /* ~768px: sidebar can appear */ }
+@media (min-width: 64rem) { /* ~1024px: full layout */ }`,
+    lang: "css",
     correctSide: "right",
     explanationCorrect:
-      "Short, conventional token names (`sm`, `md`, `lg`, `xl`) align with Tailwind, MUI, and Bootstrap — making your codebase immediately familiar to other developers. The `as const` assertion also gives you literal types.",
+      "Breakpoints should be where *your content* needs them, not where specific devices happen to be. Using `rem` values also respects the user's font size preference — if they increase their base font size, breakpoints shift to accommodate. Device-specific values become wrong with every new device release.",
     explanationWrong:
-      "Verbose names like `small`/`medium`/`large` aren't wrong, but they diverge from the convention every major framework uses. When your team or library adopts `sm`/`md`/`lg`, the mismatch causes friction.",
-    sourceUrl: "https://tailwindcss.com/docs/responsive-design",
-    sourceLabel: "Tailwind: Responsive Design",
+      "Device-based breakpoints (375px for iPhone, 768px for iPad) are arbitrary and fragile. New devices don't fit neatly into these buckets — is a Galaxy Fold (280px folded) a phone? Is a 1024px iPad in landscape a laptop? Breakpoints should respond to your layout's needs.",
+    sourceUrl:
+      "https://www.freecodecamp.org/news/the-100-correct-way-to-do-css-breakpoints-88d6a5ba1862/",
+    sourceLabel: "The correct way to do CSS breakpoints",
   },
   {
     id: "mq-003",

@@ -140,9 +140,9 @@ function useLayout() {
 </Box>`,
     correctSide: "right",
     explanationCorrect:
-      "Device pixel widths are arbitrary and constantly changing. iPhones alone range from 320px to 430px. Instead of mapping widths to device categories, use CSS layouts that adapt fluidly. Breakpoints should be based on *content needs*, not device brands.",
+      "Device pixel widths are arbitrary and constantly changing. iPhones range from 320px (SE 1st gen) to 440px (16 Pro Max), and Android phones vary even more. Instead of mapping widths to device categories, use CSS layouts that adapt fluidly. Breakpoints should be based on *content needs*, not device brands.",
     explanationWrong:
-      "375px is the iPhone 6-13 Mini width, but the iPhone 14 Pro Max is 430px. Galaxy phones range from 360-412px. Pixel assumptions become wrong with every new device release. Design for content breakpoints, not device widths.",
+      "375px covers some iPhones, but the iPhone 12-14 are 390px, the 14 Pro is 393px, and the 16 Pro Max is 440px. Galaxy phones range from 360-412px. Pixel assumptions become wrong with every new device release. Design for content breakpoints, not device widths.",
     sourceUrl:
       "https://www.freecodecamp.org/news/the-100-correct-way-to-do-css-breakpoints-88d6a5ba1862/",
     sourceLabel: "The correct way to do CSS breakpoints",

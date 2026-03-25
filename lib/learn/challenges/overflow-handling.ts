@@ -51,7 +51,7 @@ export const overflowHandlingChallenges: Challenge[] = [
 }`,
     goodCode: `.table-wrapper {
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+
 }
 
 .data-table {
@@ -111,7 +111,7 @@ export const overflowHandlingChallenges: Challenge[] = [
   border-radius: 0.5rem;
   overflow-x: auto;
   white-space: pre;
-  -webkit-overflow-scrolling: touch;
+
 }`,
     lang: "css",
     correctSide: "right",

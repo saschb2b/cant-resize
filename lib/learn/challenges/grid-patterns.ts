@@ -38,24 +38,28 @@ export const gridPatternChallenges: Challenge[] = [
     category: "grid-patterns",
     difficulty: "easy",
     title: "auto-fill vs auto-fit",
-    badCode: `/* 2 items in a wide container: leaves empty tracks */
+    badCode: `/* 2 items in a wide container */
 .grid {
   display: grid;
   grid-template-columns:
     repeat(auto-fill, minmax(200px, 1fr));
-}`,
-    goodCode: `/* 2 items in a wide container: items expand */
+}
+/* Creates invisible empty tracks that
+   prevent items from stretching fully */`,
+    goodCode: `/* 2 items in a wide container */
 .grid {
   display: grid;
   grid-template-columns:
     repeat(auto-fit, minmax(200px, 1fr));
-}`,
+}
+/* Empty tracks collapse to 0px,
+   items stretch to fill the row */`,
     lang: "css",
     correctSide: "right",
     explanationCorrect:
-      "`auto-fit` collapses empty tracks to 0px, so items stretch to fill the full width. With only 2 items in a 1200px container, `auto-fit` gives two 600px items instead of two 200px items with empty space. Use `auto-fit` when you want items to fill the row.",
+      "`auto-fit` collapses empty tracks to 0px, so the remaining items stretch via `1fr` to fill the full container width. With 2 items in a 1200px container, `auto-fit` gives two ~600px items. Use `auto-fit` when you want items to expand to fill available space.",
     explanationWrong:
-      "`auto-fill` keeps empty tracks sized at `minmax(200px, 1fr)`, reserving space for items that don't exist. With 2 items in a wide container, you get two small items and a large empty gap. Use `auto-fill` only when you want to reserve the grid structure.",
+      "`auto-fill` creates as many tracks as can fit, even if some are empty. These empty tracks still participate in the `1fr` distribution, so items share the space with invisible empty columns. The visual result: items don't stretch to fill the row. Use `auto-fill` when you want a consistent grid structure regardless of item count.",
     sourceUrl:
       "https://css-tricks.com/auto-sizing-columns-css-grid-auto-fill-vs-auto-fit/",
     sourceLabel: "CSS-Tricks: auto-fill vs auto-fit",

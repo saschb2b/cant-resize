@@ -18,7 +18,7 @@ export const tailwindResponsiveChallenges: Challenge[] = [
     explanationCorrect:
       "Tailwind is mobile-first: unprefixed utilities apply to all screens, `sm:` applies at 640px+. Start with the mobile layout (`flex-col`), then override for larger screens (`sm:flex-row`). The base class is the smallest screen.",
     explanationWrong:
-      "There is no default `flex-row` for the smallest screens — `md:flex-row` only kicks in at 768px+. Missing the base `flex` class means the container isn't even a flex container on mobile. Always start with the base (mobile) styles, then add prefixed overrides.",
+      "Two problems: `flex-row` and `flex-col` only set `flex-direction` — they don't add `display: flex`. Without the `flex` class, the container isn't a flex container at *any* screen size. Second, the responsive prefixes are backwards — start with the mobile layout unprefixed, then override for larger screens.",
     sourceUrl: "https://tailwindcss.com/docs/responsive-design",
     sourceLabel: "Tailwind: Responsive design",
   },
@@ -102,7 +102,7 @@ export const tailwindResponsiveChallenges: Challenge[] = [
   {
     id: "tw-005",
     category: "tailwind-responsive",
-    difficulty: "hard",
+    difficulty: "medium",
     title: "Responsive typography with Tailwind",
     badCode: `<h1 className="text-4xl">
   Welcome

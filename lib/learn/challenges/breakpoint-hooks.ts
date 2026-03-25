@@ -14,8 +14,6 @@ export const breakpointHooksChallenges: Challenge[] = [
     : <DesktopLayout />;
 }`,
     goodCode: `function App() {
-  const isMobile = useMediaQuery("(max-width: 768px)");
-
   return (
     <>
       <Box sx={{ display: { xs: "block", md: "none" } }}>
@@ -210,19 +208,27 @@ export default function DashboardPage() {
     goodCode: `// page.tsx (Server Component)
 export default function DashboardPage() {
   return (
-    <>
-      <Box sx={{ display: { xs: "block", md: "none" } }}>
+    <div>
+      <div className="mobile-only">
         <MobileDashboard />
-      </Box>
-      <Box sx={{ display: { xs: "none", md: "block" } }}>
+      </div>
+      <div className="desktop-only">
         <DesktopDashboard />
-      </Box>
-    </>
+      </div>
+    </div>
   );
-}`,
+}
+
+// global CSS
+// .mobile-only { display: block; }
+// .desktop-only { display: none; }
+// @media (min-width: 900px) {
+//   .mobile-only { display: none; }
+//   .desktop-only { display: block; }
+// }`,
     correctSide: "right",
     explanationCorrect:
-      "Server Components have no access to browser APIs or React hooks. CSS-based responsive switching works everywhere — server, client, and static HTML. Both components render in the HTML, and CSS hides the wrong one instantly with no JavaScript.",
+      "Server Components have no access to browser APIs or React hooks. Plain CSS-based responsive switching works everywhere — server, client, and static HTML. Both components render in the HTML, and CSS hides the wrong one instantly with no JavaScript. Note: MUI's `sx` prop requires Emotion's client runtime, so use plain CSS or CSS modules in Server Components.",
     explanationWrong:
       "`useMediaQuery` is a React hook that requires client-side execution. Using it in a Server Component throws a build error. Even if you add `\"use client\"`, you'd lose the benefits of server rendering for the entire page.",
     sourceUrl:
