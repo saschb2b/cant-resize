@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
@@ -125,6 +125,28 @@ export function ViewportFrame({
     broadcastNavigation,
   });
 
+  // Mouse position tracking for ruler indicator (in viewport px, not screen px)
+  const [mouseX, setMouseX] = useState<number | null>(null);
+  const containerBoxRef = useRef<HTMLDivElement>(null);
+
+  const handleContainerMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!showRulers) return;
+      const el = e.currentTarget as HTMLElement;
+      const rect = el.getBoundingClientRect();
+      // Convert screen position to viewport pixels
+      const relX = e.clientX - rect.left;
+      const containerWidth = rect.width;
+      const vpX = Math.round((relX / containerWidth) * displayWidth);
+      setMouseX(Math.max(0, Math.min(vpX, displayWidth)));
+    },
+    [showRulers, displayWidth],
+  );
+
+  const handleContainerMouseLeave = useCallback(() => {
+    setMouseX(null);
+  }, []);
+
   return (
     <Box
       ref={frameRef}
@@ -237,6 +259,8 @@ export function ViewportFrame({
 
       {/* Iframe container */}
       <Box
+        onMouseMove={handleContainerMouseMove}
+        onMouseLeave={handleContainerMouseLeave}
         sx={{
           position: "absolute",
           left: 0,
@@ -435,8 +459,56 @@ export function ViewportFrame({
                   );
                 },
               )}
+              {/* Cursor position indicator */}
+              {mouseX !== null && (
+                <>
+                  <line
+                    x1={mouseX}
+                    y1={0}
+                    x2={mouseX}
+                    y2={14}
+                    stroke="#f43f5e"
+                    strokeWidth={1.5}
+                  />
+                  <rect
+                    x={mouseX + 2}
+                    y={0}
+                    width={String(mouseX).length * 6 + 6}
+                    height={10}
+                    rx={2}
+                    fill="#f43f5e"
+                  />
+                  <text
+                    x={mouseX + 5}
+                    y={7.5}
+                    fill="#fff"
+                    fontSize="7"
+                    fontWeight="bold"
+                    fontFamily="var(--font-geist-mono), monospace"
+                  >
+                    {mouseX}
+                  </text>
+                </>
+              )}
             </svg>
           </Box>
+        )}
+
+        {/* Cursor crosshair line extending down from ruler */}
+        {showRulers && mouseX !== null && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 14,
+              bottom: 0,
+              width: 0,
+              borderLeft: "1px solid #f43f5e",
+              opacity: 0.4,
+              zIndex: 6,
+              pointerEvents: "none",
+            }}
+            style={{ left: `${String((mouseX / displayWidth) * 100)}%` }}
+          />
         )}
       </Box>
 
