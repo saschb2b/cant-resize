@@ -26,7 +26,7 @@ export const responsivePropsChallenges: Challenge[] = [
 }`,
     correctSide: "right",
     explanationCorrect:
-      "MUI's responsive prop objects compile to CSS media queries — no hook, no re-render, no SSR flash. The intent is also more readable: `{ xs: 'column', sm: 'row' }` is a data structure describing the layout at each breakpoint.",
+      "MUI's responsive prop objects compile to CSS media queries with no hook, no re-render, and no SSR flash. The intent is also more readable: `{ xs: 'column', sm: 'row' }` is a data structure describing the layout at each breakpoint.",
     explanationWrong:
       "`useMediaQuery` defaults to `false` during SSR, so the server always renders the `row` layout. On mobile, React hydrates and immediately re-renders to `column`, causing a visible layout flash.",
     sourceUrl:
@@ -61,7 +61,7 @@ export const responsivePropsChallenges: Challenge[] = [
 }`,
     correctSide: "right",
     explanationCorrect:
-      "Keep the semantic `variant` (h3 for heading hierarchy and accessibility) and override the visual size with responsive `fontSize` in `sx`. This gives you correct heading semantics with flexible visual sizing — and no JavaScript hook.",
+      "Keep the semantic `variant` (h3 for heading hierarchy and accessibility) and override the visual size with responsive `fontSize` in `sx`. This gives you correct heading semantics with flexible visual sizing, and no JavaScript hook is needed.",
     explanationWrong:
       "Changing `variant` between `h5` and `h3` changes the rendered HTML element, which affects heading hierarchy and screen reader navigation. The visual size should be separate from the semantic meaning.",
     sourceUrl:
@@ -131,7 +131,7 @@ function Page() {
 }`,
     correctSide: "right",
     explanationCorrect:
-      "By accepting breakpoint objects in the API, the component handles responsiveness internally via CSS. The consumer never needs `useMediaQuery`. This follows MUI's pattern — if your component wraps MUI, expose the same responsive API.",
+      "By accepting breakpoint objects in the API, the component handles responsiveness internally via CSS. The consumer never needs `useMediaQuery`. This follows MUI's pattern, so if your component wraps MUI, expose the same responsive API.",
     explanationWrong:
       "Forcing the consumer to use `useMediaQuery` means every usage site has the same SSR hydration bug risk, and every consumer writes the same boilerplate. Push responsive logic into the component where it can be handled with CSS.",
     sourceUrl:
@@ -244,7 +244,7 @@ function AppGrid({ columns, children }: GridProps) {
     explanationCorrect:
       "One `columns` prop accepting breakpoint objects replaces three separate props and two hooks. The consumer's API is clean (`columns={{ xs: 1, md: 3 }}`), and the implementation compiles to pure CSS media queries.",
     explanationWrong:
-      "Three props (`columns`, `mobileColumns`, `tabletColumns`) don't scale — what about `xl`? What about custom breakpoints? Two `useMediaQuery` hooks cause double re-renders on resize and SSR hydration issues. The responsive object pattern handles all breakpoints in one prop.",
+      "Three props (`columns`, `mobileColumns`, `tabletColumns`) don't scale. What about `xl`? What about custom breakpoints? Two `useMediaQuery` hooks cause double re-renders on resize and SSR hydration issues. The responsive object pattern handles all breakpoints in one prop.",
     sourceUrl:
       "https://mui.com/material-ui/react-grid/#responsive-values",
     sourceLabel: "MUI: Grid responsive values",

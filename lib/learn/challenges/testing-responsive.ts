@@ -92,7 +92,7 @@ export const testingResponsiveChallenges: Challenge[] = [
     explanationCorrect:
       "`setViewportSize` sets the actual viewport, triggering media queries. `toBeVisible()` checks CSS visibility (including `display: none`), while `toBeAttached()` only checks DOM presence. The test verifies the full mobile flow: hidden sidebar, visible hamburger, click to reveal.",
     explanationWrong:
-      "`toBeAttached()` passes as long as the element exists in the DOM — it doesn't check if it's visible. A CSS-hidden sidebar is still \"attached\". Without setting the viewport size, the test runs at Playwright's default (1280x720), testing desktop layout instead.",
+      "`toBeAttached()` passes as long as the element exists in the DOM and it doesn't check if it's visible. A CSS-hidden sidebar is still \"attached\". Without setting the viewport size, the test runs at Playwright's default (1280x720), testing desktop layout instead.",
     sourceUrl:
       "https://playwright.dev/docs/emulation#viewport",
     sourceLabel: "Playwright: Viewport emulation",
@@ -127,7 +127,7 @@ for (const vp of viewports) {
 }`,
     correctSide: "right",
     explanationCorrect:
-      "Visual regression tests at multiple viewports catch breakpoint-specific bugs. A CSS change that looks fine on desktop might break the mobile layout — testing at one size misses this. Loop over viewports to get coverage without code duplication.",
+      "Visual regression tests at multiple viewports catch breakpoint-specific bugs. A CSS change that looks fine on desktop might break the mobile layout, and testing at one size misses this. Loop over viewports to get coverage without code duplication.",
     explanationWrong:
       "A single-viewport screenshot test gives you confidence at that one size. A padding change that fixes desktop alignment might overlap elements at 375px. Without mobile/tablet screenshots, the regression goes undetected until a user reports it.",
     sourceUrl:
@@ -164,9 +164,9 @@ for (const vp of viewports) {
 });`,
     correctSide: "right",
     explanationCorrect:
-      "Test the *behavior* (sidebar visible/hidden, hamburger appears/disappears) rather than pixel values. Using ARIA roles (`complementary` for sidebar) and accessible names makes the test resilient to CSS changes and meaningful — it verifies what the user actually experiences.",
+      "Test the *behavior* (sidebar visible/hidden, hamburger appears/disappears) rather than pixel values. Using ARIA roles (`complementary` for sidebar) and accessible names makes the test resilient to CSS changes and meaningful because it verifies what the user actually experiences.",
     explanationWrong:
-      "Asserting exact pixel values (width = 0, height = 0) is brittle — a 1px padding change breaks the test. It also doesn't verify the user experience: is the hamburger menu there? Can the user open the sidebar? Behavioral assertions are more valuable and maintainable.",
+      "Asserting exact pixel values (width = 0, height = 0) is brittle, and a 1px padding change breaks the test. It also doesn't verify the user experience: is the hamburger menu there? Can the user open the sidebar? Behavioral assertions are more valuable and maintainable.",
     sourceUrl:
       "https://playwright.dev/docs/locators#locate-by-role",
     sourceLabel: "Playwright: Role-based locators",

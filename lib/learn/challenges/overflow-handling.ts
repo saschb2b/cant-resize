@@ -118,7 +118,7 @@ export const overflowHandlingChallenges: Challenge[] = [
     explanationCorrect:
       "`overflow-x: auto` adds a horizontal scrollbar only when the code exceeds the container width. `white-space: pre` preserves code formatting (indentation, line breaks) while allowing horizontal scroll for long lines.",
     explanationWrong:
-      "Without `overflow-x: auto`, code blocks with long lines push the entire page layout wider. On mobile, this creates a full-page horizontal scrollbar — one of the most common responsive design bugs.",
+      "Without `overflow-x: auto`, code blocks with long lines push the entire page layout wider. On mobile, this creates a full-page horizontal scrollbar, which is one of the most common responsive design bugs.",
     sourceUrl:
       "https://developer.mozilla.org/en-US/docs/Web/CSS/white-space",
     sourceLabel: "MDN: white-space",
@@ -157,7 +157,7 @@ export const overflowHandlingChallenges: Challenge[] = [
     lang: "css",
     correctSide: "right",
     explanationCorrect:
-      "A flex column layout with `min-height: 0` on the body lets the body scroll while header and footer stay fixed. Only one scrollbar exists. The key is `min-height: 0` — without it, the flex child won't shrink below its content height.",
+      "A flex column layout with `min-height: 0` on the body lets the body scroll while header and footer stay fixed. Only one scrollbar exists. The key is `min-height: 0` because without it, the flex child won't shrink below its content height.",
     explanationWrong:
       "Nested scroll containers create two independent scrollbars. Users don't know which region they're scrolling, and on touch devices the wrong scroll container often captures the gesture. One scroll context is always clearer.",
     sourceUrl:

@@ -71,7 +71,7 @@ export const breakpointHooksChallenges: Challenge[] = [
 }`,
     correctSide: "right",
     explanationCorrect:
-      "MUI's `sx` breakpoint objects compile to CSS media queries — no JavaScript runs on resize. This is faster, avoids hydration mismatches, and eliminates the re-render on every breakpoint crossing.",
+      "MUI's `sx` breakpoint objects compile to CSS media queries, so no JavaScript runs on resize. This is faster, avoids hydration mismatches, and eliminates the re-render on every breakpoint crossing.",
     explanationWrong:
       "`useMediaQuery` triggers a React re-render every time the viewport crosses 600px. For purely visual changes like direction, size, and font size, CSS media queries (via `sx` breakpoints) are more performant and SSR-safe.",
     sourceUrl:
@@ -116,7 +116,7 @@ export const breakpointHooksChallenges: Challenge[] = [
 }`,
     correctSide: "right",
     explanationCorrect:
-      "Using `matchMedia` instead of `resize` events is more performant — the browser only fires the callback when the query result *changes*, not on every pixel of resize. Initializing state to `false` avoids crashing during SSR where `window` doesn't exist.",
+      "Using `matchMedia` instead of `resize` events is more performant because the browser only fires the callback when the query result *changes*, not on every pixel of resize. Initializing state to `false` avoids crashing during SSR where `window` doesn't exist.",
     explanationWrong:
       "Accessing `window.innerWidth` in `useState` breaks SSR because `window` is undefined on the server. The `resize` event also fires continuously during drag, causing unnecessary re-renders for every pixel of width change.",
     sourceUrl:
@@ -182,7 +182,7 @@ export const breakpointHooksChallenges: Challenge[] = [
 }`,
     correctSide: "right",
     explanationCorrect:
-      'Two `matchMedia` listeners fire only when crossing 640px or 1024px — not on every pixel of resize. No debounce needed, no stale 150ms delay, and the return value is a clean discriminated string instead of three booleans that could theoretically conflict.',
+      'Two `matchMedia` listeners fire only when crossing 640px or 1024px, not on every pixel of resize. No debounce needed, no stale 150ms delay, and the return value is a clean discriminated string instead of three booleans that could theoretically conflict.',
     explanationWrong:
       "Debouncing `resize` is a workaround for a problem `matchMedia` already solves. The 150ms delay makes the UI feel sluggish during resize, and tracking raw width means the component re-renders for every pixel change even within the same breakpoint.",
     sourceUrl:
@@ -228,7 +228,7 @@ export default function DashboardPage() {
 // }`,
     correctSide: "right",
     explanationCorrect:
-      "Server Components have no access to browser APIs or React hooks. Plain CSS-based responsive switching works everywhere — server, client, and static HTML. Both components render in the HTML, and CSS hides the wrong one instantly with no JavaScript. Note: MUI's `sx` prop requires Emotion's client runtime, so use plain CSS or CSS modules in Server Components.",
+      "Server Components have no access to browser APIs or React hooks. Plain CSS-based responsive switching works everywhere: server, client, and static HTML. Both components render in the HTML, and CSS hides the wrong one instantly with no JavaScript. Note: MUI's `sx` prop requires Emotion's client runtime, so use plain CSS or CSS modules in Server Components.",
     explanationWrong:
       "`useMediaQuery` is a React hook that requires client-side execution. Using it in a Server Component throws a build error. Even if you add `\"use client\"`, you'd lose the benefits of server rendering for the entire page.",
     sourceUrl:

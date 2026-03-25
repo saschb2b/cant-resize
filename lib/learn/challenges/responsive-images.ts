@@ -125,7 +125,7 @@ export const responsiveImageChallenges: Challenge[] = [
     explanationCorrect:
       "The `sizes` attribute tells the browser how wide the image will display at each viewport width *before* CSS loads. With `100vw`, a card in a 3-column grid triggers downloading a full-width image. Accurate sizes lets the browser pick the right resolution from the srcSet.",
     explanationWrong:
-      "`sizes=\"100vw\"` tells the browser this image fills the viewport. But in a 3-column grid, each image is only ~33% of the viewport. The browser downloads a 1440px-wide image when a 480px-wide one would suffice — wasting 3x the bandwidth.",
+      "`sizes=\"100vw\"` tells the browser this image fills the viewport. But in a 3-column grid, each image is only ~33% of the viewport. The browser downloads a 1440px-wide image when a 480px-wide one would suffice, wasting 3x the bandwidth.",
     sourceUrl:
       "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#sizes",
     sourceLabel: "MDN: img sizes attribute",
@@ -167,9 +167,9 @@ export const responsiveImageChallenges: Challenge[] = [
     lang: "css",
     correctSide: "right",
     explanationCorrect:
-      "Background images can't use `srcSet`, so media queries swap resolution manually. `image-set()` provides format negotiation (AVIF > WebP > JPEG). Mobile users get a 640px image instead of a 4K one — saving up to 10x the file size.",
+      "Background images can't use `srcSet`, so media queries swap resolution manually. `image-set()` provides format negotiation (AVIF > WebP > JPEG). Mobile users get a 640px image instead of a 4K one, saving up to 10x the file size.",
     explanationWrong:
-      "A 4K background image on a 375px phone downloads megabytes of unnecessary pixels. Unlike `<img srcSet>`, CSS `background-image` has no built-in resolution switching — you must use media queries to serve appropriate sizes.",
+      "A 4K background image on a 375px phone downloads megabytes of unnecessary pixels. Unlike `<img srcSet>`, CSS `background-image` has no built-in resolution switching, so you must use media queries to serve appropriate sizes.",
     sourceUrl:
       "https://developer.mozilla.org/en-US/docs/Web/CSS/image/image-set",
     sourceLabel: "MDN: image-set()",

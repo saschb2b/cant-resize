@@ -28,9 +28,9 @@ export const flexboxPatternChallenges: Challenge[] = [
     lang: "css",
     correctSide: "right",
     explanationCorrect:
-      "`flex-wrap: wrap` with `flex: 1 1 300px` means each card wants to be at least 300px wide. When the container can't fit two 300px cards side by side, they automatically wrap — no breakpoint needed. The items also grow to fill available space.",
+      "`flex-wrap: wrap` with `flex: 1 1 300px` means each card wants to be at least 300px wide. When the container can't fit two 300px cards side by side, they automatically wrap without any breakpoint. The items also grow to fill available space.",
     explanationWrong:
-      "A `max-width: 768px` breakpoint is arbitrary — what if the container is in a sidebar and only 400px wide? The cards would still try to sit side by side because the *viewport* is wider than 768px. `flex-wrap` responds to actual available space.",
+      "A `max-width: 768px` breakpoint is arbitrary. What if the container is in a sidebar and only 400px wide? The cards would still try to sit side by side because the *viewport* is wider than 768px. `flex-wrap` responds to actual available space.",
     sourceUrl:
       "https://developer.mozilla.org/en-US/docs/Web/CSS/flex-wrap",
     sourceLabel: "MDN: flex-wrap",
@@ -58,7 +58,7 @@ export const flexboxPatternChallenges: Challenge[] = [
     lang: "css",
     correctSide: "right",
     explanationCorrect:
-      "`gap` applies spacing *between* flex children only — no extra margin on the first or last item, no `:last-child` override needed. It also works correctly when items wrap: no trailing gap on the last item of each row.",
+      "`gap` applies spacing *between* flex children only, so there's no extra margin on the first or last item and no `:last-child` override needed. It also works correctly when items wrap: no trailing gap on the last item of each row.",
     explanationWrong:
       "Margin-based spacing requires removing the margin from the last child. If items wrap, you also need to handle the last item of *each row*, which `:last-child` doesn't cover. `gap` handles all of this automatically.",
     sourceUrl: "https://developer.mozilla.org/en-US/docs/Web/CSS/gap",
@@ -109,7 +109,7 @@ export const flexboxPatternChallenges: Challenge[] = [
     explanationCorrect:
       "`flex: 1 1 0%` makes the title take remaining space and shrink when needed. `min-width: 0` overrides the default `min-width: auto` so text truncation actually works. `flex-shrink: 0` on actions prevents buttons from compressing.",
     explanationWrong:
-      "Without `min-width: 0`, the title's `min-width: auto` prevents it from shrinking below its content width — the ellipsis never activates and the toolbar overflows. Without `flex-shrink: 0`, the action buttons may also compress.",
+      "Without `min-width: 0`, the title's `min-width: auto` prevents it from shrinking below its content width, so the ellipsis never activates and the toolbar overflows. Without `flex-shrink: 0`, the action buttons may also compress.",
     sourceUrl:
       "https://developer.mozilla.org/en-US/docs/Web/CSS/flex-shrink",
     sourceLabel: "MDN: flex-shrink",

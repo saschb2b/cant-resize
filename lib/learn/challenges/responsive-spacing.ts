@@ -23,7 +23,7 @@ export const responsiveSpacingChallenges: Challenge[] = [
     lang: "css",
     correctSide: "right",
     explanationCorrect:
-      "`clamp()` provides smooth scaling between 2rem and 6rem based on viewport width — one line instead of three rules. No breakpoints, no jumps. The spacing grows proportionally with the screen.",
+      "`clamp()` provides smooth scaling between 2rem and 6rem based on viewport width, all in one line instead of three rules. No breakpoints, no jumps. The spacing grows proportionally with the screen.",
     explanationWrong:
       "Stepped padding creates visual jumps at each breakpoint. At 767px you have 2rem padding; at 768px it snaps to 4rem. `clamp()` creates a smooth transition that feels more natural and requires no maintenance.",
     sourceUrl: "https://developer.mozilla.org/en-US/docs/Web/CSS/clamp",
@@ -88,7 +88,7 @@ export const responsiveSpacingChallenges: Challenge[] = [
 }`,
     correctSide: "right",
     explanationCorrect:
-      "MUI's `sx` breakpoint objects compile to CSS media queries — no JavaScript hook needed. No re-renders on resize, no SSR hydration mismatch, and the responsive intent is declarative right where the styles are defined.",
+      "MUI's `sx` breakpoint objects compile to CSS media queries with no JavaScript hook needed. No re-renders on resize, no SSR hydration mismatch, and the responsive intent is declarative right where the styles are defined.",
     explanationWrong:
       "`useMediaQuery` triggers re-renders on breakpoint crossings and defaults to `false` during SSR. For purely visual spacing changes, CSS media queries (via `sx` breakpoint objects) are always the better choice.",
     sourceUrl:
@@ -115,7 +115,7 @@ export const responsiveSpacingChallenges: Challenge[] = [
     explanationCorrect:
       "Logical properties (`margin-inline`, `padding-inline`) automatically flip for right-to-left languages. `margin-inline` is shorthand for `margin-inline-start` + `margin-inline-end`. Fewer lines, and your layout works for RTL users without any additional CSS.",
     explanationWrong:
-      "`margin-left`/`margin-right` are physical properties — they don't flip in RTL layouts. If your app is ever translated to Arabic, Hebrew, or another RTL language, all physical spacing needs manual overrides. Logical properties handle this automatically.",
+      "`margin-left`/`margin-right` are physical properties and they don't flip in RTL layouts. If your app is ever translated to Arabic, Hebrew, or another RTL language, all physical spacing needs manual overrides. Logical properties handle this automatically.",
     sourceUrl:
       "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_logical_properties_and_values",
     sourceLabel: "MDN: Logical properties",

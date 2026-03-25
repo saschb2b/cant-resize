@@ -26,9 +26,9 @@ export const gridPatternChallenges: Challenge[] = [
     lang: "css",
     correctSide: "right",
     explanationCorrect:
-      "`auto-fill` with `minmax(250px, 1fr)` creates as many columns as fit, each at least 250px wide, growing to fill space. Three columns on desktop, two on tablet, one on mobile — zero media queries. The grid responds to its container, not the viewport.",
+      "`auto-fill` with `minmax(250px, 1fr)` creates as many columns as fit, each at least 250px wide, growing to fill space. Three columns on desktop, two on tablet, one on mobile, all with zero media queries. The grid responds to its container, not the viewport.",
     explanationWrong:
-      "Hardcoded `1fr 1fr 1fr` always creates three columns. On a 320px phone, each column is ~100px wide — far too narrow. The media query at 768px is a bandaid: the grid should naturally adapt to available space.",
+      "Hardcoded `1fr 1fr 1fr` always creates three columns. On a 320px phone, each column is ~100px wide, which is far too narrow. The media query at 768px is a bandaid: the grid should naturally adapt to available space.",
     sourceUrl:
       "https://developer.mozilla.org/en-US/docs/Web/CSS/repeat#auto-fill",
     sourceLabel: "MDN: repeat(auto-fill)",
@@ -103,7 +103,7 @@ export const gridPatternChallenges: Challenge[] = [
     explanationCorrect:
       "`subgrid` aligns the card's internal rows (header, body, footer) across all cards in the same grid row. Every card's footer sits at the same vertical position regardless of content height. This is what `margin-top: auto` approximates but can't guarantee across siblings.",
     explanationWrong:
-      "`margin-top: auto` pushes the footer down within each card, but cards in the same row still have different internal proportions. The header of one card might be 2 lines while another is 1 — subgrid ensures these internal rows align across the grid.",
+      "`margin-top: auto` pushes the footer down within each card, but cards in the same row still have different internal proportions. The header of one card might be 2 lines while another is 1, and subgrid ensures these internal rows align across the grid.",
     sourceUrl:
       "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_grid_layout/Subgrid",
     sourceLabel: "MDN: Subgrid",
@@ -146,9 +146,9 @@ export const gridPatternChallenges: Challenge[] = [
     lang: "css",
     correctSide: "right",
     explanationCorrect:
-      "Named grid areas make the layout intent readable at a glance — you can see the visual structure in the CSS. Reordering with `grid-template-areas` is explicit about the new arrangement, while `order` just shifts items without showing the full picture.",
+      "Named grid areas make the layout intent readable at a glance because you can see the visual structure in the CSS. Reordering with `grid-template-areas` is explicit about the new arrangement, while `order` just shifts items without showing the full picture.",
     explanationWrong:
-      "`order` rearranges items but doesn't convey the intended layout shape. With named areas, any developer can look at the `grid-template-areas` string and immediately see \"main on top, sidebar below\" — it's a visual diagram in CSS.",
+      "`order` rearranges items but doesn't convey the intended layout shape. With named areas, any developer can look at the `grid-template-areas` string and immediately see \"main on top, sidebar below\". It's a visual diagram in CSS.",
     sourceUrl:
       "https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-areas",
     sourceLabel: "MDN: grid-template-areas",
@@ -186,7 +186,7 @@ export const gridPatternChallenges: Challenge[] = [
     explanationCorrect:
       "The 3-column grid creates automatic gutters (outer `1fr` columns) with content centered in the middle column. `.full-bleed` spans all columns. No `100vw` scrollbar issues, no negative margin hacks, and it works inside any container.",
     explanationWrong:
-      "`100vw` includes the scrollbar width on Windows, causing horizontal overflow. The `calc(-50vw + 50%)` hack is fragile — it breaks inside flex/grid containers and doesn't account for scrollbars. The grid approach is robust and readable.",
+      "`100vw` includes the scrollbar width on Windows, causing horizontal overflow. The `calc(-50vw + 50%)` hack is fragile and breaks inside flex/grid containers. It also doesn't account for scrollbars. The grid approach is robust and readable.",
     sourceUrl:
       "https://www.joshwcomeau.com/css/full-bleed/",
     sourceLabel: "Josh Comeau: Full-bleed layout",

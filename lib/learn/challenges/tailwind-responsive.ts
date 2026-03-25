@@ -18,7 +18,7 @@ export const tailwindResponsiveChallenges: Challenge[] = [
     explanationCorrect:
       "Tailwind is mobile-first: unprefixed utilities apply to all screens, `sm:` applies at 640px+. Start with the mobile layout (`flex-col`), then override for larger screens (`sm:flex-row`). The base class is the smallest screen.",
     explanationWrong:
-      "Two problems: `flex-row` and `flex-col` only set `flex-direction` — they don't add `display: flex`. Without the `flex` class, the container isn't a flex container at *any* screen size. Second, the responsive prefixes are backwards — start with the mobile layout unprefixed, then override for larger screens.",
+      "Two problems: `flex-row` and `flex-col` only set `flex-direction` and they don't add `display: flex`. Without the `flex` class, the container isn't a flex container at *any* screen size. Second, the responsive prefixes are backwards. Start with the mobile layout unprefixed, then override for larger screens.",
     sourceUrl: "https://tailwindcss.com/docs/responsive-design",
     sourceLabel: "Tailwind: Responsive design",
   },
@@ -92,7 +92,7 @@ export const tailwindResponsiveChallenges: Challenge[] = [
 </div>`,
     correctSide: "right",
     explanationCorrect:
-      "Tailwind's `@container` and `@sm:` prefixes generate CSS container queries. The card adapts to its parent's width, not the viewport. If this card is in a sidebar, it stays in column layout — even on a wide desktop.",
+      "Tailwind's `@container` and `@sm:` prefixes generate CSS container queries. The card adapts to its parent's width, not the viewport. If this card is in a sidebar, it stays in column layout even on a wide desktop.",
     explanationWrong:
       "`md:flex-row` triggers at 768px viewport width regardless of where the card is placed. In a 300px sidebar on a 1440px screen, the card still switches to row layout because the *viewport* is wide. Container queries fix this.",
     sourceUrl:

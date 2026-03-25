@@ -42,7 +42,7 @@ export const viewportUnitChallenges: Challenge[] = [
     lang: "css",
     correctSide: "right",
     explanationCorrect:
-      "`svh` (small viewport height) is the viewport with all browser chrome visible — the smallest the viewport can be. For fixed elements, this prevents content from jumping when the URL bar collapses. Use `dvh` for full-screen heroes, `svh` for fixed/sticky UI.",
+      "`svh` (small viewport height) is the viewport with all browser chrome visible, meaning it's the smallest the viewport can be. For fixed elements, this prevents content from jumping when the URL bar collapses. Use `dvh` for full-screen heroes, `svh` for fixed/sticky UI.",
     explanationWrong:
       "`dvh` changes as the browser chrome animates in and out, causing the fixed footer's height to constantly resize as the user scrolls. `svh` gives a stable value based on the smallest viewport state.",
     sourceUrl:
@@ -65,7 +65,7 @@ export const viewportUnitChallenges: Challenge[] = [
     lang: "css",
     correctSide: "right",
     explanationCorrect:
-      "`min(90%, 1200px)` caps the container at 1200px on large screens while staying 90% wide on small screens — no media query needed. Using `%` instead of `vw` also respects parent constraints if the container is nested, and `margin-inline` is the logical property equivalent.",
+      "`min(90%, 1200px)` caps the container at 1200px on large screens while staying 90% wide on small screens, and no media query is needed. Using `%` instead of `vw` also respects parent constraints if the container is nested, and `margin-inline` is the logical property equivalent.",
     explanationWrong:
       "`90vw` always refers to the viewport, even inside a nested container. If this `.container` is inside a 50%-width sidebar, it will overflow because `90vw` is relative to the full screen, not the parent. Percentage-based widths respect the parent.",
     sourceUrl: "https://developer.mozilla.org/en-US/docs/Web/CSS/min",
@@ -120,7 +120,7 @@ export const viewportUnitChallenges: Challenge[] = [
     explanationCorrect:
       "CSS cascade lets you declare `100vh` first as a fallback for older browsers, then `100dvh` which modern browsers will use. Browsers that don't understand `dvh` ignore the second declaration and keep `100vh`. This is progressive enhancement in one rule.",
     explanationWrong:
-      "While `dvh` has good browser support now, older browsers and some WebViews still don't support it. Without a `vh` fallback, the hero gets no height at all in unsupported browsers — it collapses to content height.",
+      "While `dvh` has good browser support now, older browsers and some WebViews still don't support it. Without a `vh` fallback, the hero gets no height at all in unsupported browsers and just collapses to content height.",
     sourceUrl:
       "https://caniuse.com/viewport-unit-variants",
     sourceLabel: "Can I Use: Viewport unit variants",

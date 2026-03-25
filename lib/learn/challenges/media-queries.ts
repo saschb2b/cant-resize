@@ -58,9 +58,9 @@ export const mediaQueryChallenges: Challenge[] = [
     lang: "css",
     correctSide: "right",
     explanationCorrect:
-      "Breakpoints should be where *your content* needs them, not where specific devices happen to be. Using `rem` values also respects the user's font size preference — if they increase their base font size, breakpoints shift to accommodate. Device-specific values become wrong with every new device release.",
+      "Breakpoints should be where *your content* needs them, not where specific devices happen to be. Using `rem` values also respects the user's font size preference, so if they increase their base font size, breakpoints shift to accommodate. Device-specific values become wrong with every new device release.",
     explanationWrong:
-      "Device-based breakpoints (375px for iPhone, 768px for iPad) are arbitrary and fragile. New devices don't fit neatly into these buckets — is a Galaxy Fold (280px folded) a phone? Is a 1024px iPad in landscape a laptop? Breakpoints should respond to your layout's needs.",
+      "Device-based breakpoints (375px for iPhone, 768px for iPad) are arbitrary and fragile. New devices don't fit neatly into these buckets. Is a Galaxy Fold (280px folded) a phone? Is a 1024px iPad in landscape a laptop? Breakpoints should respond to your layout's needs.",
     sourceUrl:
       "https://www.freecodecamp.org/news/the-100-correct-way-to-do-css-breakpoints-88d6a5ba1862/",
     sourceLabel: "The correct way to do CSS breakpoints",
@@ -89,7 +89,7 @@ export const mediaQueryChallenges: Challenge[] = [
     explanationCorrect:
       "At exactly 768px, both `max-width: 768px` and `min-width: 768px` match simultaneously. Using `767.98px` (or using only `min-width` in a mobile-first approach) eliminates the overlap where both rules apply and source order decides the winner.",
     explanationWrong:
-      "When the viewport is exactly 768px wide, both media queries match. The sidebar gets `display: none` *and* `width: 250px` — CSS cascade picks the last one. This is a subtle bug that only appears at one exact width.",
+      "When the viewport is exactly 768px wide, both media queries match. The sidebar gets `display: none` *and* `width: 250px`, and CSS cascade picks the last one. This is a subtle bug that only appears at one exact width.",
     sourceUrl:
       "https://getbootstrap.com/docs/5.3/layout/breakpoints/#media-queries",
     sourceLabel: "Bootstrap: Breakpoint media queries",
@@ -116,7 +116,7 @@ export const mediaQueryChallenges: Challenge[] = [
     explanationCorrect:
       "Media query range syntax (`768px <= width < 1024px`) is supported in all modern browsers and reads like a math expression. The `<` makes it obvious the upper bound is exclusive, preventing overlap with the next breakpoint.",
     explanationWrong:
-      "The `and` syntax works but is harder to scan, and `max-width: 1024px` is inclusive — so at 1024px this query *and* a `min-width: 1024px` desktop query both match. Range syntax with `<` avoids this.",
+      "The `and` syntax works but is harder to scan, and `max-width: 1024px` is inclusive, so at 1024px this query *and* a `min-width: 1024px` desktop query both match. Range syntax with `<` avoids this.",
     sourceUrl:
       "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_media_queries/Using_media_queries#syntax_improvements_in_level_4",
     sourceLabel: "MDN: Media query range syntax",

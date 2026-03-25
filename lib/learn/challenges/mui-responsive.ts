@@ -26,7 +26,7 @@ export const muiResponsiveChallenges: Challenge[] = [
     explanationCorrect:
       "MUI's `sx` prop accepts breakpoint objects that compile to CSS media queries at build time. This is SSR-safe, avoids hydration mismatches, and doesn't trigger re-renders on resize.",
     explanationWrong:
-      "`window.innerWidth` is unavailable during SSR and triggers hydration errors. Even on the client, reading it in render means the value is stale until the next re-render — and there's no listener to trigger one.",
+      "`window.innerWidth` is unavailable during SSR and triggers hydration errors. Even on the client, reading it in render means the value is stale until the next re-render, and there's no listener to trigger one.",
     sourceUrl:
       "https://mui.com/system/getting-started/usage/#responsive-values",
     sourceLabel: "MUI: Responsive values",
@@ -56,7 +56,7 @@ export const muiResponsiveChallenges: Challenge[] = [
     explanationCorrect:
       "Responsive `size` objects give each card the full width on mobile (12 columns), half on tablets (6), and a third on desktop (4). The layout adapts without any custom CSS or media queries.",
     explanationWrong:
-      "Fixed `size={4}` forces three columns at every screen size. On a 320px phone, each card is only ~100px wide — far too narrow to be usable. Always provide at least an `xs` and one larger breakpoint.",
+      "Fixed `size={4}` forces three columns at every screen size. On a 320px phone, each card is only ~100px wide, which is far too narrow to be usable. Always provide at least an `xs` and one larger breakpoint.",
     sourceUrl: "https://mui.com/material-ui/react-grid/#responsive-values",
     sourceLabel: "MUI: Grid responsive values",
   },
@@ -94,7 +94,7 @@ export const muiResponsiveChallenges: Challenge[] = [
     explanationCorrect:
       "Stack's `direction` and `spacing` props accept breakpoint objects natively. This avoids a `useMediaQuery` hook, its SSR hydration flash, and the extra re-render when the breakpoint crosses.",
     explanationWrong:
-      "`useMediaQuery` triggers a re-render on every breakpoint crossing and defaults to `false` during SSR — so server-rendered HTML always shows the desktop layout first, even on mobile. MUI's responsive props handle this in CSS.",
+      "`useMediaQuery` triggers a re-render on every breakpoint crossing and defaults to `false` during SSR, so server-rendered HTML always shows the desktop layout first, even on mobile. MUI's responsive props handle this in CSS.",
     sourceUrl:
       "https://mui.com/material-ui/react-stack/#responsive-values",
     sourceLabel: "MUI: Stack responsive values",
@@ -138,7 +138,7 @@ export const muiResponsiveChallenges: Challenge[] = [
 }`,
     correctSide: "right",
     explanationCorrect:
-      "On small screens, a floating dialog with backdrop can feel cramped and the close button may be hard to reach. `fullScreen` on mobile gives the dialog room to breathe and makes it feel like a native screen transition. This is one of the valid uses for `useMediaQuery` — you need a boolean prop, not a CSS value.",
+      "On small screens, a floating dialog with backdrop can feel cramped and the close button may be hard to reach. `fullScreen` on mobile gives the dialog room to breathe and makes it feel like a native screen transition. This is one of the valid uses for `useMediaQuery` because you need a boolean prop, not a CSS value.",
     explanationWrong:
       "A small floating dialog on a 320px screen leaves almost no padding around the content. Users struggle with small touch targets and the modal feels claustrophobic. MUI's `fullScreen` prop is designed exactly for this.",
     sourceUrl:

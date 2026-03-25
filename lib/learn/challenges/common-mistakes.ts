@@ -45,7 +45,7 @@ export const commonMistakeChallenges: Challenge[] = [
     explanationCorrect:
       "WCAG recommends at least 44x44px touch targets. Setting `minWidth`/`minHeight` on the button keeps the visual compact while making the clickable area finger-friendly. The icon stays 16px but the touch area is 44px.",
     explanationWrong:
-      "A 24px tap target is frustrating on touch devices — users miss the button and accidentally tap adjacent elements. Apple's HIG recommends 44pt, Google Material recommends 48dp. Small visual elements need padding to reach the minimum.",
+      "A 24px tap target is frustrating on touch devices because users miss the button and accidentally tap adjacent elements. Apple's HIG recommends 44pt, Google Material recommends 48dp. Small visual elements need padding to reach the minimum.",
     sourceUrl:
       "https://www.w3.org/WAI/WCAG21/Understanding/target-size.html",
     sourceLabel: "WCAG: Target Size",
