@@ -388,6 +388,7 @@ export function Canvas({ gridSnap = false, showBreakpoints = false, showRulers =
 
   const {
     containerRef,
+    contentRef,
     transform,
     isPanning,
     isSpacePressed,
@@ -435,8 +436,13 @@ export function Canvas({ gridSnap = false, showBreakpoints = false, showRulers =
     >
       {/* Transformed canvas content */}
       <Box
+        ref={contentRef}
         data-canvas-background
-        sx={{ position: "absolute", transformOrigin: "top left" }}
+        sx={{
+          position: "absolute",
+          transformOrigin: "top left",
+          willChange: "transform",
+        }}
         style={{
           transform: `translate(${String(transform.x)}px, ${String(transform.y)}px) scale(${String(transform.scale)})`,
           width: "10000px",

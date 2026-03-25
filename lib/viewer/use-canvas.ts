@@ -22,9 +22,9 @@ export function useCanvas(options: UseCanvasOptions) {
   const [isSpacePressed, setIsSpacePressed] = useState(false);
   const lastMousePos = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const rafId = useRef(0);
 
-  // Keep a mutable ref of the latest transform so handlers don't need it
-  // in their dependency arrays. This avoids recreating handlers every frame.
   const transformRef = useRef(transform);
   transformRef.current = transform;
 
@@ -34,7 +34,28 @@ export function useCanvas(options: UseCanvasOptions) {
   const limitsRef = useRef({ minScale, maxScale });
   limitsRef.current = { minScale, maxScale };
 
-  // Stable wheel handler — never recreates
+  // Apply transform directly to DOM, bypassing React render cycle.
+  // Batches with requestAnimationFrame so multiple events in one frame
+  // only cause one DOM write.
+  const applyTransform = useCallback((t: CanvasTransform) => {
+    cancelAnimationFrame(rafId.current);
+    rafId.current = requestAnimationFrame(() => {
+      const content = contentRef.current;
+      const container = containerRef.current;
+      if (content) {
+        content.style.transform = `translate(${String(t.x)}px, ${String(t.y)}px) scale(${String(t.scale)})`;
+      }
+      if (container) {
+        const gridSize = 20 * t.scale;
+        container.style.backgroundSize = `${String(gridSize)}px ${String(gridSize)}px`;
+        container.style.backgroundPosition = `${String(t.x)}px ${String(t.y)}px`;
+      }
+      // Sync React state (for persisting to localStorage and overlay controls)
+      onChangeRef.current(t);
+    });
+  }, []);
+
+  // Stable wheel handler
   const handleWheel = useCallback((e: WheelEvent) => {
     e.preventDefault();
 
@@ -42,7 +63,6 @@ export function useCanvas(options: UseCanvasOptions) {
     const { minScale: min, maxScale: max } = limitsRef.current;
 
     if (e.ctrlKey || e.metaKey) {
-      // Multiplicative zoom towards cursor — feels consistent at every level
       const zoomFactor = Math.pow(0.995, e.deltaY);
       const newScale = Math.min(max, Math.max(min, t.scale * zoomFactor));
 
@@ -52,21 +72,24 @@ export function useCanvas(options: UseCanvasOptions) {
         const mouseY = e.clientY - rect.top;
         const scaleFactor = newScale / t.scale;
 
-        onChangeRef.current({
+        const newT = {
           x: mouseX - (mouseX - t.x) * scaleFactor,
           y: mouseY - (mouseY - t.y) * scaleFactor,
           scale: newScale,
-        });
+        };
+        transformRef.current = newT;
+        applyTransform(newT);
       }
     } else {
-      // Pan
-      onChangeRef.current({
+      const newT = {
         ...t,
         x: t.x - e.deltaX,
         y: t.y - e.deltaY,
-      });
+      };
+      transformRef.current = newT;
+      applyTransform(newT);
     }
-  }, []);
+  }, [applyTransform]);
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
@@ -79,7 +102,6 @@ export function useCanvas(options: UseCanvasOptions) {
     [isSpacePressed],
   );
 
-  // Stable pan handler — reads transform from ref
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
       if (!isPanning) return;
@@ -89,20 +111,22 @@ export function useCanvas(options: UseCanvasOptions) {
       lastMousePos.current = { x: e.clientX, y: e.clientY };
 
       const t = transformRef.current;
-      onChangeRef.current({
+      const newT = {
         ...t,
         x: t.x + deltaX,
         y: t.y + deltaY,
-      });
+      };
+      transformRef.current = newT;
+      applyTransform(newT);
     },
-    [isPanning],
+    [isPanning, applyTransform],
   );
 
   const handleMouseUp = useCallback(() => {
     setIsPanning(false);
   }, []);
 
-  // Handle space key for pan mode
+  // Space key for pan mode
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === "Space" && !e.repeat) {
@@ -127,7 +151,7 @@ export function useCanvas(options: UseCanvasOptions) {
     };
   }, []);
 
-  // Attach wheel listener once — handleWheel is stable
+  // Attach wheel listener once
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -138,6 +162,7 @@ export function useCanvas(options: UseCanvasOptions) {
 
   return {
     containerRef,
+    contentRef,
     transform,
     isPanning,
     isSpacePressed,
