@@ -234,7 +234,8 @@ export function CanvasOverlay() {
         {/* ── Top row ── */}
         <Box
           sx={{
-            display: "flex",
+            display: "grid",
+            gridTemplateColumns: "auto 1fr auto",
             alignItems: "flex-start",
             gap: 1.5,
           }}
@@ -267,9 +268,9 @@ export function CanvasOverlay() {
             onSubmit={handleUrlSubmit}
             sx={{
               ...pillSx,
-              flex: 1,
               maxWidth: 560,
-              mx: "auto",
+              justifySelf: "center",
+              width: "100%",
             }}
           >
             <TextField
