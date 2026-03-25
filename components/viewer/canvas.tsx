@@ -30,7 +30,7 @@ interface GridDragState {
 // ── Grid mode component ─────────────────────────────────────────────────────
 
 function GridCanvas() {
-  const { state, dispatch } = useViewer();
+  const { state, dispatch, selectViewport } = useViewer();
   const [drag, setDrag] = useState<GridDragState | null>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -159,6 +159,9 @@ function GridCanvas() {
         overflow: "auto",
         p: 3,
         bgcolor: "action.hover",
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) selectViewport(null);
       }}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -294,7 +297,7 @@ interface CanvasProps {
 }
 
 export function Canvas({ gridSnap = false, showBreakpoints = false, showRulers = false }: CanvasProps) {
-  const { state, setCanvasTransform } = useViewer();
+  const { state, selectViewport, setCanvasTransform } = useViewer();
   const [guides, setGuides] = useState<GuideLine[]>([]);
 
   const {
@@ -332,6 +335,12 @@ export function Canvas({ gridSnap = false, showBreakpoints = false, showRulers =
           "radial-gradient(circle at 1px 1px, var(--mui-palette-divider) 1px, transparent 0)",
         backgroundSize: `${String(20 * transform.scale)}px ${String(20 * transform.scale)}px`,
         backgroundPosition: `${String(transform.x)}px ${String(transform.y)}px`,
+      }}
+      onClick={(e) => {
+        // Deselect when clicking the canvas background (not a viewport)
+        if (e.target === e.currentTarget || (e.target as HTMLElement).dataset.canvasBackground !== undefined) {
+          selectViewport(null);
+        }
       }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
