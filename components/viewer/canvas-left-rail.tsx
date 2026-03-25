@@ -443,19 +443,10 @@ export function CanvasLeftRail({
           ) || "#0a0a0a",
       });
 
-      // Try clipboard first, fall back to download
-      try {
-        const res = await fetch(dataUrl);
-        const blob = await res.blob();
-        await navigator.clipboard.write([
-          new ClipboardItem({ "image/png": blob }),
-        ]);
-      } catch {
-        const link = document.createElement("a");
-        link.download = `cant-resize-${new Date().toISOString().slice(0, 10)}.png`;
-        link.href = dataUrl;
-        link.click();
-      }
+      const link = document.createElement("a");
+      link.download = `cant-resize-${new Date().toISOString().slice(0, 10)}.png`;
+      link.href = dataUrl;
+      link.click();
 
       setScreenshotFeedback(true);
       setTimeout(() => setScreenshotFeedback(false), 1500);
@@ -549,7 +540,7 @@ export function CanvasLeftRail({
 
         {/* Screenshot */}
         <Tooltip
-          title={screenshotFeedback ? "Copied!" : "Screenshot canvas"}
+          title={screenshotFeedback ? "Saved!" : "Download screenshot"}
           placement="right"
         >
           <IconButton
