@@ -18,7 +18,6 @@ import {
   Columns3,
   Grid3x3,
 } from "lucide-react";
-import { toPng } from "html-to-image";
 import { useViewer } from "./viewer-provider";
 import { getDevicesByCategory } from "@/lib/viewer/device-presets";
 import type { DevicePreset } from "@/lib/viewer/types";
@@ -176,76 +175,58 @@ export function CanvasLeftRail({
   );
 
   const handleScreenshot = useCallback(async () => {
-    // Capture the visible canvas container (not the 10000x10000 content box)
-    const container = document.querySelector("[data-canvas-background]")
-      ?.parentElement;
-    if (!container) return;
-
-    // Flash effect
-    const flash = document.createElement("div");
-    Object.assign(flash.style, {
-      position: "fixed",
-      inset: "0",
-      background: "white",
-      opacity: "0",
-      zIndex: "99999",
-      pointerEvents: "none",
-      transition: "opacity 0.1s ease-out",
-    });
-    document.body.appendChild(flash);
-    requestAnimationFrame(() => {
-      flash.style.opacity = "0.3";
-      setTimeout(() => {
-        flash.style.opacity = "0";
-        setTimeout(() => flash.remove(), 150);
-      }, 80);
-    });
-
     try {
-      // Hide iframes (cross-origin blocks capture) and add placeholders
-      const iframes = container.querySelectorAll("iframe");
-      const placeholders: HTMLDivElement[] = [];
+      // Use Screen Capture API to grab the current tab
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { displaySurface: "browser" } as MediaTrackConstraints,
+        audio: false,
+        preferCurrentTab: true,
+      } as DisplayMediaStreamOptions);
 
-      iframes.forEach((iframe) => {
-        const rect = iframe.getBoundingClientRect();
-        iframe.style.display = "none";
-
-        const placeholder = document.createElement("div");
-        Object.assign(placeholder.style, {
-          width: `${String(rect.width)}px`,
-          height: `${String(rect.height)}px`,
-          background: "#f0f0f0",
-          border: "1px solid #ddd",
-          borderRadius: "4px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: "11px",
-          color: "#999",
-          fontFamily: "monospace",
-        });
-        placeholder.textContent = `${String(Math.round(rect.width))} \u00d7 ${String(Math.round(rect.height))}`;
-        iframe.parentElement?.appendChild(placeholder);
-        placeholders.push(placeholder);
+      // Flash effect
+      const flash = document.createElement("div");
+      Object.assign(flash.style, {
+        position: "fixed",
+        inset: "0",
+        background: "white",
+        opacity: "0",
+        zIndex: "99999",
+        pointerEvents: "none",
+        transition: "opacity 0.1s ease-out",
+      });
+      document.body.appendChild(flash);
+      requestAnimationFrame(() => {
+        flash.style.opacity = "0.3";
+        setTimeout(() => {
+          flash.style.opacity = "0";
+          setTimeout(() => flash.remove(), 150);
+        }, 80);
       });
 
-      const rect = container.getBoundingClientRect();
-      const dataUrl = await toPng(container as HTMLElement, {
-        width: rect.width,
-        height: rect.height,
-        backgroundColor: "#0a0a0a",
-        style: {
-          overflow: "hidden",
-        },
+      // Grab a single frame from the stream
+      const video = document.createElement("video");
+      video.srcObject = stream;
+      video.autoplay = true;
+      await new Promise<void>((resolve) => {
+        video.onloadedmetadata = () => {
+          video.play().then(() => resolve()).catch(() => resolve());
+        };
       });
 
-      // Restore iframes
-      iframes.forEach((iframe) => {
-        iframe.style.display = "";
-      });
-      placeholders.forEach((p) => p.remove());
+      // Small delay to ensure the frame is ready
+      await new Promise((r) => setTimeout(r, 100));
 
-      // Download as file
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx?.drawImage(video, 0, 0);
+
+      // Stop the stream immediately
+      stream.getTracks().forEach((t) => t.stop());
+
+      // Download
+      const dataUrl = canvas.toDataURL("image/png");
       const a = document.createElement("a");
       a.download = `cant-resize-${new Date().toISOString().slice(0, 10)}.png`;
       a.href = dataUrl;
@@ -255,17 +236,8 @@ export function CanvasLeftRail({
 
       setScreenshotFeedback(true);
       setTimeout(() => setScreenshotFeedback(false), 1500);
-    } catch (err) {
-      console.error("Screenshot failed:", err);
-      // Restore iframes on error
-      container.querySelectorAll("iframe").forEach((iframe) => {
-        iframe.style.display = "";
-      });
-      container
-        .querySelectorAll("div[style]")
-        .forEach((el) => {
-          if (el.textContent?.includes("\u00d7")) el.remove();
-        });
+    } catch {
+      // User cancelled the capture dialog or API unavailable
     }
   }, []);
 
