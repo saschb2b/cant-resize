@@ -12,7 +12,7 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Tooltip from "@mui/material/Tooltip";
 import { useColorScheme } from "@mui/material/styles";
-import { Search } from "lucide-react";
+import { Search, GraduationCap } from "lucide-react";
 import { SearchPalette } from "@/components/search-palette";
 
 function ThemeIcon({ isDark, size = 18 }: { isDark: boolean; size?: number }) {
@@ -153,7 +153,7 @@ export function SiteHeader() {
         }}
       >
         <Container maxWidth="lg">
-          <Stack direction="row" alignItems="center" sx={{ py: 1.5 }}>
+          <Stack direction="row" alignItems="center" sx={{ py: 2 }}>
             <NextLink
               href="/"
               style={{
@@ -161,36 +161,35 @@ export function SiteHeader() {
                 color: "inherit",
                 display: "flex",
                 alignItems: "center",
-                gap: 10,
+                gap: 12,
               }}
             >
               <Image src="/icon.svg" alt="" width={28} height={28} priority />
               <Box sx={{ display: { xs: "none", sm: "block" } }}>
                 <Typography
-                  variant="subtitle2"
+                  variant="subtitle1"
                   fontWeight={700}
                   lineHeight={1.2}
                 >
-                  Responsive Viewer
+                  {"Can't Resize"}
                 </Typography>
                 <Typography
                   variant="caption"
                   color="text.secondary"
                   fontFamily="var(--font-geist-mono), monospace"
-                  sx={{ fontSize: "0.65rem" }}
                 >
-                  Multi-device preview
+                  Learn responsive design
                 </Typography>
               </Box>
             </NextLink>
 
             <Stack
               direction="row"
-              spacing={1}
+              spacing={{ xs: 1, sm: 2 }}
               alignItems="center"
               sx={{ ml: "auto" }}
             >
-              {/* Search: icon on mobile, pill on desktop */}
+              {/* Search: icon button on mobile, pill on desktop */}
               <Tooltip title="Search">
                 <IconButton
                   onClick={openSearch}
@@ -209,21 +208,25 @@ export function SiteHeader() {
                 size="small"
                 sx={{
                   display: { xs: "none", sm: "inline-flex" },
-                  color: "text.secondary",
+                  color: "primary.main",
                   gap: 0.75,
                   borderRadius: 100,
                   minWidth: "auto",
-                  bgcolor: "action.hover",
+                  bgcolor:
+                    "rgba(var(--mui-palette-primary-mainChannel) / 0.08)",
                   border: 1,
-                  borderColor: "divider",
+                  borderColor:
+                    "rgba(var(--mui-palette-primary-mainChannel) / 0.15)",
                   px: 2,
                   fontSize: "0.75rem",
                   fontWeight: 500,
                   fontFamily: "var(--font-geist-mono), monospace",
                   transition: "all 0.2s ease",
                   "&:hover": {
-                    bgcolor: "action.selected",
-                    borderColor: "text.secondary",
+                    bgcolor:
+                      "rgba(var(--mui-palette-primary-mainChannel) / 0.14)",
+                    borderColor:
+                      "rgba(var(--mui-palette-primary-mainChannel) / 0.25)",
                   },
                 }}
               >
@@ -242,21 +245,37 @@ export function SiteHeader() {
                   Ctrl K
                 </Box>
               </Button>
-
-              <NextLink href="/learn" style={{ textDecoration: "none" }}>
+              <ColorSchemeToggle />
+              <NextLink
+                href="/learn"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <Tooltip title="Learn">
+                  <IconButton
+                    component="span"
+                    size="small"
+                    sx={{
+                      display: { xs: "flex", sm: "none" },
+                      color: "text.secondary",
+                    }}
+                    aria-label="Learn"
+                  >
+                    <GraduationCap size={18} />
+                  </IconButton>
+                </Tooltip>
                 <Typography
                   variant="body2"
                   fontWeight={500}
+                  fontFamily="var(--font-geist-mono), monospace"
                   sx={{
+                    display: { xs: "none", sm: "block" },
                     color: "text.secondary",
                     "&:hover": { color: "text.primary" },
-                    transition: "color 0.15s ease",
                   }}
                 >
                   Learn
                 </Typography>
               </NextLink>
-              <ColorSchemeToggle />
               <NextLink href="/canvas" style={{ textDecoration: "none" }}>
                 <Button variant="contained" size="small">
                   Open Viewer
