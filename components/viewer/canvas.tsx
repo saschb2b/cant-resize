@@ -173,32 +173,79 @@ function GridCanvas() {
           justifyContent: "center",
         }}
       >
-        {state.viewports.map((viewport, index) => (
+        {state.viewports.map((viewport, index) => {
+          const isDragged = drag?.fromIndex === index;
+
+          return (
+            <Box
+              key={viewport.id}
+              ref={(el: HTMLDivElement | null) => {
+                itemRefs.current[index] = el;
+              }}
+              onPointerDown={isDragged ? undefined : (e) => handlePointerDown(e, index)}
+              sx={{
+                cursor: drag ? "grabbing" : "grab",
+                transition:
+                  drag && !isDragged ? "transform 0.2s ease" : "none",
+              }}
+              style={{
+                transform: getItemTransform(index),
+                // Keep the element in flow for sizing but make it invisible
+                ...(isDragged ? { visibility: "hidden" as const } : {}),
+              }}
+            >
+              <ViewportFrame viewport={viewport} isGridMode />
+            </Box>
+          );
+        })}
+
+        {/* Drag ghost: cloned as a visual-only overlay following the cursor.
+            Uses a portal-style fixed box. The actual ViewportFrame stays
+            mounted in the grid (hidden) so the iframe doesn't reload. */}
+        {drag && state.viewports[drag.fromIndex] && (
           <Box
-            key={viewport.id}
-            ref={(el: HTMLDivElement | null) => {
-              itemRefs.current[index] = el;
-            }}
-            onPointerDown={(e) => handlePointerDown(e, index)}
             sx={{
-              cursor: drag ? "grabbing" : "grab",
-              transition:
-                drag && index !== drag.fromIndex
-                  ? "transform 0.2s ease"
-                  : "none",
-              // Hide the original while dragging
-              ...(drag?.fromIndex === index && {
-                opacity: 0.3,
-                pointerEvents: "none",
-              }),
+              position: "fixed",
+              zIndex: 9999,
+              pointerEvents: "none",
+              boxShadow: 24,
+              borderRadius: 2,
+              overflow: "hidden",
+              opacity: 0.9,
             }}
             style={{
-              transform: getItemTransform(index),
+              left: drag.cursor.x - drag.offset.x,
+              top: drag.cursor.y - drag.offset.y,
+              width: drag.size.width,
+              height: drag.size.height,
+              transform: "scale(1.03)",
             }}
           >
-            <ViewportFrame viewport={viewport} isGridMode />
+            {/* Visual-only clone — lightweight, no iframe */}
+            <Box
+              sx={{
+                width: "100%",
+                height: "100%",
+                bgcolor: "background.paper",
+                border: 2,
+                borderColor: "primary.main",
+                borderRadius: 2,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Typography
+                variant="caption"
+                fontWeight={600}
+                color="text.secondary"
+              >
+                {state.viewports[drag.fromIndex]!.customName ??
+                  state.viewports[drag.fromIndex]!.deviceId}
+              </Typography>
+            </Box>
           </Box>
-        ))}
+        )}
         {state.viewports.length === 0 && (
           <Box
             sx={{
@@ -234,33 +281,6 @@ function GridCanvas() {
           </Box>
         )}
       </Box>
-
-      {/* Drag ghost: follows cursor, lifted appearance */}
-      {drag && state.viewports[drag.fromIndex] && (
-        <Box
-          sx={{
-            position: "fixed",
-            pointerEvents: "none",
-            zIndex: 9999,
-            opacity: 0.85,
-            transform: "scale(1.03)",
-            boxShadow: 24,
-            borderRadius: 2,
-            overflow: "hidden",
-          }}
-          style={{
-            left: drag.cursor.x - drag.offset.x,
-            top: drag.cursor.y - drag.offset.y,
-            width: drag.size.width,
-            height: drag.size.height,
-          }}
-        >
-          <ViewportFrame
-            viewport={state.viewports[drag.fromIndex]!}
-            isGridMode
-          />
-        </Box>
-      )}
     </Box>
   );
 }
