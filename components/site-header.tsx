@@ -2,7 +2,7 @@
 
 import NextLink from "next/link";
 import Image from "next/image";
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
@@ -12,6 +12,8 @@ import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 import Tooltip from "@mui/material/Tooltip";
 import { useColorScheme } from "@mui/material/styles";
+import { Search } from "lucide-react";
+import { SearchPalette } from "@/components/search-palette";
 
 function ThemeIcon({ isDark, size = 18 }: { isDark: boolean; size?: number }) {
   return (
@@ -120,74 +122,153 @@ function ColorSchemeToggle() {
 }
 
 export function SiteHeader() {
-  return (
-    <Box
-      component="header"
-      sx={{
-        position: "sticky",
-        top: 0,
-        zIndex: 1100,
-        bgcolor: "rgba(var(--mui-palette-background-defaultChannel) / 0.8)",
-        backdropFilter: "blur(12px)",
-      }}
-    >
-      <Container maxWidth="lg">
-        <Stack direction="row" alignItems="center" sx={{ py: 1.5 }}>
-          <NextLink
-            href="/"
-            style={{
-              textDecoration: "none",
-              color: "inherit",
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-            }}
-          >
-            <Image src="/icon.svg" alt="" width={28} height={28} priority />
-            <Box sx={{ display: { xs: "none", sm: "block" } }}>
-              <Typography variant="subtitle2" fontWeight={700} lineHeight={1.2}>
-                Responsive Viewer
-              </Typography>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                fontFamily="var(--font-geist-mono), monospace"
-                sx={{ fontSize: "0.65rem" }}
-              >
-                Multi-device preview
-              </Typography>
-            </Box>
-          </NextLink>
+  const [searchOpen, setSearchOpen] = useState(false);
 
-          <Stack
-            direction="row"
-            spacing={1}
-            alignItems="center"
-            sx={{ ml: "auto" }}
-          >
-            <NextLink href="/learn" style={{ textDecoration: "none" }}>
-              <Typography
-                variant="body2"
-                fontWeight={500}
+  const openSearch = useCallback(() => {
+    setSearchOpen(true);
+  }, []);
+
+  // Ctrl+K / Cmd+K keyboard shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        openSearch();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [openSearch]);
+
+  return (
+    <>
+      <Box
+        component="header"
+        sx={{
+          position: "sticky",
+          top: 0,
+          zIndex: 1100,
+          bgcolor: "rgba(var(--mui-palette-background-defaultChannel) / 0.8)",
+          backdropFilter: "blur(12px)",
+        }}
+      >
+        <Container maxWidth="lg">
+          <Stack direction="row" alignItems="center" sx={{ py: 1.5 }}>
+            <NextLink
+              href="/"
+              style={{
+                textDecoration: "none",
+                color: "inherit",
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              <Image src="/icon.svg" alt="" width={28} height={28} priority />
+              <Box sx={{ display: { xs: "none", sm: "block" } }}>
+                <Typography
+                  variant="subtitle2"
+                  fontWeight={700}
+                  lineHeight={1.2}
+                >
+                  Responsive Viewer
+                </Typography>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  fontFamily="var(--font-geist-mono), monospace"
+                  sx={{ fontSize: "0.65rem" }}
+                >
+                  Multi-device preview
+                </Typography>
+              </Box>
+            </NextLink>
+
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+              sx={{ ml: "auto" }}
+            >
+              {/* Search: icon on mobile, pill on desktop */}
+              <Tooltip title="Search">
+                <IconButton
+                  onClick={openSearch}
+                  size="small"
+                  sx={{
+                    display: { xs: "flex", sm: "none" },
+                    color: "text.secondary",
+                  }}
+                  aria-label="Search"
+                >
+                  <Search size={18} />
+                </IconButton>
+              </Tooltip>
+              <Button
+                onClick={openSearch}
+                size="small"
                 sx={{
+                  display: { xs: "none", sm: "inline-flex" },
                   color: "text.secondary",
-                  "&:hover": { color: "text.primary" },
-                  transition: "color 0.15s ease",
+                  gap: 0.75,
+                  borderRadius: 100,
+                  minWidth: "auto",
+                  bgcolor: "action.hover",
+                  border: 1,
+                  borderColor: "divider",
+                  px: 2,
+                  fontSize: "0.75rem",
+                  fontWeight: 500,
+                  fontFamily: "var(--font-geist-mono), monospace",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    bgcolor: "action.selected",
+                    borderColor: "text.secondary",
+                  },
                 }}
               >
-                Learn
-              </Typography>
-            </NextLink>
-            <ColorSchemeToggle />
-            <NextLink href="/canvas" style={{ textDecoration: "none" }}>
-              <Button variant="contained" size="small">
-                Open Viewer
+                <Search size={14} />
+                Search
+                <Box
+                  component="kbd"
+                  sx={{
+                    display: { xs: "none", md: "inline" },
+                    fontSize: "0.6rem",
+                    fontWeight: 600,
+                    ml: 0.5,
+                    opacity: 0.5,
+                  }}
+                >
+                  Ctrl K
+                </Box>
               </Button>
-            </NextLink>
+
+              <NextLink href="/learn" style={{ textDecoration: "none" }}>
+                <Typography
+                  variant="body2"
+                  fontWeight={500}
+                  sx={{
+                    color: "text.secondary",
+                    "&:hover": { color: "text.primary" },
+                    transition: "color 0.15s ease",
+                  }}
+                >
+                  Learn
+                </Typography>
+              </NextLink>
+              <ColorSchemeToggle />
+              <NextLink href="/canvas" style={{ textDecoration: "none" }}>
+                <Button variant="contained" size="small">
+                  Open Viewer
+                </Button>
+              </NextLink>
+            </Stack>
           </Stack>
-        </Stack>
-      </Container>
-      <Divider />
-    </Box>
+        </Container>
+        <Divider />
+      </Box>
+
+      <SearchPalette open={searchOpen} onClose={() => setSearchOpen(false)} />
+    </>
   );
 }

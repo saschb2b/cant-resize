@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { LearnSidebar } from "@/components/learn-sidebar";
 import { LearnMobileNav } from "@/components/learn-mobile-nav";
 
@@ -57,32 +58,7 @@ export default function LearnLayout({ children }: { children: ReactNode }) {
         </Box>
       </Container>
 
-      {/* Footer */}
-      <Box
-        component="footer"
-        sx={{ mt: "auto", position: "relative", zIndex: 1 }}
-      >
-        <Box sx={{ borderTop: 1, borderColor: "divider" }}>
-          <Container maxWidth="lg">
-            <Box sx={{ py: 2, textAlign: "center" }}>
-              <Box
-                component="a"
-                href="https://github.com/saschb2b/cant-resize"
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{
-                  color: "text.secondary",
-                  textDecoration: "none",
-                  typography: "caption",
-                  "&:hover": { color: "text.primary" },
-                }}
-              >
-                Contribute patterns on GitHub
-              </Box>
-            </Box>
-          </Container>
-        </Box>
-      </Box>
+      <SiteFooter />
     </Box>
   );
 }
