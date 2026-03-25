@@ -176,9 +176,10 @@ export function CanvasLeftRail({
   );
 
   const handleScreenshot = useCallback(async () => {
-    const canvas = document.querySelector("[data-canvas-background]")
+    // Capture the visible canvas container (not the 10000x10000 content box)
+    const container = document.querySelector("[data-canvas-background]")
       ?.parentElement;
-    if (!canvas) return;
+    if (!container) return;
 
     // Flash effect
     const flash = document.createElement("div");
@@ -201,43 +202,41 @@ export function CanvasLeftRail({
     });
 
     try {
-      // Temporarily hide iframes (cross-origin blocks html-to-image)
-      // and show placeholder boxes instead
-      const iframes = canvas.querySelectorAll("iframe");
+      // Hide iframes (cross-origin blocks capture) and add placeholders
+      const iframes = container.querySelectorAll("iframe");
       const placeholders: HTMLDivElement[] = [];
 
       iframes.forEach((iframe) => {
         const rect = iframe.getBoundingClientRect();
-        const parentRect = iframe.parentElement?.getBoundingClientRect();
-        if (!parentRect) return;
-
         iframe.style.display = "none";
 
         const placeholder = document.createElement("div");
         Object.assign(placeholder.style, {
           width: `${String(rect.width)}px`,
           height: `${String(rect.height)}px`,
-          background: "var(--mui-palette-action-hover, #f5f5f5)",
-          border: "1px solid var(--mui-palette-divider, #e0e0e0)",
+          background: "#f0f0f0",
+          border: "1px solid #ddd",
           borderRadius: "4px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           fontSize: "11px",
-          color: "var(--mui-palette-text-secondary, #999)",
-          fontFamily: "var(--font-geist-mono), monospace",
+          color: "#999",
+          fontFamily: "monospace",
         });
-        placeholder.textContent = `${String(Math.round(rect.width))} × ${String(Math.round(rect.height))}`;
-        placeholder.dataset.screenshotPlaceholder = "true";
+        placeholder.textContent = `${String(Math.round(rect.width))} \u00d7 ${String(Math.round(rect.height))}`;
         iframe.parentElement?.appendChild(placeholder);
         placeholders.push(placeholder);
       });
 
-      const dataUrl = await toPng(canvas as HTMLElement, {
-        backgroundColor:
-          getComputedStyle(document.documentElement).getPropertyValue(
-            "--mui-palette-background-default",
-          ) || "#0a0a0a",
+      const rect = container.getBoundingClientRect();
+      const dataUrl = await toPng(container as HTMLElement, {
+        width: rect.width,
+        height: rect.height,
+        backgroundColor: "#0a0a0a",
+        style: {
+          overflow: "hidden",
+        },
       });
 
       // Restore iframes
@@ -246,21 +245,27 @@ export function CanvasLeftRail({
       });
       placeholders.forEach((p) => p.remove());
 
-      const link = document.createElement("a");
-      link.download = `cant-resize-${new Date().toISOString().slice(0, 10)}.png`;
-      link.href = dataUrl;
-      link.click();
+      // Download as file
+      const a = document.createElement("a");
+      a.download = `cant-resize-${new Date().toISOString().slice(0, 10)}.png`;
+      a.href = dataUrl;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
 
       setScreenshotFeedback(true);
       setTimeout(() => setScreenshotFeedback(false), 1500);
-    } catch {
-      // Restore iframes on error too
-      canvas.querySelectorAll("iframe").forEach((iframe) => {
+    } catch (err) {
+      console.error("Screenshot failed:", err);
+      // Restore iframes on error
+      container.querySelectorAll("iframe").forEach((iframe) => {
         iframe.style.display = "";
       });
-      canvas
-        .querySelectorAll("[data-screenshot-placeholder]")
-        .forEach((p) => p.remove());
+      container
+        .querySelectorAll("div[style]")
+        .forEach((el) => {
+          if (el.textContent?.includes("\u00d7")) el.remove();
+        });
     }
   }, []);
 
