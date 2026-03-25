@@ -98,6 +98,14 @@ function viewerReducer(state: ViewerState, action: ViewerAction): ViewerState {
         ...state,
         syncSettings: { ...state.syncSettings, ...action.settings },
       };
+    case "REORDER_VIEWPORTS": {
+      const viewports = [...state.viewports];
+      const moved = viewports[action.fromIndex];
+      if (!moved) return state;
+      viewports.splice(action.fromIndex, 1);
+      viewports.splice(action.toIndex, 0, moved);
+      return { ...state, viewports };
+    }
     default:
       return state;
   }

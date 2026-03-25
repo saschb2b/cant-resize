@@ -56,7 +56,8 @@ export type ViewerAction =
   | { type: "SET_SCROLL_POSITION"; position: number }
   | { type: "TOGGLE_ORIENTATION"; id: string }
   | { type: "LOAD_STATE"; state: ViewerState }
-  | { type: "SET_SYNC_SETTINGS"; settings: Partial<SyncSettings> };
+  | { type: "SET_SYNC_SETTINGS"; settings: Partial<SyncSettings> }
+  | { type: "REORDER_VIEWPORTS"; fromIndex: number; toIndex: number };
 
 export interface SyncMessage {
   type:
