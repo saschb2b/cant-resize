@@ -30,7 +30,7 @@ export function Canvas() {
     return (
       <Box
         sx={{
-          flex: 1,
+          height: "100%",
           overflow: "auto",
           p: 3,
           bgcolor: "action.hover",
@@ -91,7 +91,7 @@ export function Canvas() {
       ref={containerRef}
       sx={[
         {
-          flex: 1,
+          height: "100%",
           overflow: "hidden",
           position: "relative",
         },
@@ -161,30 +161,6 @@ export function Canvas() {
         </Box>
       )}
 
-      {/* Canvas info - only show when devices exist */}
-      {state.viewports.length > 0 && (
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: 16,
-            left: 16,
-            fontSize: "0.75rem",
-            color: "text.secondary",
-            bgcolor: "background.paper",
-            backdropFilter: "blur(8px)",
-            px: 1,
-            py: 0.5,
-            borderRadius: 1,
-            border: 1,
-            borderColor: "divider",
-            opacity: 0.8,
-          }}
-        >
-          {Math.round(transform.scale * 100)}% | {state.viewports.length}{" "}
-          device
-          {state.viewports.length !== 1 ? "s" : ""}
-        </Box>
-      )}
     </Box>
   );
 }
