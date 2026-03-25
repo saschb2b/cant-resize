@@ -60,6 +60,9 @@ export function SiteFooter() {
               <NextLink href="/canvas" style={{ textDecoration: "none" }}>
                 <Box sx={linkSx}>Viewer</Box>
               </NextLink>
+              <NextLink href="/play" style={{ textDecoration: "none" }}>
+                <Box sx={linkSx}>Play</Box>
+              </NextLink>
               <NextLink href="/learn" style={{ textDecoration: "none" }}>
                 <Box sx={linkSx}>Learn</Box>
               </NextLink>

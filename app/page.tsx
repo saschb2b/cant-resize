@@ -124,6 +124,19 @@ export default function LandingPage() {
                   Open Viewer
                 </Button>
               </NextLink>
+              <NextLink href="/play" style={{ textDecoration: "none" }}>
+                <Button
+                  variant="outlined"
+                  size="large"
+                  sx={{
+                    px: { xs: 2, md: 3 },
+                    py: { xs: 1, md: 1.5 },
+                    fontSize: { xs: "0.9rem", md: "1.05rem" },
+                  }}
+                >
+                  Play
+                </Button>
+              </NextLink>
               <NextLink href="/learn" style={{ textDecoration: "none" }}>
                 <Button
                   variant="text"
