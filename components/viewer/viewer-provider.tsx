@@ -30,7 +30,7 @@ const defaultSyncSettings: SyncSettings = {
 };
 
 const initialState: ViewerState = {
-  url: "https://example.com",
+  url: "https://cant-resize.saschb2b.com/",
   viewports: [],
   layoutMode: "freeform",
   canvasTransform: { x: 0, y: 0, scale: 0.5 },
