@@ -42,9 +42,9 @@ export function useCanvas(options: UseCanvasOptions) {
     const { minScale: min, maxScale: max } = limitsRef.current;
 
     if (e.ctrlKey || e.metaKey) {
-      // Zoom towards cursor
-      const delta = -e.deltaY * 0.001;
-      const newScale = Math.min(max, Math.max(min, t.scale + delta));
+      // Multiplicative zoom towards cursor — feels consistent at every level
+      const zoomFactor = Math.pow(0.995, e.deltaY);
+      const newScale = Math.min(max, Math.max(min, t.scale * zoomFactor));
 
       const rect = containerRef.current?.getBoundingClientRect();
       if (rect) {
