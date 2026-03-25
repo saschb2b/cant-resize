@@ -34,6 +34,11 @@ import {
 } from "lucide-react";
 import { useViewer } from "./viewer-provider";
 import { DevicePicker } from "./device-picker";
+import {
+  CanvasLeftRail,
+  BreakpointMarkers,
+  CanvasRulers,
+} from "./canvas-left-rail";
 import { useZoomControls } from "@/lib/viewer/use-zoom-controls";
 import { SearchPalette } from "@/components/search-palette";
 import { trackEvent } from "@/lib/analytics";
@@ -158,6 +163,8 @@ export function CanvasOverlay() {
   const [urlInput, setUrlInput] = useState(state.url);
   const [syncAnchorEl, setSyncAnchorEl] = useState<HTMLElement | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [showBreakpoints, setShowBreakpoints] = useState(false);
+  const [showRulers, setShowRulers] = useState(false);
 
   const {
     zoomPercentage,
@@ -218,6 +225,23 @@ export function CanvasOverlay() {
 
   return (
     <>
+      {/* Breakpoint markers + rulers (rendered behind the overlay) */}
+      {showBreakpoints && state.layoutMode === "freeform" && (
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 5,
+            pointerEvents: "none",
+          }}
+        >
+          <BreakpointMarkers transform={state.canvasTransform} />
+        </Box>
+      )}
+      {showRulers && state.layoutMode === "freeform" && (
+        <CanvasRulers transform={state.canvasTransform} />
+      )}
+
       {/* Overlay container — fills canvas, passes clicks through */}
       <Box
         sx={{
@@ -225,15 +249,17 @@ export function CanvasOverlay() {
           inset: 0,
           zIndex: 10,
           pointerEvents: "none",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
+          display: "grid",
+          gridTemplateRows: "auto 1fr auto",
+          gridTemplateColumns: "auto 1fr",
+          gap: 1.5,
           p: 1.5,
         }}
       >
-        {/* ── Top row ── */}
+        {/* ── Top row (spans both columns) ── */}
         <Box
           sx={{
+            gridColumn: "1 / -1",
             display: "grid",
             gridTemplateColumns: "auto 1fr auto",
             alignItems: "flex-start",
@@ -334,9 +360,23 @@ export function CanvasOverlay() {
           </Box>
         </Box>
 
-        {/* ── Bottom row ── */}
+        {/* ── Left rail (middle row, first column) ── */}
+        <Box sx={{ alignSelf: "center" }}>
+          <CanvasLeftRail
+            showBreakpoints={showBreakpoints}
+            onToggleBreakpoints={() => setShowBreakpoints((v) => !v)}
+            showRulers={showRulers}
+            onToggleRulers={() => setShowRulers((v) => !v)}
+          />
+        </Box>
+
+        {/* Spacer for middle row, second column */}
+        <Box />
+
+        {/* ── Bottom row (spans both columns) ── */}
         <Box
           sx={{
+            gridColumn: "1 / -1",
             display: "flex",
             alignItems: "flex-end",
             justifyContent: "space-between",
