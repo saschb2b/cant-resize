@@ -7,9 +7,9 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import {
   ArrowRight,
-  MousePointerClick,
-  ScrollText,
-  Move,
+  Monitor,
+  Gamepad2,
+  BookOpen,
   ExternalLink,
 } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
@@ -99,9 +99,9 @@ export default function LandingPage() {
                 fontSize: { xs: "1rem", md: "1.1rem" },
               }}
             >
-              Preview any URL across phones, tablets, and desktops
-              simultaneously. Scroll, click, and navigate, synced across every
-              viewport in real time.
+              Preview your site on every device at once, test your knowledge
+              with quick-fire challenges, and study 128 responsive patterns side
+              by side.
             </Typography>
 
             <Stack
@@ -193,70 +193,89 @@ export default function LandingPage() {
             fontWeight={600}
             sx={{ textAlign: "center", mb: 1 }}
           >
-            Everything stays in sync
+            Three ways to level up
           </Typography>
           <Typography
             variant="body2"
             color="text.secondary"
             sx={{ textAlign: "center", mb: 4 }}
           >
-            Interact with one viewport and all others follow along.
+            A multi-device viewer, a pattern quiz, and a reference library.
           </Typography>
 
           <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
             {[
               {
-                icon: <ScrollText size={20} />,
-                title: "Scroll sync",
-                desc: "Scroll position mirrors across all viewports instantly.",
+                icon: <Monitor size={20} />,
+                title: "Viewer",
+                desc: "Preview any URL on phones, tablets, and desktops with synced scroll, click, and navigation.",
+                href: "/canvas",
               },
               {
-                icon: <MousePointerClick size={20} />,
-                title: "Click & hover",
-                desc: "Clicks and hover states replicate to every device.",
+                icon: <Gamepad2 size={20} />,
+                title: "Play",
+                desc: "Pick the better responsive pattern in 10 side-by-side code challenges. Daily and weekly seeds included.",
+                href: "/play",
               },
               {
-                icon: <Move size={20} />,
-                title: "Drag & resize",
-                desc: "Freeform canvas with draggable, resizable device frames.",
+                icon: <BookOpen size={20} />,
+                title: "Learn",
+                desc: "128 patterns across 16 categories. Each shows the fragile approach, the resilient one, and why it matters.",
+                href: "/learn",
               },
             ].map((feature) => (
-              <Paper
+              <NextLink
                 key={feature.title}
-                elevation={0}
-                sx={{
+                href={feature.href}
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
                   flex: 1,
-                  p: 2.5,
-                  border: 1,
-                  borderColor: "divider",
+                  display: "flex",
                 }}
               >
-                <Box
+                <Paper
+                  elevation={0}
                   sx={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 2,
-                    bgcolor: "action.selected",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "text.primary",
-                    mb: 1.5,
+                    flex: 1,
+                    p: 2.5,
+                    border: 1,
+                    borderColor: "divider",
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      borderColor: "text.secondary",
+                      transform: "translateY(-2px)",
+                      boxShadow: 8,
+                    },
                   }}
                 >
-                  {feature.icon}
-                </Box>
-                <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
-                  {feature.title}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ lineHeight: 1.5 }}
-                >
-                  {feature.desc}
-                </Typography>
-              </Paper>
+                  <Box
+                    sx={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 2,
+                      bgcolor: "action.selected",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "text.primary",
+                      mb: 1.5,
+                    }}
+                  >
+                    {feature.icon}
+                  </Box>
+                  <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+                    {feature.title}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ lineHeight: 1.5 }}
+                  >
+                    {feature.desc}
+                  </Typography>
+                </Paper>
+              </NextLink>
             ))}
           </Stack>
         </Container>
