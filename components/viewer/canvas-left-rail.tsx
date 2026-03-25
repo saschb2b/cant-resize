@@ -175,8 +175,12 @@ export function CanvasLeftRail({
   );
 
   const handleScreenshot = useCallback(async () => {
+    // Find the canvas container to get its bounds for cropping
+    const canvasEl = document.querySelector("[data-canvas-background]")
+      ?.parentElement;
+    if (!canvasEl) return;
+
     try {
-      // Use Screen Capture API to grab the current tab
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: { displaySurface: "browser" } as MediaTrackConstraints,
         audio: false,
@@ -203,7 +207,7 @@ export function CanvasLeftRail({
         }, 80);
       });
 
-      // Grab a single frame from the stream
+      // Capture one frame
       const video = document.createElement("video");
       video.srcObject = stream;
       video.autoplay = true;
@@ -212,21 +216,33 @@ export function CanvasLeftRail({
           video.play().then(() => resolve()).catch(() => resolve());
         };
       });
-
-      // Small delay to ensure the frame is ready
       await new Promise((r) => setTimeout(r, 100));
 
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext("2d");
-      ctx?.drawImage(video, 0, 0);
+      // Draw full frame to a temp canvas
+      const fullCanvas = document.createElement("canvas");
+      fullCanvas.width = video.videoWidth;
+      fullCanvas.height = video.videoHeight;
+      const fullCtx = fullCanvas.getContext("2d");
+      fullCtx?.drawImage(video, 0, 0);
 
-      // Stop the stream immediately
       stream.getTracks().forEach((t) => t.stop());
 
+      // Crop to just the canvas container area
+      const rect = canvasEl.getBoundingClientRect();
+      const dpr = video.videoWidth / window.innerWidth;
+      const cropX = Math.round(rect.left * dpr);
+      const cropY = Math.round(rect.top * dpr);
+      const cropW = Math.round(rect.width * dpr);
+      const cropH = Math.round(rect.height * dpr);
+
+      const croppedCanvas = document.createElement("canvas");
+      croppedCanvas.width = cropW;
+      croppedCanvas.height = cropH;
+      const cropCtx = croppedCanvas.getContext("2d");
+      cropCtx?.drawImage(fullCanvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+
       // Download
-      const dataUrl = canvas.toDataURL("image/png");
+      const dataUrl = croppedCanvas.toDataURL("image/png");
       const a = document.createElement("a");
       a.download = `cant-resize-${new Date().toISOString().slice(0, 10)}.png`;
       a.href = dataUrl;
