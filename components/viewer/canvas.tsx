@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -30,10 +30,52 @@ interface GridDragState {
 
 // ── Grid mode component ─────────────────────────────────────────────────────
 
+function useGridScale(viewports: { width: number; height: number }[]) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.3);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || viewports.length === 0) return;
+
+    const compute = () => {
+      const containerW = el.clientWidth - 48; // px padding
+      const containerH = el.clientHeight - 88; // pt padding + bottom buffer
+      if (containerW <= 0 || containerH <= 0) return;
+
+      const gap = 24; // gap: 3 = 24px
+      const headerH = 40;
+
+      // Try fitting all viewports in a row first
+      const totalNativeWidth = viewports.reduce((sum, v) => sum + v.width, 0);
+      const totalGaps = (viewports.length - 1) * gap;
+      const maxNativeHeight = Math.max(...viewports.map((v) => v.height));
+
+      // Scale to fit width
+      const scaleW = (containerW - totalGaps) / totalNativeWidth;
+      // Scale to fit height (tallest viewport + header)
+      const scaleH = (containerH - headerH) / maxNativeHeight;
+
+      // Use the smaller, clamped between reasonable bounds
+      const optimal = Math.min(scaleW, scaleH);
+      setScale(Math.max(0.15, Math.min(0.6, optimal)));
+    };
+
+    compute();
+
+    const observer = new ResizeObserver(compute);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [viewports]);
+
+  return { containerRef, scale };
+}
+
 function GridCanvas() {
   const { state, dispatch, selectViewport } = useViewer();
   const [drag, setDrag] = useState<GridDragState | null>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const { containerRef: gridContainerRef, scale: gridScale } = useGridScale(state.viewports);
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent, index: number) => {
@@ -155,6 +197,7 @@ function GridCanvas() {
 
   return (
     <Box
+      ref={gridContainerRef}
       sx={{
         height: "100%",
         overflow: "auto",
@@ -200,7 +243,7 @@ function GridCanvas() {
                 ...(isDragged ? { visibility: "hidden" as const } : {}),
               }}
             >
-              <ViewportFrame viewport={viewport} isGridMode />
+              <ViewportFrame viewport={viewport} isGridMode gridScale={gridScale} />
             </Box>
           );
         })}

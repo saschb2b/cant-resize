@@ -23,6 +23,7 @@ import type { GuideLine } from "@/lib/viewer/use-snap";
 interface ViewportFrameProps {
   viewport: Viewport;
   isGridMode?: boolean;
+  gridScale?: number;
   gridSnap?: boolean;
   showBreakpoints?: boolean;
   showRulers?: boolean;
@@ -41,6 +42,7 @@ const BREAKPOINTS = [
 export function ViewportFrame({
   viewport,
   isGridMode = false,
+  gridScale = 0.3,
   gridSnap = false,
   showBreakpoints = false,
   showRulers = false,
@@ -158,8 +160,8 @@ export function ViewportFrame({
       style={
         isGridMode
           ? {
-              width: displayWidth * 0.3,
-              height: displayHeight * 0.3 + headerScreenHeight,
+              width: displayWidth * gridScale,
+              height: displayHeight * gridScale + headerScreenHeight,
             }
           : {
               left: viewport.x,
@@ -338,7 +340,7 @@ export function ViewportFrame({
             border: "none",
             ...(isGridMode
               ? {
-                  transform: "scale(0.3)",
+                  transform: `scale(${String(gridScale)})`,
                   transformOrigin: "top left",
                 }
               : {}),
