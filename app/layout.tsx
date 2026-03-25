@@ -18,11 +18,11 @@ const siteUrl = "https://cant-resize.saschb2b.com";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Responsive Viewer — Multi-Device Preview",
-    template: "%s — Responsive Viewer",
+    default: "Can't Resize - Multi-Device Preview",
+    template: "%s - Can't Resize",
   },
   description:
-    "Preview any URL across phones, tablets, and desktops simultaneously. Scroll, click, and navigate — synced across every viewport in real time.",
+    "Preview any URL across phones, tablets, and desktops simultaneously. Scroll, click, and navigate, synced across every viewport in real time.",
   keywords: [
     "responsive design",
     "multi-device preview",
@@ -42,14 +42,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     siteName: "Responsive Viewer",
-    title: "Responsive Viewer — Multi-Device Preview",
+    title: "Can't Resize - Multi-Device Preview",
     description:
       "One site. Every screen. Preview any URL across devices with synced scrolling, clicks, and navigation.",
     url: siteUrl,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Responsive Viewer — Multi-Device Preview",
+    title: "Can't Resize - Multi-Device Preview",
     description:
       "One site. Every screen. Preview any URL across devices with synced scrolling, clicks, and navigation.",
   },

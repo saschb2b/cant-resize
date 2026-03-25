@@ -242,7 +242,7 @@ export function CanvasOverlay({
 
   return (
     <>
-      {/* Overlay container — fills canvas, passes clicks through */}
+      {/* Overlay container: fills canvas, passes clicks through */}
       <Box
         sx={{
           position: "absolute",

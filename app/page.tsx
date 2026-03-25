@@ -63,7 +63,7 @@ export default function LandingPage() {
           alignItems="center"
           spacing={{ xs: 5, md: 8 }}
         >
-          {/* Left — title, subtitle, CTA */}
+          {/* Left: title, subtitle, CTA */}
           <Box
             sx={{
               flex: 1,
@@ -100,7 +100,7 @@ export default function LandingPage() {
               }}
             >
               Preview any URL across phones, tablets, and desktops
-              simultaneously. Scroll, click, and navigate — synced across every
+              simultaneously. Scroll, click, and navigate, synced across every
               viewport in real time.
             </Typography>
 
@@ -153,7 +153,7 @@ export default function LandingPage() {
             </Typography>
           </Box>
 
-          {/* Right — animated device preview */}
+          {/* Right: animated device preview */}
           <Box sx={{ flex: 1, minWidth: 0, maxWidth: 540, width: "100%" }}>
             <HeroAnimation />
           </Box>
@@ -187,7 +187,7 @@ export default function LandingPage() {
             color="text.secondary"
             sx={{ textAlign: "center", mb: 4 }}
           >
-            Interact with one viewport — all others follow along.
+            Interact with one viewport and all others follow along.
           </Typography>
 
           <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>

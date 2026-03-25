@@ -42,7 +42,7 @@ export interface Challenge {
   goodCode: string;
   /** Language for syntax highlighting (defaults to "tsx"). */
   lang?: CodeLanguage;
-  /** Which side the good code appears on — randomized at render in game mode. */
+  /** Which side the good code appears on. Randomized at render in game mode. */
   correctSide: "left" | "right";
   /** Explanation shown when the user picks correctly (or in learn mode). */
   explanationCorrect: string;

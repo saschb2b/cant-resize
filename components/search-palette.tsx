@@ -31,7 +31,7 @@ import { trackEvent } from "@/lib/analytics";
 const MAX_VISIBLE_CHALLENGES = 5;
 
 // ---------------------------------------------------------------------------
-// Highlight helper — wraps matched characters in <mark>
+// Highlight helper: wraps matched characters in <mark>
 // ---------------------------------------------------------------------------
 function highlightMatches(
   text: string,
@@ -651,7 +651,7 @@ export function SearchPalette({ open, onClose }: SearchPaletteProps) {
         )}
       </Box>
 
-      {/* Footer — keyboard hints (hidden on mobile) */}
+      {/* Footer: keyboard hints (hidden on mobile) */}
       <Box
         sx={{
           display: { xs: "none", sm: "flex" },

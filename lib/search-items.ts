@@ -55,7 +55,7 @@ export const searchItems: SearchItem[] = [
     ) as string[],
     href: `/learn/${category}`,
   })),
-  // Individual challenges — searchable by title and code snippets
+  // Individual challenges, searchable by title and code snippets
   ...challenges.map((c) => ({
     type: "challenge" as const,
     title: c.title,

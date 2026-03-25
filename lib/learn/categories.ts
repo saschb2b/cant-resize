@@ -94,11 +94,11 @@ export const CATEGORY_DESCRIPTIONS: Record<ChallengeCategory, string> = {
   "media-queries":
     "Mobile-first breakpoints, logical ranges with min-width, and why max-width leads to override chains.",
   "container-queries":
-    "@container vs @media — when components should own their own responsiveness instead of relying on the viewport.",
+    "@container vs @media: when components should own their own responsiveness instead of relying on the viewport.",
   "fluid-typography":
     "Using clamp() and fluid type scales so text adapts smoothly without hard breakpoints.",
   "viewport-units":
-    "vw, vh, dvh, svh, and lvh — understanding the mobile viewport trap and picking the right unit.",
+    "vw, vh, dvh, svh, and lvh. Understanding the mobile viewport trap and picking the right unit.",
   "flexbox-patterns":
     "flex-wrap, gap, shrink, and grow for layouts that reflow naturally across screen sizes.",
   "grid-patterns":
@@ -112,7 +112,7 @@ export const CATEGORY_DESCRIPTIONS: Record<ChallengeCategory, string> = {
   "responsive-props":
     "Components that accept breakpoint-aware prop objects like direction={{ xs: 'column', md: 'row' }}.",
   "conditional-rendering":
-    "Rendering different components by viewport vs hiding with CSS — performance and SEO tradeoffs.",
+    "Rendering different components by viewport vs hiding with CSS, including performance and SEO tradeoffs.",
   "responsive-images":
     "srcSet, sizes, next/image, art direction with <picture>, and avoiding layout shift.",
   "mui-responsive":

@@ -38,7 +38,7 @@ export async function generateMetadata({
   if (!categorySet.has(category)) return {};
   const label = CATEGORY_LABELS[category as ChallengeCategory];
   return {
-    title: `${label} — Learn`,
+    title: `${label} - Learn`,
     description: CATEGORY_DESCRIPTIONS[category as ChallengeCategory],
   };
 }

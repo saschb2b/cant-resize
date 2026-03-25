@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Responsive Viewer — Multi-Device Preview",
-    short_name: "Responsive Viewer",
+    name: "Can't Resize - Multi-Device Preview",
+    short_name: "Can't Resize",
     description:
       "Preview any URL across phones, tablets, and desktops simultaneously with synchronized scrolling, clicks, and navigation.",
     start_url: "/",
