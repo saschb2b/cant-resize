@@ -23,47 +23,54 @@ export function useCanvas(options: UseCanvasOptions) {
   const lastMousePos = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleWheel = useCallback(
-    (e: WheelEvent) => {
-      e.preventDefault();
+  // Keep a mutable ref of the latest transform so handlers don't need it
+  // in their dependency arrays. This avoids recreating handlers every frame.
+  const transformRef = useRef(transform);
+  transformRef.current = transform;
 
-      if (e.ctrlKey || e.metaKey) {
-        // Zoom
-        const delta = -e.deltaY * 0.001;
-        const newScale = Math.min(
-          maxScale,
-          Math.max(minScale, transform.scale + delta),
-        );
+  const onChangeRef = useRef(onTransformChange);
+  onChangeRef.current = onTransformChange;
 
-        // Zoom towards cursor
-        const rect = containerRef.current?.getBoundingClientRect();
-        if (rect) {
-          const mouseX = e.clientX - rect.left;
-          const mouseY = e.clientY - rect.top;
-          const scaleFactor = newScale / transform.scale;
+  const limitsRef = useRef({ minScale, maxScale });
+  limitsRef.current = { minScale, maxScale };
 
-          onTransformChange({
-            x: mouseX - (mouseX - transform.x) * scaleFactor,
-            y: mouseY - (mouseY - transform.y) * scaleFactor,
-            scale: newScale,
-          });
-        }
-      } else {
-        // Pan
-        onTransformChange({
-          ...transform,
-          x: transform.x - e.deltaX,
-          y: transform.y - e.deltaY,
+  // Stable wheel handler — never recreates
+  const handleWheel = useCallback((e: WheelEvent) => {
+    e.preventDefault();
+
+    const t = transformRef.current;
+    const { minScale: min, maxScale: max } = limitsRef.current;
+
+    if (e.ctrlKey || e.metaKey) {
+      // Zoom towards cursor
+      const delta = -e.deltaY * 0.001;
+      const newScale = Math.min(max, Math.max(min, t.scale + delta));
+
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (rect) {
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const scaleFactor = newScale / t.scale;
+
+        onChangeRef.current({
+          x: mouseX - (mouseX - t.x) * scaleFactor,
+          y: mouseY - (mouseY - t.y) * scaleFactor,
+          scale: newScale,
         });
       }
-    },
-    [transform, minScale, maxScale, onTransformChange],
-  );
+    } else {
+      // Pan
+      onChangeRef.current({
+        ...t,
+        x: t.x - e.deltaX,
+        y: t.y - e.deltaY,
+      });
+    }
+  }, []);
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
       if (e.button === 1 || (e.button === 0 && isSpacePressed)) {
-        // Middle mouse or Space + Left click
         e.preventDefault();
         setIsPanning(true);
         lastMousePos.current = { x: e.clientX, y: e.clientY };
@@ -72,21 +79,23 @@ export function useCanvas(options: UseCanvasOptions) {
     [isSpacePressed],
   );
 
+  // Stable pan handler — reads transform from ref
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
-      if (isPanning) {
-        const deltaX = e.clientX - lastMousePos.current.x;
-        const deltaY = e.clientY - lastMousePos.current.y;
-        lastMousePos.current = { x: e.clientX, y: e.clientY };
+      if (!isPanning) return;
 
-        onTransformChange({
-          ...transform,
-          x: transform.x + deltaX,
-          y: transform.y + deltaY,
-        });
-      }
+      const deltaX = e.clientX - lastMousePos.current.x;
+      const deltaY = e.clientY - lastMousePos.current.y;
+      lastMousePos.current = { x: e.clientX, y: e.clientY };
+
+      const t = transformRef.current;
+      onChangeRef.current({
+        ...t,
+        x: t.x + deltaX,
+        y: t.y + deltaY,
+      });
     },
-    [isPanning, transform, onTransformChange],
+    [isPanning],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -118,7 +127,7 @@ export function useCanvas(options: UseCanvasOptions) {
     };
   }, []);
 
-  // Attach wheel listener
+  // Attach wheel listener once — handleWheel is stable
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
