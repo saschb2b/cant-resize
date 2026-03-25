@@ -201,7 +201,8 @@ function GridCanvas() {
       sx={{
         height: "100%",
         overflow: "auto",
-        px: 3,
+        pr: 3,
+        pl: 8,
         pb: 3,
         pt: 8,
         bgcolor: "action.hover",
