@@ -122,14 +122,8 @@ function ColorSchemeToggle({ size = 18 }: { size?: number }) {
   );
 }
 
-interface SiteHeaderProps {
-  /** "default" for normal pages, "canvas" for the viewer workspace. */
-  variant?: "default" | "canvas";
-}
-
-export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
+export function SiteHeader() {
   const [searchOpen, setSearchOpen] = useState(false);
-  const compact = variant === "canvas";
 
   const openSearch = useCallback((trigger: "hotkey" | "button") => {
     trackEvent("search-opened", { trigger });
@@ -153,21 +147,15 @@ export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
       <Box
         component="header"
         sx={{
-          position: compact ? "relative" : "sticky",
-          top: compact ? undefined : 0,
+          position: "sticky",
+          top: 0,
           zIndex: 1100,
-          bgcolor: compact
-            ? "background.paper"
-            : "rgba(var(--mui-palette-background-defaultChannel) / 0.8)",
-          backdropFilter: compact ? undefined : "blur(12px)",
+          bgcolor: "rgba(var(--mui-palette-background-defaultChannel) / 0.8)",
+          backdropFilter: "blur(12px)",
         }}
       >
-        <Container maxWidth={compact ? false : "lg"} disableGutters={compact}>
-          <Stack
-            direction="row"
-            alignItems="center"
-            sx={{ py: compact ? 1 : 2, px: compact ? 2 : 0 }}
-          >
+        <Container maxWidth="lg">
+          <Stack direction="row" alignItems="center" sx={{ py: 2 }}>
             <NextLink
               href="/"
               style={{
@@ -181,27 +169,25 @@ export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
               <Image
                 src="/icon.svg"
                 alt=""
-                width={compact ? 22 : 28}
-                height={compact ? 22 : 28}
+                width={28}
+                height={28}
                 priority
               />
               <Box sx={{ display: { xs: "none", sm: "block" } }}>
                 <Typography
-                  variant={compact ? "subtitle2" : "subtitle1"}
+                  variant="subtitle1"
                   fontWeight={700}
                   lineHeight={1.2}
                 >
                   {"Can't Resize"}
                 </Typography>
-                {!compact && (
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    fontFamily="var(--font-geist-mono), monospace"
-                  >
-                    Learn responsive design
-                  </Typography>
-                )}
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  fontFamily="var(--font-geist-mono), monospace"
+                >
+                  Learn responsive design
+                </Typography>
               </Box>
             </NextLink>
 
@@ -298,13 +284,11 @@ export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
                   Learn
                 </Typography>
               </NextLink>
-              {!compact && (
-                <NextLink href="/canvas" style={{ textDecoration: "none" }}>
-                  <Button variant="contained" size="small">
-                    Open Viewer
-                  </Button>
-                </NextLink>
-              )}
+              <NextLink href="/canvas" style={{ textDecoration: "none" }}>
+                <Button variant="contained" size="small">
+                  Open Viewer
+                </Button>
+              </NextLink>
             </Stack>
           </Stack>
         </Container>
