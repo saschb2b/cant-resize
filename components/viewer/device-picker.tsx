@@ -28,12 +28,10 @@ function DeviceSilhouette({
   device: DevicePreset;
   selected: boolean;
 }) {
-  // Normalize so the largest dimension fits within the preview box
   const maxDim = 56;
   const aspect = device.width / device.height;
   let w: number, h: number;
   if (aspect > 1) {
-    // Landscape / wide
     w = maxDim;
     h = maxDim / aspect;
   } else {
@@ -41,13 +39,17 @@ function DeviceSilhouette({
     w = maxDim * aspect;
   }
 
-  const borderColor = selected ? "primary.main" : "divider";
-  const bg = selected
+  const borderColor = selected ? "primary.main" : "text.disabled";
+  const screenColor = selected
     ? "rgba(var(--mui-palette-primary-mainChannel) / 0.06)"
-    : "transparent";
+    : "action.hover";
 
   if (device.category === "desktop") {
-    // Monitor shape: screen + stand
+    // Monitor: thin bezel, chin at bottom, stand + base
+    const screenW = w;
+    const screenH = h * 0.72;
+    const chin = 3;
+    const radius = Math.min(3, w * 0.04);
     return (
       <Box
         sx={{
@@ -59,41 +61,118 @@ function DeviceSilhouette({
           justifyContent: "flex-end",
         }}
       >
+        {/* Screen + bezel */}
         <Box
           sx={{
-            width: w,
-            height: h * 0.78,
-            border: 2,
+            position: "relative",
+            border: 1.5,
             borderColor,
-            borderRadius: 1,
-            bgcolor: bg,
+            bgcolor: screenColor,
             transition: "border-color 0.15s, background-color 0.15s",
           }}
-        />
-        {/* Stand */}
-        <Box
-          sx={{
-            width: w * 0.15,
-            height: h * 0.1,
-            bgcolor: borderColor,
-            transition: "background-color 0.15s",
+          style={{
+            width: screenW,
+            height: screenH + chin,
+            borderRadius: `${String(radius)}px ${String(radius)}px ${String(radius * 0.5)}px ${String(radius * 0.5)}px`,
           }}
+        >
+          {/* Webcam dot */}
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: chin / 2,
+              left: "50%",
+              transform: "translate(-50%, 50%)",
+              width: 2,
+              height: 2,
+              borderRadius: "50%",
+              bgcolor: borderColor,
+              opacity: 0.4,
+            }}
+          />
+        </Box>
+        {/* Stand neck */}
+        <Box
+          sx={{ width: w * 0.08, height: 4, bgcolor: borderColor, opacity: 0.6 }}
         />
+        {/* Stand base */}
         <Box
           sx={{
-            width: w * 0.4,
-            height: 2,
+            width: w * 0.35,
+            height: 1.5,
             bgcolor: borderColor,
-            borderRadius: 1,
-            transition: "background-color 0.15s",
+            opacity: 0.6,
+          }}
+          style={{
+            borderRadius: "0 0 2px 2px",
           }}
         />
       </Box>
     );
   }
 
-  // Phone / tablet: rounded rectangle
-  const radius = device.category === "phone" ? 3 : 2;
+  if (device.category === "tablet") {
+    // Tablet: slightly rounded corners, thin uniform bezel, front camera dot
+    const radius = Math.max(3, Math.min(6, w * 0.08));
+    return (
+      <Box
+        sx={{
+          width: maxDim,
+          height: maxDim,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Box
+          sx={{
+            border: 1.5,
+            borderColor,
+            bgcolor: screenColor,
+            transition: "border-color 0.15s, background-color 0.15s",
+            position: "relative",
+          }}
+          style={{
+            width: w,
+            height: h,
+            borderRadius: radius,
+            padding: 2,
+          }}
+        >
+          {/* Inner screen area */}
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+              borderRadius: `${String(Math.max(1, radius - 2))}px`,
+              bgcolor: selected
+                ? "rgba(var(--mui-palette-primary-mainChannel) / 0.03)"
+                : "background.paper",
+              transition: "background-color 0.15s",
+            }}
+          />
+          {/* Front camera */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              right: 1,
+              transform: "translateY(-50%)",
+              width: 1.5,
+              height: 1.5,
+              borderRadius: "50%",
+              bgcolor: borderColor,
+              opacity: 0.35,
+            }}
+          />
+        </Box>
+      </Box>
+    );
+  }
+
+  // Phone: more rounded corners (like real iPhones/Androids), dynamic island/notch
+  const radius = Math.max(4, Math.min(8, w * 0.15));
+  const isIphone = device.name.toLowerCase().includes("iphone");
 
   return (
     <Box
@@ -107,33 +186,66 @@ function DeviceSilhouette({
     >
       <Box
         sx={{
-          border: 2,
+          border: 1.5,
           borderColor,
-          borderRadius: radius,
-          bgcolor: bg,
+          bgcolor: screenColor,
           transition: "border-color 0.15s, background-color 0.15s",
           position: "relative",
           overflow: "hidden",
         }}
-        style={{ width: w, height: h }}
+        style={{ width: w, height: h, borderRadius: radius }}
       >
-        {/* Notch / camera hint for phones */}
-        {device.category === "phone" && (
+        {/* Dynamic Island (modern phones) or notch */}
+        {isIphone && !device.name.includes("SE") ? (
+          // Dynamic Island pill
           <Box
             sx={{
               position: "absolute",
-              top: 3,
+              top: "4%",
               left: "50%",
               transform: "translateX(-50%)",
-              width: w * 0.3,
-              height: 3,
-              borderRadius: 2,
               bgcolor: borderColor,
-              opacity: 0.5,
+              opacity: 0.45,
               transition: "background-color 0.15s",
+            }}
+            style={{
+              width: w * 0.28,
+              height: Math.max(2.5, h * 0.025),
+              borderRadius: 99,
+            }}
+          />
+        ) : (
+          // Small camera dot (Android / iPhone SE)
+          <Box
+            sx={{
+              position: "absolute",
+              top: "4%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 2,
+              height: 2,
+              borderRadius: "50%",
+              bgcolor: borderColor,
+              opacity: 0.4,
             }}
           />
         )}
+        {/* Home indicator line (bottom) */}
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: "3%",
+            left: "50%",
+            transform: "translateX(-50%)",
+            bgcolor: borderColor,
+            opacity: 0.3,
+          }}
+          style={{
+            width: w * 0.35,
+            height: Math.max(1.5, h * 0.015),
+            borderRadius: 99,
+          }}
+        />
       </Box>
     </Box>
   );
