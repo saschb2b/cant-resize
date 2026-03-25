@@ -180,26 +180,57 @@ export function CanvasLeftRail({
       ?.parentElement;
     if (!canvas) return;
 
+    // Flash effect
+    const flash = document.createElement("div");
+    Object.assign(flash.style, {
+      position: "fixed",
+      inset: "0",
+      background: "white",
+      opacity: "0",
+      zIndex: "99999",
+      pointerEvents: "none",
+      transition: "opacity 0.1s ease-out",
+    });
+    document.body.appendChild(flash);
+    requestAnimationFrame(() => {
+      flash.style.opacity = "0.3";
+      setTimeout(() => {
+        flash.style.opacity = "0";
+        setTimeout(() => flash.remove(), 150);
+      }, 80);
+    });
+
     try {
-      // Flash effect: brief white overlay
-      const flash = document.createElement("div");
-      Object.assign(flash.style, {
-        position: "fixed",
-        inset: "0",
-        background: "white",
-        opacity: "0",
-        zIndex: "99999",
-        pointerEvents: "none",
-        transition: "opacity 0.1s ease-out",
-      });
-      document.body.appendChild(flash);
-      // Trigger the flash
-      requestAnimationFrame(() => {
-        flash.style.opacity = "0.3";
-        setTimeout(() => {
-          flash.style.opacity = "0";
-          setTimeout(() => flash.remove(), 150);
-        }, 80);
+      // Temporarily hide iframes (cross-origin blocks html-to-image)
+      // and show placeholder boxes instead
+      const iframes = canvas.querySelectorAll("iframe");
+      const placeholders: HTMLDivElement[] = [];
+
+      iframes.forEach((iframe) => {
+        const rect = iframe.getBoundingClientRect();
+        const parentRect = iframe.parentElement?.getBoundingClientRect();
+        if (!parentRect) return;
+
+        iframe.style.display = "none";
+
+        const placeholder = document.createElement("div");
+        Object.assign(placeholder.style, {
+          width: `${String(rect.width)}px`,
+          height: `${String(rect.height)}px`,
+          background: "var(--mui-palette-action-hover, #f5f5f5)",
+          border: "1px solid var(--mui-palette-divider, #e0e0e0)",
+          borderRadius: "4px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "11px",
+          color: "var(--mui-palette-text-secondary, #999)",
+          fontFamily: "var(--font-geist-mono), monospace",
+        });
+        placeholder.textContent = `${String(Math.round(rect.width))} × ${String(Math.round(rect.height))}`;
+        placeholder.dataset.screenshotPlaceholder = "true";
+        iframe.parentElement?.appendChild(placeholder);
+        placeholders.push(placeholder);
       });
 
       const dataUrl = await toPng(canvas as HTMLElement, {
@@ -209,6 +240,12 @@ export function CanvasLeftRail({
           ) || "#0a0a0a",
       });
 
+      // Restore iframes
+      iframes.forEach((iframe) => {
+        iframe.style.display = "";
+      });
+      placeholders.forEach((p) => p.remove());
+
       const link = document.createElement("a");
       link.download = `cant-resize-${new Date().toISOString().slice(0, 10)}.png`;
       link.href = dataUrl;
@@ -217,7 +254,13 @@ export function CanvasLeftRail({
       setScreenshotFeedback(true);
       setTimeout(() => setScreenshotFeedback(false), 1500);
     } catch {
-      // Silently fail if capture doesn't work (cross-origin iframes)
+      // Restore iframes on error too
+      canvas.querySelectorAll("iframe").forEach((iframe) => {
+        iframe.style.display = "";
+      });
+      canvas
+        .querySelectorAll("[data-screenshot-placeholder]")
+        .forEach((p) => p.remove());
     }
   }, []);
 
