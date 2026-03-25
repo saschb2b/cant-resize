@@ -165,6 +165,19 @@ export function SiteHeader() {
             alignItems="center"
             sx={{ ml: "auto" }}
           >
+            <NextLink href="/learn" style={{ textDecoration: "none" }}>
+              <Typography
+                variant="body2"
+                fontWeight={500}
+                sx={{
+                  color: "text.secondary",
+                  "&:hover": { color: "text.primary" },
+                  transition: "color 0.15s ease",
+                }}
+              >
+                Learn
+              </Typography>
+            </NextLink>
             <ColorSchemeToggle />
             <NextLink href="/canvas" style={{ textDecoration: "none" }}>
               <Button variant="contained" size="small">

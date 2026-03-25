@@ -349,6 +349,18 @@ export default function LandingPage() {
                     Viewer
                   </Box>
                 </NextLink>
+                <NextLink href="/learn" style={{ textDecoration: "none" }}>
+                  <Box
+                    sx={{
+                      color: "text.secondary",
+                      textDecoration: "none",
+                      typography: "caption",
+                      "&:hover": { color: "text.primary" },
+                    }}
+                  >
+                    Learn
+                  </Box>
+                </NextLink>
                 <Box
                   component="a"
                   href="https://github.com/saschb2b/cant-resize"

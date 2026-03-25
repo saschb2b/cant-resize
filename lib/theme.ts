@@ -92,6 +92,10 @@ const theme = createTheme({
         body: {
           minHeight: "100vh",
         },
+        /* Shiki dual-theme toggle */
+        ".shiki-dark": { display: "none" },
+        ".dark .shiki-light": { display: "none" },
+        ".dark .shiki-dark": { display: "block" },
       },
     },
     MuiButton: {
