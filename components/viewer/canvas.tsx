@@ -5,11 +5,12 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Image from "next/image";
-import { Plus } from "lucide-react";
+import { Plus, Smartphone, Tablet, Monitor } from "lucide-react";
 import { useViewer } from "./viewer-provider";
 import { useCanvas } from "@/lib/viewer/use-canvas";
 import { ViewportFrame } from "./viewport-frame";
 import { DevicePicker } from "./device-picker";
+import { getDeviceById } from "@/lib/viewer/device-presets";
 import type { GuideLine } from "@/lib/viewer/use-snap";
 
 // ── Grid drag-to-reorder state ──────────────────────────────────────────────
@@ -204,53 +205,93 @@ function GridCanvas() {
           );
         })}
 
-        {/* Drag ghost: cloned as a visual-only overlay following the cursor.
-            Uses a portal-style fixed box. The actual ViewportFrame stays
-            mounted in the grid (hidden) so the iframe doesn't reload. */}
-        {drag && state.viewports[drag.fromIndex] && (
-          <Box
-            sx={{
-              position: "fixed",
-              zIndex: 9999,
-              pointerEvents: "none",
-              boxShadow: 24,
-              borderRadius: 2,
-              overflow: "hidden",
-              opacity: 0.9,
-            }}
-            style={{
-              left: drag.cursor.x - drag.offset.x,
-              top: drag.cursor.y - drag.offset.y,
-              width: drag.size.width,
-              height: drag.size.height,
-              transform: "scale(1.03)",
-            }}
-          >
-            {/* Visual-only clone — lightweight, no iframe */}
+        {/* Drag ghost: visual-only device card following the cursor.
+            The actual ViewportFrame stays mounted (hidden) so no iframe reload. */}
+        {drag && state.viewports[drag.fromIndex] && (() => {
+          const vp = state.viewports[drag.fromIndex]!;
+          const device = getDeviceById(vp.deviceId);
+          const name = vp.customName ?? device?.name ?? "Custom";
+          const category = device?.category ?? "custom";
+          const DeviceIcon =
+            category === "phone"
+              ? Smartphone
+              : category === "tablet"
+                ? Tablet
+                : Monitor;
+
+          return (
             <Box
               sx={{
-                width: "100%",
-                height: "100%",
-                bgcolor: "background.paper",
-                border: 2,
-                borderColor: "primary.main",
-                borderRadius: 2,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                position: "fixed",
+                zIndex: 9999,
+                pointerEvents: "none",
+                borderRadius: 3,
+                overflow: "hidden",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(var(--mui-palette-primary-mainChannel) / 0.3)",
+              }}
+              style={{
+                left: drag.cursor.x - drag.offset.x,
+                top: drag.cursor.y - drag.offset.y,
+                width: drag.size.width,
+                height: drag.size.height,
+                transform: "scale(1.05) rotate(-1deg)",
               }}
             >
-              <Typography
-                variant="caption"
-                fontWeight={600}
-                color="text.secondary"
+              {/* Frosted glass background */}
+              <Box
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  bgcolor: "rgba(var(--mui-palette-background-paperChannel) / 0.85)",
+                  backdropFilter: "blur(20px)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 1.5,
+                }}
               >
-                {state.viewports[drag.fromIndex]!.customName ??
-                  state.viewports[drag.fromIndex]!.deviceId}
-              </Typography>
+                {/* Device icon */}
+                <Box
+                  sx={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 2,
+                    bgcolor: "rgba(var(--mui-palette-primary-mainChannel) / 0.1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "primary.main",
+                  }}
+                >
+                  <DeviceIcon size={24} />
+                </Box>
+
+                {/* Device name */}
+                <Typography
+                  variant="body2"
+                  fontWeight={700}
+                  color="text.primary"
+                  textAlign="center"
+                  noWrap
+                  sx={{ maxWidth: "80%", px: 1 }}
+                >
+                  {name}
+                </Typography>
+
+                {/* Dimensions */}
+                <Typography
+                  variant="caption"
+                  fontFamily="var(--font-geist-mono), monospace"
+                  color="text.secondary"
+                  sx={{ fontSize: "0.7rem" }}
+                >
+                  {vp.width} &times; {vp.height}
+                </Typography>
+              </Box>
             </Box>
-          </Box>
-        )}
+          );
+        })()}
         {state.viewports.length === 0 && (
           <Box
             sx={{
