@@ -124,7 +124,7 @@ export function ViewportFrame({
             }
       }
     >
-      {/* Header - positioned above the frame, inverse-scaled to stay readable */}
+      {/* Header - floats above the frame, inverse-scaled to stay readable */}
       <Box
         onPointerDown={handleDragStart}
         onPointerMove={handleDragMove}
@@ -135,20 +135,15 @@ export function ViewportFrame({
             position: "absolute",
             top: 0,
             left: 0,
-            right: 0,
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
+            gap: 0.75,
             height: headerScreenHeight,
-            px: 2,
-            bgcolor: "background.paper",
-            borderBottom: 1,
-            borderColor: "divider",
+            px: 1.5,
             userSelect: "none",
             transformOrigin: "top left",
             zIndex: 5,
-            borderTopLeftRadius: 12,
-            borderTopRightRadius: isGridMode ? 12 : `${String(12 * canvasScale)}px`,
+            whiteSpace: "nowrap",
           },
           !isGridMode && { cursor: "grab" },
         ]}
@@ -157,59 +152,64 @@ export function ViewportFrame({
             ? {}
             : {
                 transform: `scale(${String(headerInverseScale)})`,
-                width: `${String(displayWidth * canvasScale)}px`,
               }
         }
       >
-        <Box
+        <Typography
+          variant="caption"
+          fontWeight={600}
+          noWrap
           sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            minWidth: 0,
+            color: "text.primary",
+            bgcolor: "background.paper",
+            px: 1,
+            py: 0.25,
+            borderRadius: 1,
+            border: 1,
+            borderColor: "divider",
+            fontSize: "0.7rem",
+            maxWidth: 120,
           }}
         >
-          <Typography
-            variant="body2"
-            fontWeight={600}
-            noWrap
-            color="text.primary"
-          >
-            {viewport.customName ?? device?.name ?? "Custom"}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" sx={{ fontSize: "0.75rem" }}>
-            {Math.round(displayWidth)} x {Math.round(displayHeight)}
-          </Typography>
-          {isSyncEnabled === false && (
-            <Tooltip title="Scroll sync unavailable for cross-origin sites. Use localhost for full sync.">
-              <Link2Off size={14} color="#f59e0b" />
-            </Tooltip>
-          )}
-        </Box>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-          <IconButton
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleOrientation(viewport.id);
-            }}
-            title="Toggle orientation"
-            sx={{ width: 28, height: 28 }}
-          >
-            <RotateCcw size={14} />
-          </IconButton>
-          <IconButton
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              removeViewport(viewport.id);
-            }}
-            title="Remove device"
-            sx={{ width: 28, height: 28, color: "error.main" }}
-          >
-            <X size={14} />
-          </IconButton>
-        </Box>
+          {viewport.customName ?? device?.name ?? "Custom"}
+        </Typography>
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+            fontSize: "0.65rem",
+            fontFamily: "var(--font-geist-mono), monospace",
+          }}
+        >
+          {Math.round(displayWidth)}&times;{Math.round(displayHeight)}
+        </Typography>
+        {isSyncEnabled === false && (
+          <Tooltip title="Sync unavailable (cross-origin). Use localhost for full sync.">
+            <Link2Off size={12} color="#f59e0b" />
+          </Tooltip>
+        )}
+        <IconButton
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleOrientation(viewport.id);
+          }}
+          title="Toggle orientation"
+          sx={{ width: 22, height: 22, color: "text.secondary" }}
+        >
+          <RotateCcw size={12} />
+        </IconButton>
+        <IconButton
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            removeViewport(viewport.id);
+          }}
+          title="Remove device"
+          sx={{ width: 22, height: 22, color: "text.secondary", "&:hover": { color: "error.main" } }}
+        >
+          <X size={12} />
+        </IconButton>
       </Box>
 
       {/* Iframe container */}
@@ -221,12 +221,11 @@ export function ViewportFrame({
           bottom: 0,
           bgcolor: "background.paper",
           overflow: "hidden",
-          borderRadius: 3,
-          boxShadow: 6,
-          border: 2,
+          borderRadius: 2,
+          boxShadow: isSelected ? 12 : 4,
+          border: 1,
           borderColor: isSelected ? "primary.main" : "divider",
-          transition: "box-shadow 0.2s",
-          ...(isSelected ? { boxShadow: 12 } : {}),
+          transition: "box-shadow 0.2s, border-color 0.2s",
         }}
         style={{ top: headerCanvasHeight }}
       >
@@ -359,10 +358,10 @@ export function ViewportFrame({
           {/* Corner handles */}
           {(
             [
-              { dir: "nw", cursor: "nwse-resize", top: -5, left: -5 },
-              { dir: "ne", cursor: "nesw-resize", top: -5, right: -5 },
-              { dir: "sw", cursor: "nesw-resize", bottom: -5, left: -5 },
-              { dir: "se", cursor: "nwse-resize", bottom: -5, right: -5 },
+              { dir: "nw", cursor: "nwse-resize", top: -4, left: -4 },
+              { dir: "ne", cursor: "nesw-resize", top: -4, right: -4 },
+              { dir: "sw", cursor: "nesw-resize", bottom: -4, left: -4 },
+              { dir: "se", cursor: "nwse-resize", bottom: -4, right: -4 },
             ] as const
           ).map(({ dir, cursor, ...pos }) => (
             <Box
@@ -373,17 +372,15 @@ export function ViewportFrame({
               onPointerCancel={handleResizeEnd}
               sx={{
                 position: "absolute",
-                width: 12,
-                height: 12,
+                width: 8,
+                height: 8,
                 cursor,
                 zIndex: 21,
                 borderRadius: "50%",
-                border: "2px solid",
-                borderColor: "primary.main",
-                bgcolor: "background.paper",
-                opacity: isSelected ? 1 : 0,
+                bgcolor: "primary.main",
+                opacity: isSelected ? 0.7 : 0,
                 transition: "opacity 0.15s",
-                "&:hover": { opacity: 1, transform: "scale(1.3)" },
+                "&:hover": { opacity: 1 },
                 ...pos,
               }}
             />
