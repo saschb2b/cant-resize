@@ -301,6 +301,19 @@ export function ViewportFrame({
           onError={handleIframeError}
           title={device?.name ?? "Viewport"}
         />
+
+        {/* Click-catcher: visible when not selected so clicking anywhere selects the viewport */}
+        {!isSelected && (
+          <Box
+            onClick={() => selectViewport(viewport.id)}
+            sx={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 5,
+              cursor: "pointer",
+            }}
+          />
+        )}
       </Box>
 
       {/* Resize handles */}
