@@ -162,12 +162,11 @@ export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
           backdropFilter: compact ? undefined : "blur(12px)",
         }}
       >
-        {compact ? (
-          /* ── Canvas variant: compact single row ── */
+        <Container maxWidth={compact ? false : "lg"} disableGutters={compact}>
           <Stack
             direction="row"
             alignItems="center"
-            sx={{ px: 2, py: 0.75, gap: 1.5 }}
+            sx={{ py: compact ? 1 : 2, px: compact ? 2 : 0 }}
           >
             <NextLink
               href="/"
@@ -176,86 +175,25 @@ export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
                 color: "inherit",
                 display: "flex",
                 alignItems: "center",
-                flexShrink: 0,
+                gap: 12,
               }}
             >
-              <Tooltip title="Back to home">
-                <Image
-                  src="/icon.svg"
-                  alt="Can't Resize"
-                  width={22}
-                  height={22}
-                  priority
-                />
-              </Tooltip>
-            </NextLink>
-
-            <Divider orientation="vertical" flexItem />
-
-            {/* Right-side actions */}
-            <Stack
-              direction="row"
-              spacing={0.5}
-              alignItems="center"
-              sx={{ ml: "auto" }}
-            >
-              <Tooltip title="Search">
-                <IconButton
-                  onClick={() => openSearch("button")}
-                  size="small"
-                  sx={{ color: "text.secondary" }}
-                  aria-label="Search"
+              <Image
+                src="/icon.svg"
+                alt=""
+                width={compact ? 22 : 28}
+                height={compact ? 22 : 28}
+                priority
+              />
+              <Box sx={{ display: { xs: "none", sm: "block" } }}>
+                <Typography
+                  variant={compact ? "subtitle2" : "subtitle1"}
+                  fontWeight={700}
+                  lineHeight={1.2}
                 >
-                  <Search size={16} />
-                </IconButton>
-              </Tooltip>
-              <NextLink
-                href="/learn"
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <Tooltip title="Learn patterns">
-                  <IconButton
-                    component="span"
-                    size="small"
-                    sx={{ color: "text.secondary" }}
-                    aria-label="Learn"
-                  >
-                    <GraduationCap size={16} />
-                  </IconButton>
-                </Tooltip>
-              </NextLink>
-              <ColorSchemeToggle size={16} />
-            </Stack>
-          </Stack>
-        ) : (
-          /* ── Default variant: full header ── */
-          <Container maxWidth="lg">
-            <Stack direction="row" alignItems="center" sx={{ py: 2 }}>
-              <NextLink
-                href="/"
-                style={{
-                  textDecoration: "none",
-                  color: "inherit",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                }}
-              >
-                <Image
-                  src="/icon.svg"
-                  alt=""
-                  width={28}
-                  height={28}
-                  priority
-                />
-                <Box sx={{ display: { xs: "none", sm: "block" } }}>
-                  <Typography
-                    variant="subtitle1"
-                    fontWeight={700}
-                    lineHeight={1.2}
-                  >
-                    {"Can't Resize"}
-                  </Typography>
+                  {"Can't Resize"}
+                </Typography>
+                {!compact && (
                   <Typography
                     variant="caption"
                     color="text.secondary"
@@ -263,111 +201,113 @@ export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
                   >
                     Learn responsive design
                   </Typography>
-                </Box>
-              </NextLink>
+                )}
+              </Box>
+            </NextLink>
 
-              <Stack
-                direction="row"
-                spacing={{ xs: 1, sm: 2 }}
-                alignItems="center"
-                sx={{ ml: "auto" }}
+            <Stack
+              direction="row"
+              spacing={{ xs: 1, sm: 2 }}
+              alignItems="center"
+              sx={{ ml: "auto" }}
+            >
+              {/* Search: icon button on mobile, pill on desktop */}
+              <Tooltip title="Search">
+                <IconButton
+                  onClick={() => openSearch("button")}
+                  size="small"
+                  sx={{
+                    display: { xs: "flex", sm: "none" },
+                    color: "text.secondary",
+                  }}
+                  aria-label="Search"
+                >
+                  <Search size={18} />
+                </IconButton>
+              </Tooltip>
+              <Button
+                onClick={() => openSearch("button")}
+                size="small"
+                sx={{
+                  display: { xs: "none", sm: "inline-flex" },
+                  color: "primary.main",
+                  gap: 0.75,
+                  borderRadius: 100,
+                  minWidth: "auto",
+                  bgcolor:
+                    "rgba(var(--mui-palette-primary-mainChannel) / 0.08)",
+                  border: 1,
+                  borderColor:
+                    "rgba(var(--mui-palette-primary-mainChannel) / 0.15)",
+                  px: 2,
+                  fontSize: "0.75rem",
+                  fontWeight: 500,
+                  fontFamily: "var(--font-geist-mono), monospace",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    bgcolor:
+                      "rgba(var(--mui-palette-primary-mainChannel) / 0.14)",
+                    borderColor:
+                      "rgba(var(--mui-palette-primary-mainChannel) / 0.25)",
+                  },
+                }}
               >
-                {/* Search: icon button on mobile, pill on desktop */}
-                <Tooltip title="Search">
+                <Search size={14} />
+                Search
+                <Box
+                  component="kbd"
+                  sx={{
+                    display: { xs: "none", md: "inline" },
+                    fontSize: "0.6rem",
+                    fontWeight: 600,
+                    ml: 0.5,
+                    opacity: 0.5,
+                  }}
+                >
+                  Ctrl K
+                </Box>
+              </Button>
+              <ColorSchemeToggle />
+              <NextLink
+                href="/learn"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <Tooltip title="Learn">
                   <IconButton
-                    onClick={() => openSearch("button")}
+                    component="span"
                     size="small"
                     sx={{
                       display: { xs: "flex", sm: "none" },
                       color: "text.secondary",
                     }}
-                    aria-label="Search"
+                    aria-label="Learn"
                   >
-                    <Search size={18} />
+                    <GraduationCap size={18} />
                   </IconButton>
                 </Tooltip>
-                <Button
-                  onClick={() => openSearch("button")}
-                  size="small"
+                <Typography
+                  variant="body2"
+                  fontWeight={500}
+                  fontFamily="var(--font-geist-mono), monospace"
                   sx={{
-                    display: { xs: "none", sm: "inline-flex" },
-                    color: "primary.main",
-                    gap: 0.75,
-                    borderRadius: 100,
-                    minWidth: "auto",
-                    bgcolor:
-                      "rgba(var(--mui-palette-primary-mainChannel) / 0.08)",
-                    border: 1,
-                    borderColor:
-                      "rgba(var(--mui-palette-primary-mainChannel) / 0.15)",
-                    px: 2,
-                    fontSize: "0.75rem",
-                    fontWeight: 500,
-                    fontFamily: "var(--font-geist-mono), monospace",
-                    transition: "all 0.2s ease",
-                    "&:hover": {
-                      bgcolor:
-                        "rgba(var(--mui-palette-primary-mainChannel) / 0.14)",
-                      borderColor:
-                        "rgba(var(--mui-palette-primary-mainChannel) / 0.25)",
-                    },
+                    display: { xs: "none", sm: "block" },
+                    color: "text.secondary",
+                    "&:hover": { color: "text.primary" },
                   }}
                 >
-                  <Search size={14} />
-                  Search
-                  <Box
-                    component="kbd"
-                    sx={{
-                      display: { xs: "none", md: "inline" },
-                      fontSize: "0.6rem",
-                      fontWeight: 600,
-                      ml: 0.5,
-                      opacity: 0.5,
-                    }}
-                  >
-                    Ctrl K
-                  </Box>
-                </Button>
-                <ColorSchemeToggle />
-                <NextLink
-                  href="/learn"
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <Tooltip title="Learn">
-                    <IconButton
-                      component="span"
-                      size="small"
-                      sx={{
-                        display: { xs: "flex", sm: "none" },
-                        color: "text.secondary",
-                      }}
-                      aria-label="Learn"
-                    >
-                      <GraduationCap size={18} />
-                    </IconButton>
-                  </Tooltip>
-                  <Typography
-                    variant="body2"
-                    fontWeight={500}
-                    fontFamily="var(--font-geist-mono), monospace"
-                    sx={{
-                      display: { xs: "none", sm: "block" },
-                      color: "text.secondary",
-                      "&:hover": { color: "text.primary" },
-                    }}
-                  >
-                    Learn
-                  </Typography>
-                </NextLink>
+                  Learn
+                </Typography>
+              </NextLink>
+              {!compact && (
                 <NextLink href="/canvas" style={{ textDecoration: "none" }}>
                   <Button variant="contained" size="small">
                     Open Viewer
                   </Button>
                 </NextLink>
-              </Stack>
+              )}
             </Stack>
-          </Container>
-        )}
+          </Stack>
+        </Container>
         <Divider />
       </Box>
 

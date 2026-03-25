@@ -12,54 +12,76 @@ const linkSx = {
   "&:hover": { color: "text.primary" },
 } as const;
 
-export function SiteFooter() {
+interface SiteFooterProps {
+  /** "default" for normal pages, "canvas" for the viewer workspace. */
+  variant?: "default" | "canvas";
+}
+
+export function SiteFooter({ variant = "default" }: SiteFooterProps) {
+  const compact = variant === "canvas";
+
   return (
     <Box
       component="footer"
-      sx={{ mt: "auto", position: "relative", zIndex: 1 }}
+      sx={{ mt: compact ? 0 : "auto", position: "relative", zIndex: 1 }}
     >
       <Box sx={{ borderTop: 1, borderColor: "divider" }}>
-        <Container maxWidth="lg">
+        <Container
+          maxWidth={compact ? false : "lg"}
+          disableGutters={compact}
+        >
           <Stack
-            direction={{ xs: "column", sm: "row" }}
+            direction="row"
             alignItems="center"
-            justifyContent="space-between"
-            spacing={{ xs: 1.5, sm: 1 }}
-            sx={{ py: 2 }}
+            justifyContent={compact ? "center" : "space-between"}
+            spacing={compact ? 2 : { xs: 1.5, sm: 1 }}
+            sx={{
+              py: compact ? 0.5 : 2,
+              px: compact ? 2 : 0,
+              flexWrap: compact ? "nowrap" : { xs: "wrap", sm: "nowrap" },
+            }}
           >
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
-            >
-              Made with
-              <Box
-                component="span"
-                sx={{ color: "error.main", display: "inline-flex" }}
+            {!compact && (
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
               >
-                <Heart size={12} fill="currentColor" />
-              </Box>
-              by{" "}
-              <Box
-                component="a"
-                href="https://saschb2b.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                sx={{
-                  color: "text.secondary",
-                  textDecoration: "none",
-                  fontWeight: 600,
-                  "&:hover": { color: "text.primary" },
-                }}
-              >
-                Sascha
-              </Box>
-            </Typography>
+                Made with
+                <Box
+                  component="span"
+                  sx={{ color: "error.main", display: "inline-flex" }}
+                >
+                  <Heart size={12} fill="currentColor" />
+                </Box>
+                by{" "}
+                <Box
+                  component="a"
+                  href="https://saschb2b.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                    color: "text.secondary",
+                    textDecoration: "none",
+                    fontWeight: 600,
+                    "&:hover": { color: "text.primary" },
+                  }}
+                >
+                  Sascha
+                </Box>
+              </Typography>
+            )}
 
             <Stack direction="row" alignItems="center" spacing={2}>
-              <NextLink href="/canvas" style={{ textDecoration: "none" }}>
-                <Box sx={linkSx}>Viewer</Box>
-              </NextLink>
+              {compact ? (
+                <NextLink href="/" style={{ textDecoration: "none" }}>
+                  <Box sx={linkSx}>Home</Box>
+                </NextLink>
+              ) : (
+                <NextLink href="/canvas" style={{ textDecoration: "none" }}>
+                  <Box sx={linkSx}>Viewer</Box>
+                </NextLink>
+              )}
               <NextLink href="/learn" style={{ textDecoration: "none" }}>
                 <Box sx={linkSx}>Learn</Box>
               </NextLink>
