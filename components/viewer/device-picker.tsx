@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Checkbox from "@mui/material/Checkbox";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -11,7 +10,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
-import { Plus, Search, Smartphone, Tablet, Monitor, Ruler } from "lucide-react";
+import { Plus, Search, Smartphone, Tablet, Monitor, Check } from "lucide-react";
 import { useViewer } from "./viewer-provider";
 import {
   DEVICE_PRESETS,
@@ -19,25 +18,130 @@ import {
 } from "@/lib/viewer/device-presets";
 import type { DevicePreset } from "@/lib/viewer/types";
 
-// Max dimension used to normalize the size preview rectangles
-const MAX_DIM = Math.max(...DEVICE_PRESETS.map((d) => Math.max(d.width, d.height)));
+// ── Device silhouette ───────────────────────────────────────────────────────
 
-const categoryIcon = (cat: DevicePreset["category"]) => {
-  switch (cat) {
-    case "phone":
-      return <Smartphone size={12} />;
-    case "tablet":
-      return <Tablet size={12} />;
-    case "desktop":
-      return <Monitor size={12} />;
-    default:
-      return <Ruler size={12} />;
+/** CSS-only device silhouette, proportionally scaled within a fixed box. */
+function DeviceSilhouette({
+  device,
+  selected,
+}: {
+  device: DevicePreset;
+  selected: boolean;
+}) {
+  // Normalize so the largest dimension fits within the preview box
+  const maxDim = 56;
+  const aspect = device.width / device.height;
+  let w: number, h: number;
+  if (aspect > 1) {
+    // Landscape / wide
+    w = maxDim;
+    h = maxDim / aspect;
+  } else {
+    h = maxDim;
+    w = maxDim * aspect;
   }
-};
 
-// ── Device row ──────────────────────────────────────────────────────────────
+  const borderColor = selected ? "primary.main" : "divider";
+  const bg = selected
+    ? "rgba(var(--mui-palette-primary-mainChannel) / 0.06)"
+    : "transparent";
 
-function DeviceRow({
+  if (device.category === "desktop") {
+    // Monitor shape: screen + stand
+    return (
+      <Box
+        sx={{
+          width: maxDim,
+          height: maxDim,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Box
+          sx={{
+            width: w,
+            height: h * 0.78,
+            border: 2,
+            borderColor,
+            borderRadius: 1,
+            bgcolor: bg,
+            transition: "border-color 0.15s, background-color 0.15s",
+          }}
+        />
+        {/* Stand */}
+        <Box
+          sx={{
+            width: w * 0.15,
+            height: h * 0.1,
+            bgcolor: borderColor,
+            transition: "background-color 0.15s",
+          }}
+        />
+        <Box
+          sx={{
+            width: w * 0.4,
+            height: 2,
+            bgcolor: borderColor,
+            borderRadius: 1,
+            transition: "background-color 0.15s",
+          }}
+        />
+      </Box>
+    );
+  }
+
+  // Phone / tablet: rounded rectangle
+  const radius = device.category === "phone" ? 3 : 2;
+
+  return (
+    <Box
+      sx={{
+        width: maxDim,
+        height: maxDim,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Box
+        sx={{
+          border: 2,
+          borderColor,
+          borderRadius: radius,
+          bgcolor: bg,
+          transition: "border-color 0.15s, background-color 0.15s",
+          position: "relative",
+          overflow: "hidden",
+        }}
+        style={{ width: w, height: h }}
+      >
+        {/* Notch / camera hint for phones */}
+        {device.category === "phone" && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 3,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: w * 0.3,
+              height: 3,
+              borderRadius: 2,
+              bgcolor: borderColor,
+              opacity: 0.5,
+              transition: "background-color 0.15s",
+            }}
+          />
+        )}
+      </Box>
+    </Box>
+  );
+}
+
+// ── Device card ─────────────────────────────────────────────────────────────
+
+function DeviceCard({
   device,
   selected,
   onToggle,
@@ -46,74 +150,73 @@ function DeviceRow({
   selected: boolean;
   onToggle: (id: string) => void;
 }) {
-  // Proportional size preview (max 32px tall)
-  const scale = 32 / MAX_DIM;
-  const previewW = Math.max(4, Math.round(device.width * scale));
-  const previewH = Math.max(4, Math.round(device.height * scale));
-
   return (
     <Box
-      component="label"
       onClick={() => onToggle(device.id)}
       sx={{
+        position: "relative",
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
-        gap: 1.5,
-        px: 1.5,
-        py: 1,
-        borderRadius: 1.5,
+        gap: 1,
+        p: 1.5,
+        pt: 2,
+        borderRadius: 2,
+        border: 2,
         cursor: "pointer",
-        transition: "background-color 0.1s",
+        userSelect: "none",
+        transition: "all 0.15s ease",
+        borderColor: selected ? "primary.main" : "divider",
         bgcolor: selected
-          ? "rgba(var(--mui-palette-primary-mainChannel) / 0.08)"
+          ? "rgba(var(--mui-palette-primary-mainChannel) / 0.06)"
           : "transparent",
         "&:hover": {
-          bgcolor: selected
-            ? "rgba(var(--mui-palette-primary-mainChannel) / 0.12)"
-            : "action.hover",
+          borderColor: selected ? "primary.main" : "text.secondary",
+          transform: "translateY(-2px)",
+          boxShadow: 4,
         },
       }}
     >
-      <Checkbox
-        checked={selected}
-        size="small"
-        tabIndex={-1}
-        sx={{ p: 0 }}
-      />
-
-      {/* Proportional size preview */}
-      <Box
-        sx={{
-          width: 36,
-          height: 36,
-          flexShrink: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
+      {/* Selection badge */}
+      {selected && (
         <Box
           sx={{
-            border: 1.5,
-            borderColor: selected ? "primary.main" : "text.disabled",
-            borderRadius: 0.5,
-            transition: "border-color 0.15s",
+            position: "absolute",
+            top: 6,
+            right: 6,
+            width: 18,
+            height: 18,
+            borderRadius: "50%",
+            bgcolor: "primary.main",
+            color: "primary.contrastText",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-          style={{ width: previewW, height: previewH }}
-        />
-      </Box>
+        >
+          <Check size={11} strokeWidth={3} />
+        </Box>
+      )}
 
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Typography variant="body2" fontWeight={500} noWrap>
+      <DeviceSilhouette device={device} selected={selected} />
+
+      <Box sx={{ textAlign: "center", minWidth: 0, width: "100%" }}>
+        <Typography
+          variant="caption"
+          fontWeight={600}
+          noWrap
+          display="block"
+          sx={{ fontSize: "0.7rem", lineHeight: 1.3 }}
+        >
           {device.name}
         </Typography>
         <Typography
           variant="caption"
           color="text.secondary"
           fontFamily="var(--font-geist-mono), monospace"
-          sx={{ fontSize: "0.65rem" }}
+          sx={{ fontSize: "0.6rem" }}
         >
-          {device.width} &times; {device.height}
+          {device.width}&times;{device.height}
         </Typography>
       </Box>
     </Box>
@@ -134,8 +237,7 @@ export function DevicePicker({ renderTrigger }: DevicePickerProps = {}) {
   const [activeFilter, setActiveFilter] = useState<
     "all" | "phone" | "tablet" | "desktop"
   >("all");
-
-  // Custom device state
+  const [showCustom, setShowCustom] = useState(false);
   const [customWidth, setCustomWidth] = useState("1280");
   const [customHeight, setCustomHeight] = useState("720");
   const [customName, setCustomName] = useState("");
@@ -144,7 +246,6 @@ export function DevicePicker({ renderTrigger }: DevicePickerProps = {}) {
   const tablets = getDevicesByCategory("tablet");
   const desktops = getDevicesByCategory("desktop");
 
-  // Filter + search
   const filteredDevices = useMemo(() => {
     let devices: DevicePreset[];
     if (activeFilter === "all") {
@@ -168,6 +269,30 @@ export function DevicePicker({ renderTrigger }: DevicePickerProps = {}) {
         `${String(d.width)} x ${String(d.height)}`.includes(q),
     );
   }, [activeFilter, search, phones, tablets, desktops]);
+
+  const groupedDisplay = useMemo(() => {
+    if (activeFilter !== "all") {
+      return [{ label: null, devices: filteredDevices }];
+    }
+
+    const groups: { label: string | null; devices: DevicePreset[] }[] = [];
+    const phoneFiltered = filteredDevices.filter((d) => d.category === "phone");
+    const tabletFiltered = filteredDevices.filter(
+      (d) => d.category === "tablet",
+    );
+    const desktopFiltered = filteredDevices.filter(
+      (d) => d.category === "desktop",
+    );
+
+    if (phoneFiltered.length > 0)
+      groups.push({ label: "Phones", devices: phoneFiltered });
+    if (tabletFiltered.length > 0)
+      groups.push({ label: "Tablets", devices: tabletFiltered });
+    if (desktopFiltered.length > 0)
+      groups.push({ label: "Desktop", devices: desktopFiltered });
+
+    return groups;
+  }, [activeFilter, filteredDevices]);
 
   const toggleDevice = (id: string) => {
     setSelectedIds((prev) => {
@@ -196,38 +321,13 @@ export function DevicePicker({ renderTrigger }: DevicePickerProps = {}) {
 
   const handleClose = () => {
     setOpen(false);
-    // Reset after animation
     setTimeout(() => {
       setSearch("");
       setSelectedIds(new Set());
       setActiveFilter("all");
+      setShowCustom(false);
     }, 200);
   };
-
-  // Group devices by category for display when showing "all"
-  const groupedDisplay = useMemo(() => {
-    if (activeFilter !== "all") {
-      return [{ label: null, devices: filteredDevices }];
-    }
-
-    const groups: { label: string | null; devices: DevicePreset[] }[] = [];
-    const phoneFiltered = filteredDevices.filter((d) => d.category === "phone");
-    const tabletFiltered = filteredDevices.filter(
-      (d) => d.category === "tablet",
-    );
-    const desktopFiltered = filteredDevices.filter(
-      (d) => d.category === "desktop",
-    );
-
-    if (phoneFiltered.length > 0)
-      groups.push({ label: "Phones", devices: phoneFiltered });
-    if (tabletFiltered.length > 0)
-      groups.push({ label: "Tablets", devices: tabletFiltered });
-    if (desktopFiltered.length > 0)
-      groups.push({ label: "Desktop", devices: desktopFiltered });
-
-    return groups;
-  }, [activeFilter, filteredDevices]);
 
   return (
     <>
@@ -247,19 +347,19 @@ export function DevicePicker({ renderTrigger }: DevicePickerProps = {}) {
       <Dialog
         open={open}
         onClose={handleClose}
-        maxWidth="xs"
+        maxWidth="sm"
         fullWidth
         slotProps={{
           paper: {
             sx: {
-              maxHeight: "80vh",
+              maxHeight: "85vh",
               display: "flex",
               flexDirection: "column",
             },
           },
         }}
       >
-        {/* Header with search */}
+        {/* Header */}
         <Box sx={{ px: 2.5, pt: 2.5, pb: 0 }}>
           <TextField
             autoFocus
@@ -273,7 +373,10 @@ export function DevicePicker({ renderTrigger }: DevicePickerProps = {}) {
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Search size={16} color="var(--mui-palette-text-secondary)" />
+                    <Search
+                      size={16}
+                      color="var(--mui-palette-text-secondary)"
+                    />
                   </InputAdornment>
                 ),
                 sx: { fontSize: "0.875rem" },
@@ -282,13 +385,25 @@ export function DevicePicker({ renderTrigger }: DevicePickerProps = {}) {
           />
 
           {/* Filter chips */}
-          <Box sx={{ display: "flex", gap: 0.75, mt: 1.5, mb: 1 }}>
+          <Box sx={{ display: "flex", gap: 0.75, mt: 1.5, mb: 1.5 }}>
             {(
               [
                 { value: "all", label: "All" },
-                { value: "phone", label: "Phones", icon: <Smartphone size={12} /> },
-                { value: "tablet", label: "Tablets", icon: <Tablet size={12} /> },
-                { value: "desktop", label: "Desktop", icon: <Monitor size={12} /> },
+                {
+                  value: "phone",
+                  label: "Phones",
+                  icon: <Smartphone size={12} />,
+                },
+                {
+                  value: "tablet",
+                  label: "Tablets",
+                  icon: <Tablet size={12} />,
+                },
+                {
+                  value: "desktop",
+                  label: "Desktop",
+                  icon: <Monitor size={12} />,
+                },
               ] as const
             ).map((chip) => (
               <Chip
@@ -296,7 +411,9 @@ export function DevicePicker({ renderTrigger }: DevicePickerProps = {}) {
                 label={chip.label}
                 icon={"icon" in chip ? chip.icon : undefined}
                 size="small"
-                variant={activeFilter === chip.value ? "filled" : "outlined"}
+                variant={
+                  activeFilter === chip.value ? "filled" : "outlined"
+                }
                 onClick={() => setActiveFilter(chip.value)}
                 sx={{
                   fontWeight: 500,
@@ -315,11 +432,13 @@ export function DevicePicker({ renderTrigger }: DevicePickerProps = {}) {
           </Box>
         </Box>
 
-        {/* Device list */}
-        <DialogContent sx={{ px: 1, py: 0.5, flex: 1, overflow: "auto" }}>
+        {/* Device grid */}
+        <DialogContent sx={{ px: 2, py: 0, flex: 1, overflow: "auto" }}>
           {filteredDevices.length === 0 ? (
             <Box sx={{ textAlign: "center", py: 4, color: "text.secondary" }}>
-              <Typography variant="body2">No devices match your search</Typography>
+              <Typography variant="body2">
+                No devices match your search
+              </Typography>
             </Box>
           ) : (
             groupedDisplay.map((group, gi) => (
@@ -329,9 +448,9 @@ export function DevicePicker({ renderTrigger }: DevicePickerProps = {}) {
                     variant="overline"
                     sx={{
                       display: "block",
-                      px: 1.5,
-                      pt: gi > 0 ? 1.5 : 0.5,
-                      pb: 0.5,
+                      px: 0.5,
+                      pt: gi > 0 ? 2 : 0.5,
+                      pb: 1,
                       color: "text.secondary",
                       fontWeight: 700,
                     }}
@@ -339,78 +458,97 @@ export function DevicePicker({ renderTrigger }: DevicePickerProps = {}) {
                     {group.label}
                   </Typography>
                 )}
-                {group.devices.map((device) => (
-                  <DeviceRow
-                    key={device.id}
-                    device={device}
-                    selected={selectedIds.has(device.id)}
-                    onToggle={toggleDevice}
-                  />
-                ))}
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, 1fr)",
+                    gap: 1,
+                  }}
+                >
+                  {group.devices.map((device) => (
+                    <DeviceCard
+                      key={device.id}
+                      device={device}
+                      selected={selectedIds.has(device.id)}
+                      onToggle={toggleDevice}
+                    />
+                  ))}
+                </Box>
               </Box>
             ))
           )}
 
-          {/* Custom device section */}
-          <Box sx={{ px: 1.5, pt: 2, pb: 1 }}>
-            <Typography
-              variant="overline"
-              sx={{
-                display: "block",
-                pb: 1,
-                color: "text.secondary",
-                fontWeight: 700,
-              }}
-            >
-              Custom Size
-            </Typography>
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 1,
-              }}
-            >
-              <TextField
-                placeholder="Width"
-                type="number"
-                slotProps={{ htmlInput: { min: 100, max: 5000 } }}
-                value={customWidth}
-                onChange={(e) => setCustomWidth(e.target.value)}
-                size="small"
-              />
-              <TextField
-                placeholder="Height"
-                type="number"
-                slotProps={{ htmlInput: { min: 100, max: 5000 } }}
-                value={customHeight}
-                onChange={(e) => setCustomHeight(e.target.value)}
-                size="small"
-              />
-            </Box>
-            <TextField
-              placeholder="Name (optional)"
-              value={customName}
-              onChange={(e) => setCustomName(e.target.value)}
-              size="small"
-              fullWidth
-              sx={{ mt: 1 }}
-            />
+          {/* Custom device (collapsible) */}
+          <Box sx={{ mt: 2, mb: 1 }}>
             <Button
-              variant="outlined"
               size="small"
-              onClick={handleAddCustom}
-              fullWidth
-              sx={{ mt: 1 }}
+              onClick={() => setShowCustom((v) => !v)}
+              sx={{
+                color: "text.secondary",
+                fontSize: "0.7rem",
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                px: 0.5,
+              }}
             >
-              Add Custom
+              {showCustom ? "Hide custom size" : "+ Custom size"}
             </Button>
+            {showCustom && (
+              <Box sx={{ mt: 1.5, display: "flex", flexDirection: "column", gap: 1 }}>
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: 1,
+                  }}
+                >
+                  <TextField
+                    placeholder="Width"
+                    type="number"
+                    slotProps={{ htmlInput: { min: 100, max: 5000 } }}
+                    value={customWidth}
+                    onChange={(e) => setCustomWidth(e.target.value)}
+                    size="small"
+                  />
+                  <TextField
+                    placeholder="Height"
+                    type="number"
+                    slotProps={{ htmlInput: { min: 100, max: 5000 } }}
+                    value={customHeight}
+                    onChange={(e) => setCustomHeight(e.target.value)}
+                    size="small"
+                  />
+                </Box>
+                <TextField
+                  placeholder="Name (optional)"
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                  size="small"
+                  fullWidth
+                />
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={handleAddCustom}
+                  fullWidth
+                >
+                  Add Custom
+                </Button>
+              </Box>
+            )}
           </Box>
         </DialogContent>
 
-        {/* Footer with add button */}
-        <DialogActions sx={{ px: 2.5, py: 1.5, borderTop: 1, borderColor: "divider" }}>
-          <Button onClick={handleClose} size="small" sx={{ color: "text.secondary" }}>
+        {/* Footer */}
+        <DialogActions
+          sx={{ px: 2.5, py: 1.5, borderTop: 1, borderColor: "divider" }}
+        >
+          <Button
+            onClick={handleClose}
+            size="small"
+            sx={{ color: "text.secondary" }}
+          >
             Cancel
           </Button>
           <Button
@@ -419,7 +557,10 @@ export function DevicePicker({ renderTrigger }: DevicePickerProps = {}) {
             onClick={handleAddSelected}
             disabled={selectedIds.size === 0}
           >
-            Add {selectedIds.size > 0 ? `${String(selectedIds.size)} device${selectedIds.size > 1 ? "s" : ""}` : "devices"}
+            Add{" "}
+            {selectedIds.size > 0
+              ? `${String(selectedIds.size)} device${selectedIds.size > 1 ? "s" : ""}`
+              : "devices"}
           </Button>
         </DialogActions>
       </Dialog>
