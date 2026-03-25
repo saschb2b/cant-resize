@@ -181,6 +181,27 @@ export function CanvasLeftRail({
     if (!canvas) return;
 
     try {
+      // Flash effect: brief white overlay
+      const flash = document.createElement("div");
+      Object.assign(flash.style, {
+        position: "fixed",
+        inset: "0",
+        background: "white",
+        opacity: "0",
+        zIndex: "99999",
+        pointerEvents: "none",
+        transition: "opacity 0.1s ease-out",
+      });
+      document.body.appendChild(flash);
+      // Trigger the flash
+      requestAnimationFrame(() => {
+        flash.style.opacity = "0.3";
+        setTimeout(() => {
+          flash.style.opacity = "0";
+          setTimeout(() => flash.remove(), 150);
+        }, 80);
+      });
+
       const dataUrl = await toPng(canvas as HTMLElement, {
         backgroundColor:
           getComputedStyle(document.documentElement).getPropertyValue(
