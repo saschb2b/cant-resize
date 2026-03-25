@@ -82,6 +82,10 @@ function GridCanvas() {
       // Only left button
       if (e.button !== 0) return;
 
+      // Don't start drag when clicking interactive elements (buttons, icons)
+      const target = e.target as HTMLElement;
+      if (target.closest("button, [role='button'], a")) return;
+
       const el = itemRefs.current[index];
       if (!el) return;
 
