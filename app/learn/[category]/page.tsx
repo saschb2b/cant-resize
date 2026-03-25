@@ -73,8 +73,7 @@ export default async function CategoryPage({ params }: PageProps) {
     );
 
   const currentIndex = CATEGORY_ORDER.indexOf(cat);
-  const prev =
-    currentIndex > 0 ? CATEGORY_ORDER[currentIndex - 1] : undefined;
+  const prev = currentIndex > 0 ? CATEGORY_ORDER[currentIndex - 1] : undefined;
   const next =
     currentIndex < CATEGORY_ORDER.length - 1
       ? CATEGORY_ORDER[currentIndex + 1]

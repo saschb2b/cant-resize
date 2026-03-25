@@ -5,13 +5,7 @@ import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
-import {
-  X,
-  RotateCcw,
-  Loader2,
-  AlertTriangle,
-  Link2Off,
-} from "lucide-react";
+import { X, RotateCcw, Loader2, AlertTriangle, Link2Off } from "lucide-react";
 import { useViewer } from "./viewer-provider";
 import { getDeviceById } from "@/lib/viewer/device-presets";
 import { useViewportDrag } from "@/lib/viewer/use-viewport-drag";
@@ -30,7 +24,9 @@ interface ViewportFrameProps {
   onGuidesChange?: (guides: GuideLine[]) => void;
 }
 
-const noopGuides = () => {};
+function noopGuides() {
+  /* noop */
+}
 
 const BREAKPOINTS = [
   { label: "sm", value: 640, color: "#22c55e" },
@@ -129,7 +125,6 @@ export function ViewportFrame({
 
   // Mouse position tracking for ruler indicator (in viewport px, not screen px)
   const [mouseX, setMouseX] = useState<number | null>(null);
-  const containerBoxRef = useRef<HTMLDivElement>(null);
 
   const handleContainerMouseMove = useCallback(
     (e: React.MouseEvent) => {
@@ -253,7 +248,12 @@ export function ViewportFrame({
             removeViewport(viewport.id);
           }}
           title="Remove device"
-          sx={{ width: 22, height: 22, color: "text.secondary", "&:hover": { color: "error.main" } }}
+          sx={{
+            width: 22,
+            height: 22,
+            color: "text.secondary",
+            "&:hover": { color: "error.main" },
+          }}
         >
           <X size={12} />
         </IconButton>
@@ -322,9 +322,8 @@ export function ViewportFrame({
               color="text.secondary"
               sx={{ maxWidth: 240 }}
             >
-              The site may block iframe embedding (X-Frame-Options /
-              CSP), the URL may be invalid, or the server may be
-              unreachable.
+              The site may block iframe embedding (X-Frame-Options / CSP), the
+              URL may be invalid, or the server may be unreachable.
             </Typography>
           </Box>
         )}
@@ -544,10 +543,38 @@ export function ViewportFrame({
           {/* Edge handles */}
           {(
             [
-              { dir: "n", cursor: "ns-resize", top: -4, left: 12, right: 12, height: 8 },
-              { dir: "s", cursor: "ns-resize", bottom: -4, left: 12, right: 12, height: 8 },
-              { dir: "w", cursor: "ew-resize", left: -4, top: 12, bottom: 12, width: 8 },
-              { dir: "e", cursor: "ew-resize", right: -4, top: 12, bottom: 12, width: 8 },
+              {
+                dir: "n",
+                cursor: "ns-resize",
+                top: -4,
+                left: 12,
+                right: 12,
+                height: 8,
+              },
+              {
+                dir: "s",
+                cursor: "ns-resize",
+                bottom: -4,
+                left: 12,
+                right: 12,
+                height: 8,
+              },
+              {
+                dir: "w",
+                cursor: "ew-resize",
+                left: -4,
+                top: 12,
+                bottom: 12,
+                width: 8,
+              },
+              {
+                dir: "e",
+                cursor: "ew-resize",
+                right: -4,
+                top: 12,
+                bottom: 12,
+                width: 8,
+              },
             ] as const
           ).map(({ dir, cursor, ...pos }) => (
             <Box

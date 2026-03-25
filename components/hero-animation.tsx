@@ -172,8 +172,7 @@ function DeviceFrame({ width, height, label, scrollY }: DeviceFrameProps) {
           overflow: "hidden",
           bgcolor: "background.paper",
           position: "relative",
-          boxShadow:
-            "0 4px 24px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1)",
         }}
       >
         {/* Browser chrome */}

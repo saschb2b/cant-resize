@@ -31,7 +31,8 @@ export const searchItems: SearchItem[] = [
   {
     type: "page",
     title: "Viewer",
-    description: "Preview any URL across phones, tablets, and desktops simultaneously",
+    description:
+      "Preview any URL across phones, tablets, and desktops simultaneously",
     icon: "viewer",
     keywords: ["viewer", "canvas", "preview", "devices", "responsive"],
     href: "/canvas",

@@ -26,13 +26,19 @@ export function useCanvas(options: UseCanvasOptions) {
   const rafId = useRef(0);
 
   const transformRef = useRef(transform);
-  transformRef.current = transform;
+  useEffect(() => {
+    transformRef.current = transform;
+  }, [transform]);
 
   const onChangeRef = useRef(onTransformChange);
-  onChangeRef.current = onTransformChange;
+  useEffect(() => {
+    onChangeRef.current = onTransformChange;
+  }, [onTransformChange]);
 
   const limitsRef = useRef({ minScale, maxScale });
-  limitsRef.current = { minScale, maxScale };
+  useEffect(() => {
+    limitsRef.current = { minScale, maxScale };
+  }, [minScale, maxScale]);
 
   // Apply transform directly to DOM, bypassing React render cycle.
   // Batches with requestAnimationFrame so multiple events in one frame
@@ -56,40 +62,43 @@ export function useCanvas(options: UseCanvasOptions) {
   }, []);
 
   // Stable wheel handler
-  const handleWheel = useCallback((e: WheelEvent) => {
-    e.preventDefault();
+  const handleWheel = useCallback(
+    (e: WheelEvent) => {
+      e.preventDefault();
 
-    const t = transformRef.current;
-    const { minScale: min, maxScale: max } = limitsRef.current;
+      const t = transformRef.current;
+      const { minScale: min, maxScale: max } = limitsRef.current;
 
-    if (e.ctrlKey || e.metaKey) {
-      const zoomFactor = Math.pow(0.995, e.deltaY);
-      const newScale = Math.min(max, Math.max(min, t.scale * zoomFactor));
+      if (e.ctrlKey || e.metaKey) {
+        const zoomFactor = Math.pow(0.995, e.deltaY);
+        const newScale = Math.min(max, Math.max(min, t.scale * zoomFactor));
 
-      const rect = containerRef.current?.getBoundingClientRect();
-      if (rect) {
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        const scaleFactor = newScale / t.scale;
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (rect) {
+          const mouseX = e.clientX - rect.left;
+          const mouseY = e.clientY - rect.top;
+          const scaleFactor = newScale / t.scale;
 
+          const newT = {
+            x: mouseX - (mouseX - t.x) * scaleFactor,
+            y: mouseY - (mouseY - t.y) * scaleFactor,
+            scale: newScale,
+          };
+          transformRef.current = newT;
+          applyTransform(newT);
+        }
+      } else {
         const newT = {
-          x: mouseX - (mouseX - t.x) * scaleFactor,
-          y: mouseY - (mouseY - t.y) * scaleFactor,
-          scale: newScale,
+          ...t,
+          x: t.x - e.deltaX,
+          y: t.y - e.deltaY,
         };
         transformRef.current = newT;
         applyTransform(newT);
       }
-    } else {
-      const newT = {
-        ...t,
-        x: t.x - e.deltaX,
-        y: t.y - e.deltaY,
-      };
-      transformRef.current = newT;
-      applyTransform(newT);
-    }
-  }, [applyTransform]);
+    },
+    [applyTransform],
+  );
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {

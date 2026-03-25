@@ -249,12 +249,7 @@ export function useIframeSync(options: UseIframeSyncOptions) {
             data.mouseY != null &&
             data.selector != null
           )
-            broadcastClick(
-              data.mouseX,
-              data.mouseY,
-              data.selector,
-              viewportId,
-            );
+            broadcastClick(data.mouseX, data.mouseY, data.selector, viewportId);
           break;
         case "HOVER":
           if (data.selector != null) broadcastHover(data.selector, viewportId);

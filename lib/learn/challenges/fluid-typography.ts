@@ -132,8 +132,7 @@ export const fluidTypographyChallenges: Challenge[] = [
       "Using `rem` for the min and max respects the user's browser font size preference. If they set their default to 20px for accessibility, `0.875rem` becomes 17.5px instead of being locked to 14px. The `rem` + `vw` blend in the preferred value also partially scales with their setting.",
     explanationWrong:
       "Hardcoded `px` values in `clamp()` override the user's font size preference. A user who set their browser default to 24px for low vision will still get 14-18px body text. This is a WCAG accessibility failure.",
-    sourceUrl:
-      "https://www.w3.org/WAI/WCAG21/Understanding/resize-text.html",
+    sourceUrl: "https://www.w3.org/WAI/WCAG21/Understanding/resize-text.html",
     sourceLabel: "WCAG: Understanding Resize Text",
   },
 ];

@@ -146,8 +146,7 @@ export const mediaQueryChallenges: Challenge[] = [
       "Screen width is a poor proxy for input method. A large tablet has no hover; a small laptop does. `@media (hover: hover)` targets the actual capability, not an assumed correlation with screen size.",
     explanationWrong:
       "Using `max-width` to remove hover effects assumes all small screens are touch devices. But iPads in landscape are 1024px+ and still can't hover, while small laptops can. Test for the feature, not the size.",
-    sourceUrl:
-      "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/hover",
+    sourceUrl: "https://developer.mozilla.org/en-US/docs/Web/CSS/@media/hover",
     sourceLabel: "MDN: hover media feature",
   },
   {

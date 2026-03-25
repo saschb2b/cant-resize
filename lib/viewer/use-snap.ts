@@ -32,7 +32,7 @@ export function computeSnap(
   allViewports: Viewport[],
   canvasScale: number,
   gridSnap: boolean,
-  gridSize: number = 20,
+  gridSize = 20,
 ): SnapResult {
   const threshold = SNAP_THRESHOLD / canvasScale;
   const guides: GuideLine[] = [];
@@ -63,9 +63,9 @@ export function computeSnap(
 
     // Vertical alignment checks (snap X)
     const xChecks = [
-      { dragged: dLeft, other: oLeft, offset: 0 },        // left-to-left
+      { dragged: dLeft, other: oLeft, offset: 0 }, // left-to-left
       { dragged: dRight, other: oRight, offset: -draggedWidth }, // right-to-right
-      { dragged: dLeft, other: oRight, offset: 0 },        // left-to-right
+      { dragged: dLeft, other: oRight, offset: 0 }, // left-to-right
       { dragged: dRight, other: oLeft, offset: -draggedWidth }, // right-to-left
       { dragged: dCenterX, other: oCenterX, offset: -draggedWidth / 2 }, // center-to-center
     ];
@@ -83,9 +83,10 @@ export function computeSnap(
         const existing = guides.findIndex(
           (g) => g.axis === "v" && Math.abs(g.position - guideX) < 1,
         );
-        if (existing >= 0) {
-          guides[existing]!.from = Math.min(guides[existing]!.from, minY);
-          guides[existing]!.to = Math.max(guides[existing]!.to, maxY);
+        const existingGuide = existing >= 0 ? guides[existing] : undefined;
+        if (existingGuide) {
+          existingGuide.from = Math.min(existingGuide.from, minY);
+          existingGuide.to = Math.max(existingGuide.to, maxY);
         } else {
           guides.push({ axis: "v", position: guideX, from: minY, to: maxY });
         }
@@ -94,9 +95,9 @@ export function computeSnap(
 
     // Horizontal alignment checks (snap Y)
     const yChecks = [
-      { dragged: dTop, other: oTop, offset: 0 },           // top-to-top
+      { dragged: dTop, other: oTop, offset: 0 }, // top-to-top
       { dragged: dBottom, other: oBottom, offset: -draggedHeight }, // bottom-to-bottom
-      { dragged: dTop, other: oBottom, offset: 0 },          // top-to-bottom
+      { dragged: dTop, other: oBottom, offset: 0 }, // top-to-bottom
       { dragged: dBottom, other: oTop, offset: -draggedHeight }, // bottom-to-top
       { dragged: dCenterY, other: oCenterY, offset: -draggedHeight / 2 }, // center-to-center
     ];
@@ -112,9 +113,10 @@ export function computeSnap(
         const existing = guides.findIndex(
           (g) => g.axis === "h" && Math.abs(g.position - guideY) < 1,
         );
-        if (existing >= 0) {
-          guides[existing]!.from = Math.min(guides[existing]!.from, minX);
-          guides[existing]!.to = Math.max(guides[existing]!.to, maxX);
+        const existingGuide = existing >= 0 ? guides[existing] : undefined;
+        if (existingGuide) {
+          existingGuide.from = Math.min(existingGuide.from, minX);
+          existingGuide.to = Math.max(existingGuide.to, maxX);
         } else {
           guides.push({ axis: "h", position: guideY, from: minX, to: maxX });
         }
@@ -138,14 +140,16 @@ export function computeSnap(
 /** Arrange viewports in a horizontal row with equal gaps. */
 export function arrangeHorizontal(
   viewports: Viewport[],
-  gap: number = 40,
+  gap = 40,
 ): Partial<Viewport>[] {
   if (viewports.length === 0) return [];
 
   // Sort by current x position
   const sorted = [...viewports].sort((a, b) => a.x - b.x);
-  const startX = sorted[0]!.x;
-  const startY = sorted[0]!.y;
+  const first = sorted[0];
+  if (!first) return [];
+  const startX = first.x;
+  const startY = first.y;
 
   let currentX = startX;
   return sorted.map((vp) => {
@@ -158,8 +162,8 @@ export function arrangeHorizontal(
 /** Arrange viewports in a wrapping grid, sorted by device width. */
 export function arrangeGrid(
   viewports: Viewport[],
-  canvasWidth: number = 1600,
-  gap: number = 40,
+  canvasWidth = 1600,
+  gap = 40,
 ): Partial<Viewport>[] {
   if (viewports.length === 0) return [];
 

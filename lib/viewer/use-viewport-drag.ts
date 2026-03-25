@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { computeSnap, type GuideLine } from "./use-snap";
 import type { Viewport } from "./types";
 
@@ -20,27 +20,16 @@ interface UseViewportDragOptions {
 }
 
 export function useViewportDrag(options: UseViewportDragOptions) {
-  const {
-    viewportId,
-    viewportX,
-    viewportY,
-    viewportWidth,
-    viewportHeight,
-    canvasScale,
-    isGridMode,
-    allViewports,
-    gridSnap,
-    onSelect,
-    onMove,
-    onGuidesChange,
-  } = options;
+  const { viewportId, viewportX, viewportY, isGridMode, onSelect } = options;
 
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef({ x: 0, y: 0, viewportX: 0, viewportY: 0 });
 
   // Keep refs for values read during drag to avoid recreating handlers
   const optionsRef = useRef(options);
-  optionsRef.current = options;
+  useEffect(() => {
+    optionsRef.current = options;
+  });
 
   const handleDragStart = useCallback(
     (e: React.PointerEvent) => {

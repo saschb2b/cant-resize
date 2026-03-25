@@ -29,8 +29,7 @@ export const responsivePropsChallenges: Challenge[] = [
       "MUI's responsive prop objects compile to CSS media queries with no hook, no re-render, and no SSR flash. The intent is also more readable: `{ xs: 'column', sm: 'row' }` is a data structure describing the layout at each breakpoint.",
     explanationWrong:
       "`useMediaQuery` defaults to `false` during SSR, so the server always renders the `row` layout. On mobile, React hydrates and immediately re-renders to `column`, causing a visible layout flash.",
-    sourceUrl:
-      "https://mui.com/material-ui/react-stack/#responsive-values",
+    sourceUrl: "https://mui.com/material-ui/react-stack/#responsive-values",
     sourceLabel: "MUI: Stack responsive values",
   },
   {
@@ -175,8 +174,7 @@ function Section({
       "Exposing `display` as a responsive prop delegates visibility to CSS. The component renders in the HTML (good for SEO), toggles via media queries (no flash), and the consumer controls exactly which breakpoints show or hide it.",
     explanationWrong:
       "`hideOnMobile` is a boolean that forces a single breakpoint decision. What if you want to hide on tablet too? Or show on large phones? A responsive `display` prop gives the consumer full breakpoint control without adding more boolean props.",
-    sourceUrl:
-      "https://mui.com/system/display/#hiding-elements",
+    sourceUrl: "https://mui.com/system/display/#hiding-elements",
     sourceLabel: "MUI: Hiding elements",
   },
   {
@@ -245,8 +243,7 @@ function AppGrid({ columns, children }: GridProps) {
       "One `columns` prop accepting breakpoint objects replaces three separate props and two hooks. The consumer's API is clean (`columns={{ xs: 1, md: 3 }}`), and the implementation compiles to pure CSS media queries.",
     explanationWrong:
       "Three props (`columns`, `mobileColumns`, `tabletColumns`) don't scale. What about `xl`? What about custom breakpoints? Two `useMediaQuery` hooks cause double re-renders on resize and SSR hydration issues. The responsive object pattern handles all breakpoints in one prop.",
-    sourceUrl:
-      "https://mui.com/material-ui/react-grid/#responsive-values",
+    sourceUrl: "https://mui.com/material-ui/react-grid/#responsive-values",
     sourceLabel: "MUI: Grid responsive values",
   },
 ];

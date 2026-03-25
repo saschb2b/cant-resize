@@ -75,7 +75,9 @@ function GridCanvas() {
   const { state, dispatch, selectViewport } = useViewer();
   const [drag, setDrag] = useState<GridDragState | null>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const { containerRef: gridContainerRef, scale: gridScale } = useGridScale(state.viewports);
+  const { containerRef: gridContainerRef, scale: gridScale } = useGridScale(
+    state.viewports,
+  );
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent, index: number) => {
@@ -155,9 +157,7 @@ function GridCanvas() {
     if (drag.fromIndex !== drag.overIndex) {
       // Adjust target index: if moving forward, account for removal
       const toIndex =
-        drag.overIndex > drag.fromIndex
-          ? drag.overIndex - 1
-          : drag.overIndex;
+        drag.overIndex > drag.fromIndex ? drag.overIndex - 1 : drag.overIndex;
       dispatch({
         type: "REORDER_VIEWPORTS",
         fromIndex: drag.fromIndex,
@@ -236,11 +236,12 @@ function GridCanvas() {
               ref={(el: HTMLDivElement | null) => {
                 itemRefs.current[index] = el;
               }}
-              onPointerDown={isDragged ? undefined : (e) => handlePointerDown(e, index)}
+              onPointerDown={
+                isDragged ? undefined : (e) => handlePointerDown(e, index)
+              }
               sx={{
                 cursor: drag ? "grabbing" : "grab",
-                transition:
-                  drag && !isDragged ? "transform 0.2s ease" : "none",
+                transition: drag && !isDragged ? "transform 0.2s ease" : "none",
               }}
               style={{
                 transform: getItemTransform(index),
@@ -248,98 +249,108 @@ function GridCanvas() {
                 ...(isDragged ? { visibility: "hidden" as const } : {}),
               }}
             >
-              <ViewportFrame viewport={viewport} isGridMode gridScale={gridScale} />
+              <ViewportFrame
+                viewport={viewport}
+                isGridMode
+                gridScale={gridScale}
+              />
             </Box>
           );
         })}
 
         {/* Drag ghost: visual-only device card following the cursor.
             The actual ViewportFrame stays mounted (hidden) so no iframe reload. */}
-        {drag && state.viewports[drag.fromIndex] && (() => {
-          const vp = state.viewports[drag.fromIndex]!;
-          const device = getDeviceById(vp.deviceId);
-          const name = vp.customName ?? device?.name ?? "Custom";
-          const category = device?.category ?? "custom";
-          const DeviceIcon =
-            category === "phone"
-              ? Smartphone
-              : category === "tablet"
-                ? Tablet
-                : Monitor;
+        {drag &&
+          state.viewports[drag.fromIndex] &&
+          (() => {
+            const vp = state.viewports[drag.fromIndex];
+            if (!vp) return null;
+            const device = getDeviceById(vp.deviceId);
+            const name = vp.customName ?? device?.name ?? "Custom";
+            const category = device?.category ?? "custom";
+            const DeviceIcon =
+              category === "phone"
+                ? Smartphone
+                : category === "tablet"
+                  ? Tablet
+                  : Monitor;
 
-          return (
-            <Box
-              sx={{
-                position: "fixed",
-                zIndex: 9999,
-                pointerEvents: "none",
-                borderRadius: 2,
-                overflow: "hidden",
-                boxShadow: "0 20px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(var(--mui-palette-primary-mainChannel) / 0.3)",
-              }}
-              style={{
-                left: drag.cursor.x - drag.offset.x,
-                top: drag.cursor.y - drag.offset.y,
-                width: drag.size.width,
-                height: drag.size.height,
-                transform: "scale(1.05) rotate(-1deg)",
-              }}
-            >
-              {/* Frosted glass background */}
+            return (
               <Box
                 sx={{
-                  width: "100%",
-                  height: "100%",
-                  bgcolor: "rgba(var(--mui-palette-background-paperChannel) / 0.85)",
-                  backdropFilter: "blur(20px)",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 1.5,
+                  position: "fixed",
+                  zIndex: 9999,
+                  pointerEvents: "none",
+                  borderRadius: 2,
+                  overflow: "hidden",
+                  boxShadow:
+                    "0 20px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(var(--mui-palette-primary-mainChannel) / 0.3)",
+                }}
+                style={{
+                  left: drag.cursor.x - drag.offset.x,
+                  top: drag.cursor.y - drag.offset.y,
+                  width: drag.size.width,
+                  height: drag.size.height,
+                  transform: "scale(1.05) rotate(-1deg)",
                 }}
               >
-                {/* Device icon */}
+                {/* Frosted glass background */}
                 <Box
                   sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 2,
-                    bgcolor: "rgba(var(--mui-palette-primary-mainChannel) / 0.1)",
+                    width: "100%",
+                    height: "100%",
+                    bgcolor:
+                      "rgba(var(--mui-palette-background-paperChannel) / 0.85)",
+                    backdropFilter: "blur(20px)",
                     display: "flex",
+                    flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "primary.main",
+                    gap: 1.5,
                   }}
                 >
-                  <DeviceIcon size={24} />
+                  {/* Device icon */}
+                  <Box
+                    sx={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: 2,
+                      bgcolor:
+                        "rgba(var(--mui-palette-primary-mainChannel) / 0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "primary.main",
+                    }}
+                  >
+                    <DeviceIcon size={24} />
+                  </Box>
+
+                  {/* Device name */}
+                  <Typography
+                    variant="body2"
+                    fontWeight={700}
+                    color="text.primary"
+                    textAlign="center"
+                    noWrap
+                    sx={{ maxWidth: "80%", px: 1 }}
+                  >
+                    {name}
+                  </Typography>
+
+                  {/* Dimensions */}
+                  <Typography
+                    variant="caption"
+                    fontFamily="var(--font-geist-mono), monospace"
+                    color="text.secondary"
+                    sx={{ fontSize: "0.7rem" }}
+                  >
+                    {vp.width} &times; {vp.height}
+                  </Typography>
                 </Box>
-
-                {/* Device name */}
-                <Typography
-                  variant="body2"
-                  fontWeight={700}
-                  color="text.primary"
-                  textAlign="center"
-                  noWrap
-                  sx={{ maxWidth: "80%", px: 1 }}
-                >
-                  {name}
-                </Typography>
-
-                {/* Dimensions */}
-                <Typography
-                  variant="caption"
-                  fontFamily="var(--font-geist-mono), monospace"
-                  color="text.secondary"
-                  sx={{ fontSize: "0.7rem" }}
-                >
-                  {vp.width} &times; {vp.height}
-                </Typography>
               </Box>
-            </Box>
-          );
-        })()}
+            );
+          })()}
         {state.viewports.length === 0 && (
           <Box
             sx={{
@@ -387,7 +398,11 @@ interface CanvasProps {
   showRulers?: boolean;
 }
 
-export function Canvas({ gridSnap = false, showBreakpoints = false, showRulers = false }: CanvasProps) {
+export function Canvas({
+  gridSnap = false,
+  showBreakpoints = false,
+  showRulers = false,
+}: CanvasProps) {
   const { state, selectViewport, setCanvasTransform } = useViewer();
   const [guides, setGuides] = useState<GuideLine[]>([]);
 
@@ -430,7 +445,10 @@ export function Canvas({ gridSnap = false, showBreakpoints = false, showRulers =
       }}
       onClick={(e) => {
         // Deselect when clicking the canvas background (not a viewport)
-        if (e.target === e.currentTarget || (e.target as HTMLElement).dataset.canvasBackground !== undefined) {
+        if (
+          e.target === e.currentTarget ||
+          (e.target as HTMLElement).dataset.canvasBackground !== undefined
+        ) {
           selectViewport(null);
         }
       }}
@@ -552,7 +570,6 @@ export function Canvas({ gridSnap = false, showBreakpoints = false, showRulers =
           />
         </Box>
       )}
-
     </Box>
   );
 }

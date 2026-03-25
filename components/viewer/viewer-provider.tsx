@@ -161,32 +161,30 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [state]);
 
-  const fitViewportToCanvas = useCallback(
-    (vp: Viewport) => {
-      const canvasEl = document.querySelector("[data-canvas-background]")
-        ?.parentElement;
-      const rect = canvasEl?.getBoundingClientRect();
-      if (!rect) return;
+  const fitViewportToCanvas = useCallback((vp: Viewport) => {
+    const canvasEl = document.querySelector(
+      "[data-canvas-background]",
+    )?.parentElement;
+    const rect = canvasEl?.getBoundingClientRect();
+    if (!rect) return;
 
-      const padding = 80;
-      const scaleX = (rect.width - padding * 2) / vp.width;
-      const scaleY = (rect.height - padding * 2) / vp.height;
-      const scale = Math.min(scaleX, scaleY, 2);
+    const padding = 80;
+    const scaleX = (rect.width - padding * 2) / vp.width;
+    const scaleY = (rect.height - padding * 2) / vp.height;
+    const scale = Math.min(scaleX, scaleY, 2);
 
-      const centerX = vp.x + vp.width / 2;
-      const centerY = vp.y + vp.height / 2;
+    const centerX = vp.x + vp.width / 2;
+    const centerY = vp.y + vp.height / 2;
 
-      dispatch({
-        type: "SET_CANVAS_TRANSFORM",
-        transform: {
-          x: rect.width / 2 - centerX * scale,
-          y: rect.height / 2 - centerY * scale,
-          scale,
-        },
-      });
-    },
-    [],
-  );
+    dispatch({
+      type: "SET_CANVAS_TRANSFORM",
+      transform: {
+        x: rect.width / 2 - centerX * scale,
+        y: rect.height / 2 - centerY * scale,
+        scale,
+      },
+    });
+  }, []);
 
   const addViewport = useCallback(
     (deviceId: string, position?: { x: number; y: number }) => {

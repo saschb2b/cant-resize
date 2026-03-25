@@ -125,7 +125,7 @@ export const responsiveImageChallenges: Challenge[] = [
     explanationCorrect:
       "The `sizes` attribute tells the browser how wide the image will display at each viewport width *before* CSS loads. With `100vw`, a card in a 3-column grid triggers downloading a full-width image. Accurate sizes lets the browser pick the right resolution from the srcSet.",
     explanationWrong:
-      "`sizes=\"100vw\"` tells the browser this image fills the viewport. But in a 3-column grid, each image is only ~33% of the viewport. The browser downloads a 1440px-wide image when a 480px-wide one would suffice, wasting 3x the bandwidth.",
+      '`sizes="100vw"` tells the browser this image fills the viewport. But in a 3-column grid, each image is only ~33% of the viewport. The browser downloads a 1440px-wide image when a 480px-wide one would suffice, wasting 3x the bandwidth.',
     sourceUrl:
       "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/img#sizes",
     sourceLabel: "MDN: img sizes attribute",

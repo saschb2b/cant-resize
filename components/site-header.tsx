@@ -86,18 +86,12 @@ function ColorSchemeToggle({ size = 18 }: { size?: number }) {
   return (
     <Tooltip
       title={
-        mounted
-          ? isDark
-            ? "Switch to light mode"
-            : "Switch to dark mode"
-          : ""
+        mounted ? (isDark ? "Switch to light mode" : "Switch to dark mode") : ""
       }
     >
       <IconButton
         size="small"
-        onClick={
-          mounted ? () => setMode(isDark ? "light" : "dark") : undefined
-        }
+        onClick={mounted ? () => setMode(isDark ? "light" : "dark") : undefined}
         sx={{ color: "text.secondary" }}
         aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       >
@@ -166,13 +160,7 @@ export function SiteHeader() {
                 gap: 12,
               }}
             >
-              <Image
-                src="/icon.svg"
-                alt=""
-                width={28}
-                height={28}
-                priority
-              />
+              <Image src="/icon.svg" alt="" width={28} height={28} priority />
               <Box sx={{ display: { xs: "none", sm: "block" } }}>
                 <Typography
                   variant="subtitle1"

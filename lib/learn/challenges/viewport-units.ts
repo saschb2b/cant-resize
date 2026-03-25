@@ -18,8 +18,7 @@ export const viewportUnitChallenges: Challenge[] = [
       "`100vh` on mobile includes the area behind the browser's URL bar, so content gets hidden. `100dvh` (dynamic viewport height) adjusts when the browser chrome appears or disappears, giving you the actual visible height.",
     explanationWrong:
       "On mobile Safari and Chrome, `100vh` is taller than the visible area because it includes the space behind the collapsible URL bar. Users see a cut-off hero section and can't reach content at the bottom without scrolling.",
-    sourceUrl:
-      "https://web.dev/blog/viewport-units",
+    sourceUrl: "https://web.dev/blog/viewport-units",
     sourceLabel: "web.dev: New viewport units",
   },
   {
@@ -99,8 +98,7 @@ export const viewportUnitChallenges: Challenge[] = [
       "`100vw` includes the scrollbar width on Windows/Linux, causing a horizontal scrollbar. `100%` refers to the containing block's width, which excludes the scrollbar. For section heights, `100dvh` gives the correct visible area on mobile.",
     explanationWrong:
       "`100vw` is the full viewport including the scrollbar (typically 15-17px on Windows). This creates a horizontal overflow that's invisible on macOS (overlay scrollbar) but breaks the layout on Windows. Never use `100vw` for full-width elements.",
-    sourceUrl:
-      "https://developer.mozilla.org/en-US/docs/Web/CSS/length#vw",
+    sourceUrl: "https://developer.mozilla.org/en-US/docs/Web/CSS/length#vw",
     sourceLabel: "MDN: vw unit",
   },
   {
@@ -121,8 +119,7 @@ export const viewportUnitChallenges: Challenge[] = [
       "CSS cascade lets you declare `100vh` first as a fallback for older browsers, then `100dvh` which modern browsers will use. Browsers that don't understand `dvh` ignore the second declaration and keep `100vh`. This is progressive enhancement in one rule.",
     explanationWrong:
       "While `dvh` has good browser support now, older browsers and some WebViews still don't support it. Without a `vh` fallback, the hero gets no height at all in unsupported browsers and just collapses to content height.",
-    sourceUrl:
-      "https://caniuse.com/viewport-unit-variants",
+    sourceUrl: "https://caniuse.com/viewport-unit-variants",
     sourceLabel: "Can I Use: Viewport unit variants",
   },
 ];

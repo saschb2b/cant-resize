@@ -187,8 +187,7 @@ export const gridPatternChallenges: Challenge[] = [
       "The 3-column grid creates automatic gutters (outer `1fr` columns) with content centered in the middle column. `.full-bleed` spans all columns. No `100vw` scrollbar issues, no negative margin hacks, and it works inside any container.",
     explanationWrong:
       "`100vw` includes the scrollbar width on Windows, causing horizontal overflow. The `calc(-50vw + 50%)` hack is fragile and breaks inside flex/grid containers. It also doesn't account for scrollbars. The grid approach is robust and readable.",
-    sourceUrl:
-      "https://www.joshwcomeau.com/css/full-bleed/",
+    sourceUrl: "https://www.joshwcomeau.com/css/full-bleed/",
     sourceLabel: "Josh Comeau: Full-bleed layout",
   },
 ];

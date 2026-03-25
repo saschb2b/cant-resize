@@ -46,8 +46,7 @@ export const commonMistakeChallenges: Challenge[] = [
       "WCAG recommends at least 44x44px touch targets. Setting `minWidth`/`minHeight` on the button keeps the visual compact while making the clickable area finger-friendly. The icon stays 16px but the touch area is 44px.",
     explanationWrong:
       "A 24px tap target is frustrating on touch devices because users miss the button and accidentally tap adjacent elements. Apple's HIG recommends 44pt, Google Material recommends 48dp. Small visual elements need padding to reach the minimum.",
-    sourceUrl:
-      "https://www.w3.org/WAI/WCAG21/Understanding/target-size.html",
+    sourceUrl: "https://www.w3.org/WAI/WCAG21/Understanding/target-size.html",
     sourceLabel: "WCAG: Target Size",
   },
   {
@@ -71,7 +70,7 @@ export const commonMistakeChallenges: Challenge[] = [
     explanationCorrect:
       "Without the viewport meta tag, mobile browsers render the page at ~980px wide and zoom out to fit. `width=device-width` tells the browser to use the actual device width, enabling your media queries and responsive CSS to work correctly.",
     explanationWrong:
-      "Without `<meta name=\"viewport\">`, mobile browsers assume the page is a desktop site and render it at 980px wide, then zoom out. Media queries based on `min-width: 768px` fire even on a 375px phone because the layout viewport is 980px.",
+      'Without `<meta name="viewport">`, mobile browsers assume the page is a desktop site and render it at 980px wide, then zoom out. Media queries based on `min-width: 768px` fire even on a 375px phone because the layout viewport is 980px.',
     sourceUrl:
       "https://developer.mozilla.org/en-US/docs/Web/HTML/Viewport_meta_tag",
     sourceLabel: "MDN: Viewport meta tag",
@@ -106,8 +105,7 @@ export const commonMistakeChallenges: Challenge[] = [
       "Landscape phones have very little vertical space (~320px). A sticky header + full-height hero can leave zero room for content. Safe area insets on left/right handle the notch in landscape. Always test your layout rotated.",
     explanationWrong:
       "Only applying `safe-area-inset-top` ignores landscape mode where the notch is on the side. A `max-width: 768px` breakpoint doesn't account for a phone in landscape (which might be 812px wide). Test both orientations.",
-    sourceUrl:
-      "https://developer.mozilla.org/en-US/docs/Web/CSS/env",
+    sourceUrl: "https://developer.mozilla.org/en-US/docs/Web/CSS/env",
     sourceLabel: "MDN: env() safe areas",
   },
   {

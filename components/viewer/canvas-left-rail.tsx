@@ -46,11 +46,7 @@ const QUICK_PHONES: string[] = [
   "pixel-8",
   "galaxy-s24",
 ];
-const QUICK_TABLETS: string[] = [
-  "ipad-pro-11",
-  "ipad-mini",
-  "ipad-air",
-];
+const QUICK_TABLETS: string[] = ["ipad-pro-11", "ipad-mini", "ipad-air"];
 const QUICK_DESKTOPS: string[] = [
   "macbook-14",
   "desktop-1080p",
@@ -110,7 +106,12 @@ function PresetFlyout({
             }}
           >
             <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="body2" fontWeight={500} noWrap sx={{ fontSize: "0.8rem" }}>
+              <Typography
+                variant="body2"
+                fontWeight={500}
+                noWrap
+                sx={{ fontSize: "0.8rem" }}
+              >
                 {device.name}
               </Typography>
               <Typography
@@ -167,7 +168,10 @@ export function CanvasLeftRail({
         : allDesktops.filter((d) => QUICK_DESKTOPS.includes(d.id));
 
   const openFlyout = useCallback(
-    (e: React.MouseEvent<HTMLElement>, type: "phone" | "tablet" | "desktop") => {
+    (
+      e: React.MouseEvent<HTMLElement>,
+      type: "phone" | "tablet" | "desktop",
+    ) => {
       setFlyoutAnchor(e.currentTarget);
       setFlyout(type);
     },
@@ -176,8 +180,9 @@ export function CanvasLeftRail({
 
   const handleScreenshot = useCallback(async () => {
     // Find the canvas container to get its bounds for cropping
-    const canvasEl = document.querySelector("[data-canvas-background]")
-      ?.parentElement;
+    const canvasEl = document.querySelector(
+      "[data-canvas-background]",
+    )?.parentElement;
     if (!canvasEl) return;
 
     try {
@@ -213,7 +218,10 @@ export function CanvasLeftRail({
       video.autoplay = true;
       await new Promise<void>((resolve) => {
         video.onloadedmetadata = () => {
-          video.play().then(() => resolve()).catch(() => resolve());
+          video
+            .play()
+            .then(() => resolve())
+            .catch(() => resolve());
         };
       });
       await new Promise((r) => setTimeout(r, 100));
@@ -239,7 +247,17 @@ export function CanvasLeftRail({
       croppedCanvas.width = cropW;
       croppedCanvas.height = cropH;
       const cropCtx = croppedCanvas.getContext("2d");
-      cropCtx?.drawImage(fullCanvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+      cropCtx?.drawImage(
+        fullCanvas,
+        cropX,
+        cropY,
+        cropW,
+        cropH,
+        0,
+        0,
+        cropW,
+        cropH,
+      );
 
       // Download
       const dataUrl = croppedCanvas.toDataURL("image/png");

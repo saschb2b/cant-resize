@@ -182,7 +182,7 @@ export const breakpointHooksChallenges: Challenge[] = [
 }`,
     correctSide: "right",
     explanationCorrect:
-      'Two `matchMedia` listeners fire only when crossing 640px or 1024px, not on every pixel of resize. No debounce needed, no stale 150ms delay, and the return value is a clean discriminated string instead of three booleans that could theoretically conflict.',
+      "Two `matchMedia` listeners fire only when crossing 640px or 1024px, not on every pixel of resize. No debounce needed, no stale 150ms delay, and the return value is a clean discriminated string instead of three booleans that could theoretically conflict.",
     explanationWrong:
       "Debouncing `resize` is a workaround for a problem `matchMedia` already solves. The 150ms delay makes the UI feel sluggish during resize, and tracking raw width means the component re-renders for every pixel change even within the same breakpoint.",
     sourceUrl:
@@ -230,7 +230,7 @@ export default function DashboardPage() {
     explanationCorrect:
       "Server Components have no access to browser APIs or React hooks. Plain CSS-based responsive switching works everywhere: server, client, and static HTML. Both components render in the HTML, and CSS hides the wrong one instantly with no JavaScript. Note: MUI's `sx` prop requires Emotion's client runtime, so use plain CSS or CSS modules in Server Components.",
     explanationWrong:
-      "`useMediaQuery` is a React hook that requires client-side execution. Using it in a Server Component throws a build error. Even if you add `\"use client\"`, you'd lose the benefits of server rendering for the entire page.",
+      '`useMediaQuery` is a React hook that requires client-side execution. Using it in a Server Component throws a build error. Even if you add `"use client"`, you\'d lose the benefits of server rendering for the entire page.',
     sourceUrl:
       "https://nextjs.org/docs/app/building-your-application/rendering/server-components",
     sourceLabel: "Next.js: Server Components",

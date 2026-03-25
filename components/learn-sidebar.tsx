@@ -5,10 +5,7 @@ import { usePathname } from "next/navigation";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import {
-  CATEGORY_SECTIONS,
-  CATEGORY_LABELS,
-} from "@/lib/learn/categories";
+import { CATEGORY_SECTIONS, CATEGORY_LABELS } from "@/lib/learn/categories";
 
 export function LearnSidebar() {
   const pathname = usePathname();

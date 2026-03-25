@@ -93,7 +93,12 @@ function DeviceSilhouette({
         </Box>
         {/* Stand neck */}
         <Box
-          sx={{ width: w * 0.08, height: 4, bgcolor: borderColor, opacity: 0.6 }}
+          sx={{
+            width: w * 0.08,
+            height: 4,
+            bgcolor: borderColor,
+            opacity: 0.6,
+          }}
         />
         {/* Stand base */}
         <Box
@@ -345,7 +350,7 @@ export function DevicePicker({ renderTrigger }: DevicePickerProps = {}) {
   const { addViewport, addCustomViewport } = useViewer();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = useState(new Set<string>());
   const [activeFilter, setActiveFilter] = useState<
     "all" | "phone" | "tablet" | "desktop"
   >("all");
@@ -523,9 +528,7 @@ export function DevicePicker({ renderTrigger }: DevicePickerProps = {}) {
                 label={chip.label}
                 icon={"icon" in chip ? chip.icon : undefined}
                 size="small"
-                variant={
-                  activeFilter === chip.value ? "filled" : "outlined"
-                }
+                variant={activeFilter === chip.value ? "filled" : "outlined"}
                 onClick={() => setActiveFilter(chip.value)}
                 sx={{
                   fontWeight: 500,
@@ -607,7 +610,14 @@ export function DevicePicker({ renderTrigger }: DevicePickerProps = {}) {
               {showCustom ? "Hide custom size" : "+ Custom size"}
             </Button>
             {showCustom && (
-              <Box sx={{ mt: 1.5, display: "flex", flexDirection: "column", gap: 1 }}>
+              <Box
+                sx={{
+                  mt: 1.5,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1,
+                }}
+              >
                 <Box
                   sx={{
                     display: "grid",

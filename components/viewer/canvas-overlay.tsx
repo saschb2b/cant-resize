@@ -130,9 +130,7 @@ function CompactThemeToggle() {
     <Tooltip title={isDark ? "Light mode" : "Dark mode"}>
       <IconButton
         size="small"
-        onClick={
-          mounted ? () => setMode(isDark ? "light" : "dark") : undefined
-        }
+        onClick={mounted ? () => setMode(isDark ? "light" : "dark") : undefined}
         sx={{ color: "text.secondary" }}
         aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       >
@@ -173,8 +171,14 @@ export function CanvasOverlay({
   showRulers,
   onToggleRulers,
 }: CanvasOverlayProps) {
-  const { state, dispatch, setUrl, setLayoutMode, setCanvasTransform, setSyncSettings } =
-    useViewer();
+  const {
+    state,
+    dispatch,
+    setUrl,
+    setLayoutMode,
+    setCanvasTransform,
+    setSyncSettings,
+  } = useViewer();
   const [urlInput, setUrlInput] = useState(state.url);
   const [syncAnchorEl, setSyncAnchorEl] = useState<HTMLElement | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -442,7 +446,7 @@ export function CanvasOverlay({
                             if ("id" in u && u.id) {
                               dispatch({
                                 type: "UPDATE_VIEWPORT",
-                                id: u.id as string,
+                                id: u.id,
                                 updates: { x: u.x, y: u.y },
                               });
                             }
@@ -461,7 +465,7 @@ export function CanvasOverlay({
                             if ("id" in u && u.id) {
                               dispatch({
                                 type: "UPDATE_VIEWPORT",
-                                id: u.id as string,
+                                id: u.id,
                                 updates: { x: u.x, y: u.y },
                               });
                             }
@@ -530,11 +534,31 @@ export function CanvasOverlay({
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
             {[
-              { key: "scroll" as const, icon: <ArrowUpDown size={14} />, label: "Scroll" },
-              { key: "mouse" as const, icon: <MousePointer2 size={14} />, label: "Mouse" },
-              { key: "click" as const, icon: <Hand size={14} />, label: "Click" },
-              { key: "hover" as const, icon: <MousePointer2 size={14} />, label: "Hover" },
-              { key: "navigation" as const, icon: <Navigation size={14} />, label: "Navigation" },
+              {
+                key: "scroll" as const,
+                icon: <ArrowUpDown size={14} />,
+                label: "Scroll",
+              },
+              {
+                key: "mouse" as const,
+                icon: <MousePointer2 size={14} />,
+                label: "Mouse",
+              },
+              {
+                key: "click" as const,
+                icon: <Hand size={14} />,
+                label: "Click",
+              },
+              {
+                key: "hover" as const,
+                icon: <MousePointer2 size={14} />,
+                label: "Hover",
+              },
+              {
+                key: "navigation" as const,
+                icon: <Navigation size={14} />,
+                label: "Navigation",
+              },
             ].map((item) => (
               <FormControlLabel
                 key={item.key}
@@ -548,9 +572,7 @@ export function CanvasOverlay({
                   />
                 }
                 label={
-                  <Box
-                    sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                  >
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     {item.icon}
                     <Typography variant="body2">{item.label}</Typography>
                   </Box>

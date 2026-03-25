@@ -67,8 +67,7 @@ export const tailwindResponsiveChallenges: Challenge[] = [
       "Progressive column counts: 1 on mobile, 2 on tablet, 3 on small desktop, 4 on wide screens. Each breakpoint adds a column when there's enough space. Items are always readable and properly sized for the screen.",
     explanationWrong:
       "4 columns on a 320px phone means each card is ~72px wide (320px - gaps / 4). That's completely unusable. Always start with `grid-cols-1` and add columns as the viewport grows.",
-    sourceUrl:
-      "https://tailwindcss.com/docs/grid-template-columns#responsive",
+    sourceUrl: "https://tailwindcss.com/docs/grid-template-columns#responsive",
     sourceLabel: "Tailwind: Responsive grid columns",
   },
   {

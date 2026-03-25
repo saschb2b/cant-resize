@@ -253,7 +253,7 @@ export function SearchPalette({ open, onClose }: SearchPaletteProps) {
         }
       }
     },
-    [activeList, highlightedIndex, navigate],
+    [activeList, highlightedIndex, navigate, query],
   );
 
   // Shared row styles

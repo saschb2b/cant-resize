@@ -31,8 +31,7 @@ export const flexboxPatternChallenges: Challenge[] = [
       "`flex-wrap: wrap` with `flex: 1 1 300px` means each card wants to be at least 300px wide. When the container can't fit two 300px cards side by side, they automatically wrap without any breakpoint. The items also grow to fill available space.",
     explanationWrong:
       "A `max-width: 768px` breakpoint is arbitrary. What if the container is in a sidebar and only 400px wide? The cards would still try to sit side by side because the *viewport* is wider than 768px. `flex-wrap` responds to actual available space.",
-    sourceUrl:
-      "https://developer.mozilla.org/en-US/docs/Web/CSS/flex-wrap",
+    sourceUrl: "https://developer.mozilla.org/en-US/docs/Web/CSS/flex-wrap",
     sourceLabel: "MDN: flex-wrap",
   },
   {
@@ -110,8 +109,7 @@ export const flexboxPatternChallenges: Challenge[] = [
       "`flex: 1 1 0%` makes the title take remaining space and shrink when needed. `min-width: 0` overrides the default `min-width: auto` so text truncation actually works. `flex-shrink: 0` on actions prevents buttons from compressing.",
     explanationWrong:
       "Without `min-width: 0`, the title's `min-width: auto` prevents it from shrinking below its content width, so the ellipsis never activates and the toolbar overflows. Without `flex-shrink: 0`, the action buttons may also compress.",
-    sourceUrl:
-      "https://developer.mozilla.org/en-US/docs/Web/CSS/flex-shrink",
+    sourceUrl: "https://developer.mozilla.org/en-US/docs/Web/CSS/flex-shrink",
     sourceLabel: "MDN: flex-shrink",
   },
   {
@@ -184,9 +182,9 @@ export const flexboxPatternChallenges: Challenge[] = [
 }`,
     correctSide: "right",
     explanationCorrect:
-      "A flex spacer (`flex: 1`) pushes nav and actions to the right. On mobile, nav is hidden with CSS and `ml: \"auto\"` pushes the actions to the far right. No `useMediaQuery`, no hydration flash, and the layout is controlled entirely with CSS.",
+      'A flex spacer (`flex: 1`) pushes nav and actions to the right. On mobile, nav is hidden with CSS and `ml: "auto"` pushes the actions to the far right. No `useMediaQuery`, no hydration flash, and the layout is controlled entirely with CSS.',
     explanationWrong:
-      "`useMediaQuery` causes a hydration mismatch: the server renders `space-between` (desktop), then React corrects to `center` on mobile after hydration. The spacer + `display` approach avoids this entirely. `ml: \"auto\"` pushes the actions to the right when nav is hidden.",
+      '`useMediaQuery` causes a hydration mismatch: the server renders `space-between` (desktop), then React corrects to `center` on mobile after hydration. The spacer + `display` approach avoids this entirely. `ml: "auto"` pushes the actions to the right when nav is hidden.',
     sourceUrl:
       "https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Aligning_items_in_a_flex_container#using_auto_margins_for_main_axis_alignment",
     sourceLabel: "MDN: Auto margins in flexbox",

@@ -30,8 +30,7 @@ export const conditionalRenderingChallenges: Challenge[] = [
       "Rendering both and toggling with CSS `display` avoids the hydration flash from `useMediaQuery`. Both components exist in the DOM (good for SEO and accessibility), and the switch is instant because no JavaScript needs to run.",
     explanationWrong:
       "`useMediaQuery` returns `false` during SSR. On a mobile device, the server sends DesktopNav, then React hydrates and swaps to MobileNav, causing a visible flash. CSS display toggling eliminates this entirely.",
-    sourceUrl:
-      "https://mui.com/system/display/#hiding-elements",
+    sourceUrl: "https://mui.com/system/display/#hiding-elements",
     sourceLabel: "MUI: Hiding elements",
   },
   {
@@ -121,8 +120,7 @@ function Dashboard() {
       "Hiding filters entirely on mobile removes functionality users need. A drawer provides the same filters in a mobile-friendly pattern called progressive disclosure. The filters are always accessible, just presented differently.",
     explanationWrong:
       "Removing filters on mobile means mobile users can't filter results at all. Responsive design isn't about removing features. It's about presenting them appropriately for the device. A drawer or bottom sheet is the mobile pattern for filters.",
-    sourceUrl:
-      "https://m3.material.io/components/navigation-drawer/overview",
+    sourceUrl: "https://m3.material.io/components/navigation-drawer/overview",
     sourceLabel: "Material Design: Navigation drawer",
   },
   {

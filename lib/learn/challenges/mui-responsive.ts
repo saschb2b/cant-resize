@@ -95,8 +95,7 @@ export const muiResponsiveChallenges: Challenge[] = [
       "Stack's `direction` and `spacing` props accept breakpoint objects natively. This avoids a `useMediaQuery` hook, its SSR hydration flash, and the extra re-render when the breakpoint crosses.",
     explanationWrong:
       "`useMediaQuery` triggers a re-render on every breakpoint crossing and defaults to `false` during SSR, so server-rendered HTML always shows the desktop layout first, even on mobile. MUI's responsive props handle this in CSS.",
-    sourceUrl:
-      "https://mui.com/material-ui/react-stack/#responsive-values",
+    sourceUrl: "https://mui.com/material-ui/react-stack/#responsive-values",
     sourceLabel: "MUI: Stack responsive values",
   },
   {
@@ -248,8 +247,7 @@ export const muiResponsiveChallenges: Challenge[] = [
       "Rendering both Drawer variants and toggling with CSS `display` avoids the hydration flash from `useMediaQuery`. The `NavLinks` component is shared, so there's no duplication of logic. MUI's `variant` prop handles the behavioral difference (overlay vs inline).",
     explanationWrong:
       "The conditional render based on `useMediaQuery` causes a flash: on mobile, the server renders the permanent sidebar, then React swaps to the hamburger+drawer after hydration. Users see the sidebar appear and vanish in a split second.",
-    sourceUrl:
-      "https://mui.com/material-ui/react-drawer/#responsive-drawer",
+    sourceUrl: "https://mui.com/material-ui/react-drawer/#responsive-drawer",
     sourceLabel: "MUI: Responsive drawer",
   },
 ];

@@ -37,8 +37,16 @@ export default async function LearnPage() {
       count: categoryChallenges.length,
       preview: preview
         ? {
-            goodHtml: highlightDual(highlighter, preview.goodCode, preview.lang ?? "tsx"),
-            badHtml: highlightDual(highlighter, preview.badCode, preview.lang ?? "tsx"),
+            goodHtml: highlightDual(
+              highlighter,
+              preview.goodCode,
+              preview.lang ?? "tsx",
+            ),
+            badHtml: highlightDual(
+              highlighter,
+              preview.badCode,
+              preview.lang ?? "tsx",
+            ),
           }
         : null,
     };
@@ -65,11 +73,7 @@ export default async function LearnPage() {
         {sections.map((section) => (
           <NextLink
             key={section.category}
-            href={
-              section.count > 0
-                ? `/learn/${section.category}`
-                : "#"
-            }
+            href={section.count > 0 ? `/learn/${section.category}` : "#"}
             style={{
               textDecoration: "none",
               color: "inherit",
