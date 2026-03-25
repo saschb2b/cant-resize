@@ -246,7 +246,7 @@ function AppGrid({ columns, children }: GridProps) {
     explanationWrong:
       "Three props (`columns`, `mobileColumns`, `tabletColumns`) don't scale — what about `xl`? What about custom breakpoints? Two `useMediaQuery` hooks cause double re-renders on resize and SSR hydration issues. The responsive object pattern handles all breakpoints in one prop.",
     sourceUrl:
-      "https://mui.com/material-ui/react-grid2/#responsive-values",
-    sourceLabel: "MUI: Grid2 responsive values",
+      "https://mui.com/material-ui/react-grid/#responsive-values",
+    sourceLabel: "MUI: Grid responsive values",
   },
 ];

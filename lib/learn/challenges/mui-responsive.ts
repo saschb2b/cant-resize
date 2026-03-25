@@ -35,30 +35,30 @@ export const muiResponsiveChallenges: Challenge[] = [
     id: "mr-002",
     category: "mui-responsive",
     difficulty: "easy",
-    title: "Grid2 responsive columns",
-    badCode: `<Grid2 container spacing={2}>
-  <Grid2 size={4}><Card /></Grid2>
-  <Grid2 size={4}><Card /></Grid2>
-  <Grid2 size={4}><Card /></Grid2>
-</Grid2>`,
-    goodCode: `<Grid2 container spacing={2}>
-  <Grid2 size={{ xs: 12, sm: 6, md: 4 }}>
+    title: "Grid responsive columns",
+    badCode: `<Grid container spacing={2}>
+  <Grid size={4}><Card /></Grid>
+  <Grid size={4}><Card /></Grid>
+  <Grid size={4}><Card /></Grid>
+</Grid>`,
+    goodCode: `<Grid container spacing={2}>
+  <Grid size={{ xs: 12, sm: 6, md: 4 }}>
     <Card />
-  </Grid2>
-  <Grid2 size={{ xs: 12, sm: 6, md: 4 }}>
+  </Grid>
+  <Grid size={{ xs: 12, sm: 6, md: 4 }}>
     <Card />
-  </Grid2>
-  <Grid2 size={{ xs: 12, sm: 6, md: 4 }}>
+  </Grid>
+  <Grid size={{ xs: 12, sm: 6, md: 4 }}>
     <Card />
-  </Grid2>
-</Grid2>`,
+  </Grid>
+</Grid>`,
     correctSide: "right",
     explanationCorrect:
       "Responsive `size` objects give each card the full width on mobile (12 columns), half on tablets (6), and a third on desktop (4). The layout adapts without any custom CSS or media queries.",
     explanationWrong:
       "Fixed `size={4}` forces three columns at every screen size. On a 320px phone, each card is only ~100px wide — far too narrow to be usable. Always provide at least an `xs` and one larger breakpoint.",
-    sourceUrl: "https://mui.com/material-ui/react-grid2/#responsive-values",
-    sourceLabel: "MUI: Grid2 responsive values",
+    sourceUrl: "https://mui.com/material-ui/react-grid/#responsive-values",
+    sourceLabel: "MUI: Grid responsive values",
   },
   {
     id: "mr-003",
