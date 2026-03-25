@@ -71,7 +71,7 @@ function ThemeIcon({ isDark, size = 18 }: { isDark: boolean; size?: number }) {
   );
 }
 
-function ColorSchemeToggle() {
+function ColorSchemeToggle({ size = 18 }: { size?: number }) {
   const { mode, systemMode, setMode } = useColorScheme();
   const emptySubscribe = useCallback(() => () => undefined, []);
   const mounted = useSyncExternalStore(
@@ -103,8 +103,8 @@ function ColorSchemeToggle() {
       >
         <Box
           sx={{
-            width: 18,
-            height: 18,
+            width: size,
+            height: size,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -115,15 +115,21 @@ function ColorSchemeToggle() {
               : "scale(0.5) rotate(-90deg)",
           }}
         >
-          <ThemeIcon isDark={isDark} />
+          <ThemeIcon isDark={isDark} size={size} />
         </Box>
       </IconButton>
     </Tooltip>
   );
 }
 
-export function SiteHeader() {
+interface SiteHeaderProps {
+  /** "default" for normal pages, "canvas" for the viewer workspace. */
+  variant?: "default" | "canvas";
+}
+
+export function SiteHeader({ variant = "default" }: SiteHeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false);
+  const compact = variant === "canvas";
 
   const openSearch = useCallback((trigger: "hotkey" | "button") => {
     trackEvent("search-opened", { trigger });
@@ -147,15 +153,22 @@ export function SiteHeader() {
       <Box
         component="header"
         sx={{
-          position: "sticky",
-          top: 0,
+          position: compact ? "relative" : "sticky",
+          top: compact ? undefined : 0,
           zIndex: 1100,
-          bgcolor: "rgba(var(--mui-palette-background-defaultChannel) / 0.8)",
-          backdropFilter: "blur(12px)",
+          bgcolor: compact
+            ? "background.paper"
+            : "rgba(var(--mui-palette-background-defaultChannel) / 0.8)",
+          backdropFilter: compact ? undefined : "blur(12px)",
         }}
       >
-        <Container maxWidth="lg">
-          <Stack direction="row" alignItems="center" sx={{ py: 2 }}>
+        {compact ? (
+          /* ── Canvas variant: compact single row ── */
+          <Stack
+            direction="row"
+            alignItems="center"
+            sx={{ px: 2, py: 0.75, gap: 1.5 }}
+          >
             <NextLink
               href="/"
               style={{
@@ -163,129 +176,198 @@ export function SiteHeader() {
                 color: "inherit",
                 display: "flex",
                 alignItems: "center",
-                gap: 12,
+                flexShrink: 0,
               }}
             >
-              <Image src="/icon.svg" alt="" width={28} height={28} priority />
-              <Box sx={{ display: { xs: "none", sm: "block" } }}>
-                <Typography
-                  variant="subtitle1"
-                  fontWeight={700}
-                  lineHeight={1.2}
-                >
-                  {"Can't Resize"}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  fontFamily="var(--font-geist-mono), monospace"
-                >
-                  Learn responsive design
-                </Typography>
-              </Box>
+              <Tooltip title="Back to home">
+                <Image
+                  src="/icon.svg"
+                  alt="Can't Resize"
+                  width={22}
+                  height={22}
+                  priority
+                />
+              </Tooltip>
             </NextLink>
 
+            <Divider orientation="vertical" flexItem />
+
+            {/* Right-side actions */}
             <Stack
               direction="row"
-              spacing={{ xs: 1, sm: 2 }}
+              spacing={0.5}
               alignItems="center"
               sx={{ ml: "auto" }}
             >
-              {/* Search: icon button on mobile, pill on desktop */}
               <Tooltip title="Search">
                 <IconButton
                   onClick={() => openSearch("button")}
                   size="small"
-                  sx={{
-                    display: { xs: "flex", sm: "none" },
-                    color: "text.secondary",
-                  }}
+                  sx={{ color: "text.secondary" }}
                   aria-label="Search"
                 >
-                  <Search size={18} />
+                  <Search size={16} />
                 </IconButton>
               </Tooltip>
-              <Button
-                onClick={() => openSearch("button")}
-                size="small"
-                sx={{
-                  display: { xs: "none", sm: "inline-flex" },
-                  color: "primary.main",
-                  gap: 0.75,
-                  borderRadius: 100,
-                  minWidth: "auto",
-                  bgcolor:
-                    "rgba(var(--mui-palette-primary-mainChannel) / 0.08)",
-                  border: 1,
-                  borderColor:
-                    "rgba(var(--mui-palette-primary-mainChannel) / 0.15)",
-                  px: 2,
-                  fontSize: "0.75rem",
-                  fontWeight: 500,
-                  fontFamily: "var(--font-geist-mono), monospace",
-                  transition: "all 0.2s ease",
-                  "&:hover": {
-                    bgcolor:
-                      "rgba(var(--mui-palette-primary-mainChannel) / 0.14)",
-                    borderColor:
-                      "rgba(var(--mui-palette-primary-mainChannel) / 0.25)",
-                  },
-                }}
-              >
-                <Search size={14} />
-                Search
-                <Box
-                  component="kbd"
-                  sx={{
-                    display: { xs: "none", md: "inline" },
-                    fontSize: "0.6rem",
-                    fontWeight: 600,
-                    ml: 0.5,
-                    opacity: 0.5,
-                  }}
-                >
-                  Ctrl K
-                </Box>
-              </Button>
-              <ColorSchemeToggle />
               <NextLink
                 href="/learn"
                 style={{ textDecoration: "none", color: "inherit" }}
               >
-                <Tooltip title="Learn">
+                <Tooltip title="Learn patterns">
                   <IconButton
                     component="span"
+                    size="small"
+                    sx={{ color: "text.secondary" }}
+                    aria-label="Learn"
+                  >
+                    <GraduationCap size={16} />
+                  </IconButton>
+                </Tooltip>
+              </NextLink>
+              <ColorSchemeToggle size={16} />
+            </Stack>
+          </Stack>
+        ) : (
+          /* ── Default variant: full header ── */
+          <Container maxWidth="lg">
+            <Stack direction="row" alignItems="center" sx={{ py: 2 }}>
+              <NextLink
+                href="/"
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                }}
+              >
+                <Image
+                  src="/icon.svg"
+                  alt=""
+                  width={28}
+                  height={28}
+                  priority
+                />
+                <Box sx={{ display: { xs: "none", sm: "block" } }}>
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight={700}
+                    lineHeight={1.2}
+                  >
+                    {"Can't Resize"}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    fontFamily="var(--font-geist-mono), monospace"
+                  >
+                    Learn responsive design
+                  </Typography>
+                </Box>
+              </NextLink>
+
+              <Stack
+                direction="row"
+                spacing={{ xs: 1, sm: 2 }}
+                alignItems="center"
+                sx={{ ml: "auto" }}
+              >
+                {/* Search: icon button on mobile, pill on desktop */}
+                <Tooltip title="Search">
+                  <IconButton
+                    onClick={() => openSearch("button")}
                     size="small"
                     sx={{
                       display: { xs: "flex", sm: "none" },
                       color: "text.secondary",
                     }}
-                    aria-label="Learn"
+                    aria-label="Search"
                   >
-                    <GraduationCap size={18} />
+                    <Search size={18} />
                   </IconButton>
                 </Tooltip>
-                <Typography
-                  variant="body2"
-                  fontWeight={500}
-                  fontFamily="var(--font-geist-mono), monospace"
+                <Button
+                  onClick={() => openSearch("button")}
+                  size="small"
                   sx={{
-                    display: { xs: "none", sm: "block" },
-                    color: "text.secondary",
-                    "&:hover": { color: "text.primary" },
+                    display: { xs: "none", sm: "inline-flex" },
+                    color: "primary.main",
+                    gap: 0.75,
+                    borderRadius: 100,
+                    minWidth: "auto",
+                    bgcolor:
+                      "rgba(var(--mui-palette-primary-mainChannel) / 0.08)",
+                    border: 1,
+                    borderColor:
+                      "rgba(var(--mui-palette-primary-mainChannel) / 0.15)",
+                    px: 2,
+                    fontSize: "0.75rem",
+                    fontWeight: 500,
+                    fontFamily: "var(--font-geist-mono), monospace",
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      bgcolor:
+                        "rgba(var(--mui-palette-primary-mainChannel) / 0.14)",
+                      borderColor:
+                        "rgba(var(--mui-palette-primary-mainChannel) / 0.25)",
+                    },
                   }}
                 >
-                  Learn
-                </Typography>
-              </NextLink>
-              <NextLink href="/canvas" style={{ textDecoration: "none" }}>
-                <Button variant="contained" size="small">
-                  Open Viewer
+                  <Search size={14} />
+                  Search
+                  <Box
+                    component="kbd"
+                    sx={{
+                      display: { xs: "none", md: "inline" },
+                      fontSize: "0.6rem",
+                      fontWeight: 600,
+                      ml: 0.5,
+                      opacity: 0.5,
+                    }}
+                  >
+                    Ctrl K
+                  </Box>
                 </Button>
-              </NextLink>
+                <ColorSchemeToggle />
+                <NextLink
+                  href="/learn"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <Tooltip title="Learn">
+                    <IconButton
+                      component="span"
+                      size="small"
+                      sx={{
+                        display: { xs: "flex", sm: "none" },
+                        color: "text.secondary",
+                      }}
+                      aria-label="Learn"
+                    >
+                      <GraduationCap size={18} />
+                    </IconButton>
+                  </Tooltip>
+                  <Typography
+                    variant="body2"
+                    fontWeight={500}
+                    fontFamily="var(--font-geist-mono), monospace"
+                    sx={{
+                      display: { xs: "none", sm: "block" },
+                      color: "text.secondary",
+                      "&:hover": { color: "text.primary" },
+                    }}
+                  >
+                    Learn
+                  </Typography>
+                </NextLink>
+                <NextLink href="/canvas" style={{ textDecoration: "none" }}>
+                  <Button variant="contained" size="small">
+                    Open Viewer
+                  </Button>
+                </NextLink>
+              </Stack>
             </Stack>
-          </Stack>
-        </Container>
+          </Container>
+        )}
         <Divider />
       </Box>
 

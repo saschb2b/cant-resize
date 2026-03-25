@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import NextLink from "next/link";
-import Image from "next/image";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
@@ -29,7 +27,6 @@ import {
   Hand,
   Navigation,
   ArrowUpDown,
-  GraduationCap,
 } from "lucide-react";
 import { useViewer } from "./viewer-provider";
 import { DevicePicker } from "./device-picker";
@@ -97,31 +94,6 @@ export function Toolbar() {
         bgcolor: "background.paper",
       }}
     >
-      {/* Site identity */}
-      <NextLink
-        href="/"
-        style={{
-          textDecoration: "none",
-          color: "inherit",
-          display: "flex",
-          alignItems: "center",
-          flexShrink: 0,
-        }}
-      >
-        <Tooltip title="Back to home">
-          <Image src="/icon.svg" alt="Can't Resize" width={22} height={22} />
-        </Tooltip>
-      </NextLink>
-      <NextLink href="/learn" style={{ textDecoration: "none", flexShrink: 0 }}>
-        <Tooltip title="Learn responsive patterns">
-          <IconButton component="span" size="small" sx={{ color: "text.secondary" }}>
-            <GraduationCap size={16} />
-          </IconButton>
-        </Tooltip>
-      </NextLink>
-
-      <Divider orientation="vertical" flexItem />
-
       {/* URL Input */}
       <Box
         component="form"
