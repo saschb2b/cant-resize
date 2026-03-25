@@ -1,55 +1,42 @@
-# Responsive Viewer IDE
+# Can't Resize
 
-A multi-device responsive design viewer for testing web applications across different screen sizes simultaneously. All viewports are synchronized for scroll events, allowing developers to preview their designs on multiple devices at once.
+A responsive design toolkit for developers. Preview any URL across devices with synced interactions, and learn responsive patterns through side-by-side code comparisons.
 
-## Features
+## Viewer
 
-- **Multi-Device Preview**: Add multiple device viewports (phones, tablets, desktops) to preview any URL
-- **Device Presets**: Common device dimensions including iPhone, Pixel, iPad, Galaxy, MacBook, and desktop sizes
-- **Custom Dimensions**: Create viewports with any custom width/height
-- **Dual Layout Modes**:
-  - **Freeform Canvas**: Infinite pan/zoom canvas with draggable, resizable device frames
-  - **Grid Layout**: Auto-arranged grid view for quick comparison
-- **Full Event Synchronization** (same-origin sites):
-  - **Scroll**: Scroll position syncs across all viewports
-  - **Mouse Position**: Cursor indicator shows in all viewports
-  - **Click**: Clicks are replicated across devices
-  - **Hover**: Hover states highlighted across viewports
-  - **Navigation**: URL changes sync to all devices
-- **Sync Settings Panel**: Toggle individual sync events on/off
-- **Persistent State**: Layout and device configuration saved to localStorage
+A multi-device responsive design viewer at `/canvas`.
 
-## Architecture
+- **Device presets**: iPhone, Pixel, Galaxy, iPad, MacBook, desktop sizes, and custom dimensions
+- **Freeform canvas**: Infinite pan/zoom workspace with draggable, resizable device frames (Miro-style floating UI)
+- **Grid mode**: Auto-arranged comparison view with drag-to-reorder
+- **Event sync** (same-origin): Scroll, mouse, click, hover, and navigation sync across all viewports
+- **Persistent state**: Device layout saved to localStorage
 
-```
-/app/page.tsx                         # Main viewer application
-/lib/viewer/
-  types.ts                            # TypeScript types (Device, Viewport, etc.)
-  device-presets.ts                   # Device dimensions catalog
-  use-canvas.ts                       # Pan/zoom/drag hook for freeform canvas
-  use-viewport-sync.ts                # Scroll synchronization hook
-/components/viewer/
-  viewer-provider.tsx                 # React Context for global state
-  canvas.tsx                          # Infinite canvas with device frames
-  viewport-frame.tsx                  # Individual device frame (draggable, resizable)
-  toolbar.tsx                         # URL input, layout toggle, zoom controls
-  device-picker.tsx                   # Device selection dialog
-  grid-layout.tsx                     # Grid mode layout
-```
+## Learn
 
-## Usage
+82 responsive design patterns across 16 categories at `/learn`.
 
-1. Enter a URL in the toolbar and click "Go"
-2. Click "Add Device" to add device viewports
-3. Switch between Freeform (drag/zoom) and Grid (auto-layout) modes
-4. Drag device frames to reposition, resize using corner handles
-5. Use Space+Drag or middle-mouse to pan the canvas
-6. Scroll/Ctrl+scroll to zoom
+- **Foundations**: Media Queries, Container Queries, Fluid Typography, Viewport Units
+- **Layout**: Flexbox Patterns, Grid Patterns, Responsive Spacing, Overflow Handling
+- **Components**: Breakpoint Hooks, Responsive Props, Conditional Rendering, Responsive Images
+- **Frameworks**: MUI Responsive, Tailwind Responsive
+- **Anti-Patterns**: Common Mistakes, Testing Responsive
 
-## Limitations
+Each pattern shows an Avoid/Prefer code comparison with syntax highlighting, an explanation, and a link to authoritative documentation.
 
-- **Cross-origin iframes**: Some websites block iframe embedding via X-Frame-Options headers
-- **Event sync requires same-origin**: Full event synchronization (scroll, mouse, click, hover, navigation) only works with same-origin sites (e.g., localhost development). Cross-origin sites will show an amber indicator in the device header.
+## Search
+
+Fuzzy search across all pages, categories, and patterns with Ctrl+K / Cmd+K. Powered by fuse.js with keyword extraction from code snippets.
+
+## Tech Stack
+
+- Next.js 16 (App Router, View Transitions)
+- React 19
+- Material UI 7 + Emotion
+- Shiki (syntax highlighting)
+- Fuse.js (search)
+- Umami (analytics)
+- TypeScript, pnpm
 
 ## Development
 
@@ -57,3 +44,56 @@ A multi-device responsive design viewer for testing web applications across diff
 pnpm install
 pnpm dev
 ```
+
+## Project Structure
+
+```
+app/
+  page.tsx                    # Landing page
+  canvas/page.tsx             # Viewer workspace
+  learn/
+    page.tsx                  # Pattern overview
+    [category]/page.tsx       # Category detail
+  not-found.tsx               # 404 redirect with analytics
+
+components/
+  site-header.tsx             # Shared header (search, nav, theme)
+  site-footer.tsx             # Shared footer
+  search-palette.tsx          # Ctrl+K search dialog
+  formatted-text.tsx          # Inline markdown renderer
+  challenge-anchor.tsx        # Copyable heading links
+  source-link.tsx             # Tracked external links
+  learn-sidebar.tsx           # Category navigation
+  learn-mobile-nav.tsx        # Mobile horizontal scroll nav
+  viewer/
+    viewer-provider.tsx       # Context + reducer for viewer state
+    canvas.tsx                # Freeform canvas + grid mode with reorder
+    canvas-overlay.tsx        # Floating widget pills (URL, zoom, tools)
+    viewport-frame.tsx        # Device frame (drag, resize, iframe sync)
+    toolbar.tsx               # Legacy toolbar (unused, kept for reference)
+    device-picker.tsx         # Device selection dialog
+
+lib/
+  theme.ts                    # MUI light/dark theme
+  shiki.ts                    # Syntax highlighter (TSX + CSS)
+  code-styles.ts              # Shared code block styles
+  analytics.ts                # Type-safe Umami event tracking
+  search-items.ts             # Search index generation
+  learn/
+    types.ts                  # Challenge types
+    categories.ts             # 16 categories with metadata
+    challenges/               # 82 patterns across 16 files
+  viewer/
+    types.ts                  # Viewer state types
+    device-presets.ts         # Device catalog
+    use-canvas.ts             # Pan/zoom with multiplicative scaling
+    use-iframe-sync.ts        # PostMessage-based event sync
+    use-viewport-drag.ts      # Pointer-based viewport dragging
+    use-viewport-resize.ts    # Edge/corner resize handles
+    use-zoom-controls.ts      # Zoom UI logic
+```
+
+## Limitations
+
+- Some websites block iframe embedding via X-Frame-Options or CSP headers
+- Full event sync (scroll, mouse, click, hover, navigation) requires same-origin sites (e.g., localhost)
