@@ -14,6 +14,7 @@ import {
   CATEGORY_ORDER,
   CATEGORY_LABELS,
   CATEGORY_DESCRIPTIONS,
+  LEARNING_PATH,
 } from "@/lib/learn/categories";
 
 export const metadata: Metadata = {
@@ -68,6 +69,60 @@ export default async function LearnPage() {
           convention, a side-by-side example, and why it matters.
         </Typography>
       </Stack>
+
+      {/* Start here */}
+      <Box sx={{ mb: { xs: 4, md: 5 } }}>
+        <Typography variant="h6" fontWeight={600} sx={{ mb: 0.5 }}>
+          Start here
+        </Typography>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mb: 2, maxWidth: 480, lineHeight: 1.6 }}
+        >
+          New to responsive design? Follow these five categories in order.
+        </Typography>
+        <Stack direction="row" sx={{ flexWrap: "wrap", gap: 1.5 }}>
+          {LEARNING_PATH.map((category, index) => (
+            <NextLink
+              key={category}
+              href={`/learn/${category}`}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <Paper
+                elevation={0}
+                sx={{
+                  border: 1,
+                  borderColor: "divider",
+                  px: 2,
+                  py: 1.5,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    borderColor: "text.secondary",
+                    transform: "translateY(-1px)",
+                  },
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  fontWeight={700}
+                  fontFamily="var(--font-geist-mono), monospace"
+                  color="text.secondary"
+                  sx={{ minWidth: 16 }}
+                >
+                  {String(index + 1)}
+                </Typography>
+                <Typography variant="body2" fontWeight={600}>
+                  {CATEGORY_LABELS[category]}
+                </Typography>
+              </Paper>
+            </NextLink>
+          ))}
+        </Stack>
+      </Box>
 
       <Stack spacing={3}>
         {sections.map((section) => (

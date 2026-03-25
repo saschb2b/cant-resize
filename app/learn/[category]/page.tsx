@@ -278,15 +278,77 @@ export default async function CategoryPage({ params }: PageProps) {
 
             {/* Explanation + source */}
             <Box sx={{ px: 2.5, py: 2, maxWidth: 720 }}>
-              <Box
-                sx={{
-                  typography: "body2",
-                  lineHeight: 1.75,
-                  color: "text.primary",
-                }}
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="flex-start"
+                sx={{ mb: 1.5 }}
               >
-                <FormattedText text={challenge.explanationCorrect} />
-              </Box>
+                <Box
+                  sx={{
+                    width: 3,
+                    minHeight: 20,
+                    bgcolor: "error.main",
+                    borderRadius: 100,
+                    mt: 0.5,
+                    flexShrink: 0,
+                  }}
+                />
+                <Box>
+                  <Typography
+                    variant="caption"
+                    fontWeight={600}
+                    color="error.main"
+                    fontFamily="var(--font-geist-mono), monospace"
+                  >
+                    Why avoid
+                  </Typography>
+                  <Box
+                    sx={{
+                      typography: "body2",
+                      lineHeight: 1.75,
+                      color: "text.primary",
+                      mt: 0.25,
+                    }}
+                  >
+                    <FormattedText text={challenge.explanationWrong} />
+                  </Box>
+                </Box>
+              </Stack>
+
+              <Stack direction="row" spacing={1} alignItems="flex-start">
+                <Box
+                  sx={{
+                    width: 3,
+                    minHeight: 20,
+                    bgcolor: "success.main",
+                    borderRadius: 100,
+                    mt: 0.5,
+                    flexShrink: 0,
+                  }}
+                />
+                <Box>
+                  <Typography
+                    variant="caption"
+                    fontWeight={600}
+                    color="success.main"
+                    fontFamily="var(--font-geist-mono), monospace"
+                  >
+                    Why prefer
+                  </Typography>
+                  <Box
+                    sx={{
+                      typography: "body2",
+                      lineHeight: 1.75,
+                      color: "text.primary",
+                      mt: 0.25,
+                    }}
+                  >
+                    <FormattedText text={challenge.explanationCorrect} />
+                  </Box>
+                </Box>
+              </Stack>
+
               <SourceLink
                 href={challenge.sourceUrl}
                 label={challenge.sourceLabel}
