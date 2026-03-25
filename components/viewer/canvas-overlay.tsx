@@ -36,11 +36,7 @@ import {
 } from "lucide-react";
 import { useViewer } from "./viewer-provider";
 import { DevicePicker } from "./device-picker";
-import {
-  CanvasLeftRail,
-  BreakpointMarkers,
-  CanvasRulers,
-} from "./canvas-left-rail";
+import { CanvasLeftRail } from "./canvas-left-rail";
 import { arrangeHorizontal, arrangeGrid } from "@/lib/viewer/use-snap";
 import { useZoomControls } from "@/lib/viewer/use-zoom-controls";
 import { SearchPalette } from "@/components/search-palette";
@@ -163,16 +159,25 @@ function CompactThemeToggle() {
 interface CanvasOverlayProps {
   gridSnap: boolean;
   onToggleGridSnap: () => void;
+  showBreakpoints: boolean;
+  onToggleBreakpoints: () => void;
+  showRulers: boolean;
+  onToggleRulers: () => void;
 }
 
-export function CanvasOverlay({ gridSnap, onToggleGridSnap }: CanvasOverlayProps) {
+export function CanvasOverlay({
+  gridSnap,
+  onToggleGridSnap,
+  showBreakpoints,
+  onToggleBreakpoints,
+  showRulers,
+  onToggleRulers,
+}: CanvasOverlayProps) {
   const { state, dispatch, setUrl, setLayoutMode, setCanvasTransform, setSyncSettings } =
     useViewer();
   const [urlInput, setUrlInput] = useState(state.url);
   const [syncAnchorEl, setSyncAnchorEl] = useState<HTMLElement | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [showBreakpoints, setShowBreakpoints] = useState(false);
-  const [showRulers, setShowRulers] = useState(false);
 
   const {
     zoomPercentage,
@@ -233,23 +238,6 @@ export function CanvasOverlay({ gridSnap, onToggleGridSnap }: CanvasOverlayProps
 
   return (
     <>
-      {/* Breakpoint markers + rulers (rendered behind the overlay) */}
-      {showBreakpoints && state.layoutMode === "freeform" && (
-        <Box
-          sx={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 5,
-            pointerEvents: "none",
-          }}
-        >
-          <BreakpointMarkers transform={state.canvasTransform} />
-        </Box>
-      )}
-      {showRulers && state.layoutMode === "freeform" && (
-        <CanvasRulers transform={state.canvasTransform} />
-      )}
-
       {/* Overlay container — fills canvas, passes clicks through */}
       <Box
         sx={{
@@ -372,9 +360,9 @@ export function CanvasOverlay({ gridSnap, onToggleGridSnap }: CanvasOverlayProps
         <Box sx={{ alignSelf: "center" }}>
           <CanvasLeftRail
             showBreakpoints={showBreakpoints}
-            onToggleBreakpoints={() => setShowBreakpoints((v) => !v)}
+            onToggleBreakpoints={onToggleBreakpoints}
             showRulers={showRulers}
-            onToggleRulers={() => setShowRulers((v) => !v)}
+            onToggleRulers={onToggleRulers}
             gridSnap={gridSnap}
             onToggleGridSnap={onToggleGridSnap}
           />

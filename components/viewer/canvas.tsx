@@ -269,9 +269,11 @@ function GridCanvas() {
 
 interface CanvasProps {
   gridSnap?: boolean;
+  showBreakpoints?: boolean;
+  showRulers?: boolean;
 }
 
-export function Canvas({ gridSnap = false }: CanvasProps) {
+export function Canvas({ gridSnap = false, showBreakpoints = false, showRulers = false }: CanvasProps) {
   const { state, setCanvasTransform } = useViewer();
   const [guides, setGuides] = useState<GuideLine[]>([]);
 
@@ -331,6 +333,8 @@ export function Canvas({ gridSnap = false }: CanvasProps) {
             key={viewport.id}
             viewport={viewport}
             gridSnap={gridSnap}
+            showBreakpoints={showBreakpoints}
+            showRulers={showRulers}
             onGuidesChange={setGuides}
           />
         ))}

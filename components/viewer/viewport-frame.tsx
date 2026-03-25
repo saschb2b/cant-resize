@@ -24,15 +24,26 @@ interface ViewportFrameProps {
   viewport: Viewport;
   isGridMode?: boolean;
   gridSnap?: boolean;
+  showBreakpoints?: boolean;
+  showRulers?: boolean;
   onGuidesChange?: (guides: GuideLine[]) => void;
 }
 
 const noopGuides = () => {};
 
+const BREAKPOINTS = [
+  { label: "sm", value: 640, color: "#22c55e" },
+  { label: "md", value: 768, color: "#f59e0b" },
+  { label: "lg", value: 1024, color: "#3b82f6" },
+  { label: "xl", value: 1280, color: "#a855f7" },
+];
+
 export function ViewportFrame({
   viewport,
   isGridMode = false,
   gridSnap = false,
+  showBreakpoints = false,
+  showRulers = false,
   onGuidesChange,
 }: ViewportFrameProps) {
   const {
@@ -325,6 +336,107 @@ export function ViewportFrame({
               cursor: "pointer",
             }}
           />
+        )}
+
+        {/* Per-viewport breakpoint markers */}
+        {showBreakpoints &&
+          BREAKPOINTS.filter((bp) => bp.value < displayWidth).map((bp) => {
+            // Position as percentage of viewport width
+            const pct = (bp.value / displayWidth) * 100;
+            return (
+              <Box
+                key={bp.label}
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  bottom: 0,
+                  width: 0,
+                  borderLeft: "1px dashed",
+                  borderColor: bp.color,
+                  opacity: 0.5,
+                  zIndex: 6,
+                  pointerEvents: "none",
+                }}
+                style={{ left: `${String(pct)}%` }}
+              >
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 4,
+                    left: 4,
+                    fontSize: "0.5rem",
+                    fontWeight: 700,
+                    fontFamily: "var(--font-geist-mono), monospace",
+                    color: bp.color,
+                    bgcolor: "rgba(0,0,0,0.6)",
+                    px: 0.5,
+                    py: 0.125,
+                    borderRadius: 0.5,
+                    lineHeight: 1,
+                    whiteSpace: "nowrap",
+                    pointerEvents: "none",
+                  }}
+                >
+                  {bp.label} {bp.value}
+                </Box>
+              </Box>
+            );
+          })}
+
+        {/* Per-viewport pixel ruler (top edge) */}
+        {showRulers && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 14,
+              bgcolor: "rgba(0,0,0,0.45)",
+              zIndex: 6,
+              pointerEvents: "none",
+              overflow: "hidden",
+            }}
+          >
+            <svg
+              width="100%"
+              height="14"
+              style={{ display: "block" }}
+              preserveAspectRatio="none"
+              viewBox={`0 0 ${String(displayWidth)} 14`}
+            >
+              {Array.from(
+                { length: Math.ceil(displayWidth / 50) + 1 },
+                (_, i) => {
+                  const px = i * 50;
+                  const isMajor = px % 100 === 0;
+                  return (
+                    <g key={px}>
+                      <line
+                        x1={px}
+                        y1={isMajor ? 4 : 8}
+                        x2={px}
+                        y2={14}
+                        stroke="rgba(255,255,255,0.5)"
+                        strokeWidth={isMajor ? 1 : 0.5}
+                      />
+                      {isMajor && (
+                        <text
+                          x={px + 3}
+                          y={8}
+                          fill="rgba(255,255,255,0.7)"
+                          fontSize="7"
+                          fontFamily="var(--font-geist-mono), monospace"
+                        >
+                          {px}
+                        </text>
+                      )}
+                    </g>
+                  );
+                },
+              )}
+            </svg>
+          </Box>
         )}
       </Box>
 
