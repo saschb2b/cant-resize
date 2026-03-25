@@ -74,6 +74,7 @@ export default function RootLayout({
           defer
           src="http://umami-c9jjhg20x8jiqlc2pxt1mu7a.204.168.144.168.sslip.io/script.js"
           data-website-id="24a9a7f0-ea82-4364-8eae-74f50b296d3e"
+          data-domains="cant-resize.saschb2b.com"
         />
       </head>
       <body>

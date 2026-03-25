@@ -17,6 +17,7 @@ import type {
   SyncSettings,
 } from "@/lib/viewer/types";
 import { getDeviceById } from "@/lib/viewer/device-presets";
+import { trackEvent } from "@/lib/analytics";
 
 const STORAGE_KEY = "responsive-viewer-state";
 
@@ -206,6 +207,11 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
         scale: 1,
       };
       dispatch({ type: "ADD_VIEWPORT", viewport });
+      trackEvent("device-added", {
+        device: device.name,
+        width: device.width,
+        height: device.height,
+      });
 
       // Auto-fit when adding the first device
       if (state.viewports.length === 0) {
@@ -239,6 +245,11 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
         ...(name ? { customName: name } : {}),
       };
       dispatch({ type: "ADD_VIEWPORT", viewport });
+      trackEvent("device-added", {
+        device: name ?? `Custom ${String(width)}x${String(height)}`,
+        width,
+        height,
+      });
 
       if (state.viewports.length === 0) {
         requestAnimationFrame(() => fitViewportToCanvas(viewport));
@@ -253,6 +264,9 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
 
   const setUrl = useCallback((url: string) => {
     dispatch({ type: "SET_URL", url });
+    if (url) {
+      trackEvent("viewer-url-loaded", { url });
+    }
   }, []);
 
   const setLayoutMode = useCallback((mode: LayoutMode) => {

@@ -26,6 +26,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Fuse, { type FuseResult } from "fuse.js";
 import { searchItems, type SearchItem } from "@/lib/search-items";
 import { CATEGORY_SECTIONS } from "@/lib/learn/categories";
+import { trackEvent } from "@/lib/analytics";
 
 const MAX_VISIBLE_CHALLENGES = 5;
 
@@ -242,6 +243,12 @@ export function SearchPalette({ open, onClose }: SearchPaletteProps) {
         const item = activeList[highlightedIndex];
         if (item) {
           const href = "item" in item ? item.item.href : item.href;
+          const title = "item" in item ? item.item.title : item.title;
+          trackEvent("search-selected", {
+            query,
+            selectedTitle: title,
+            selectedHref: href,
+          });
           navigate(href);
         }
       }
@@ -284,7 +291,14 @@ export function SearchPalette({ open, onClose }: SearchPaletteProps) {
         ref={(el: HTMLDivElement | null) => {
           resultRefs.current[globalIndex] = el;
         }}
-        onClick={() => navigate(result.item.href)}
+        onClick={() => {
+          trackEvent("search-selected", {
+            query,
+            selectedTitle: result.item.title,
+            selectedHref: result.item.href,
+          });
+          navigate(result.item.href);
+        }}
         onMouseEnter={() => setHighlightedIndex(globalIndex)}
         sx={rowSx(isHighlighted)}
       >
@@ -361,7 +375,14 @@ export function SearchPalette({ open, onClose }: SearchPaletteProps) {
         ref={(el: HTMLDivElement | null) => {
           resultRefs.current[globalIndex] = el;
         }}
-        onClick={() => navigate(item.href)}
+        onClick={() => {
+          trackEvent("search-selected", {
+            query: "",
+            selectedTitle: item.title,
+            selectedHref: item.href,
+          });
+          navigate(item.href);
+        }}
         onMouseEnter={() => setHighlightedIndex(globalIndex)}
         sx={rowSx(isHighlighted)}
       >

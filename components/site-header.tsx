@@ -14,6 +14,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { useColorScheme } from "@mui/material/styles";
 import { Search, GraduationCap } from "lucide-react";
 import { SearchPalette } from "@/components/search-palette";
+import { trackEvent } from "@/lib/analytics";
 
 function ThemeIcon({ isDark, size = 18 }: { isDark: boolean; size?: number }) {
   return (
@@ -124,7 +125,8 @@ function ColorSchemeToggle() {
 export function SiteHeader() {
   const [searchOpen, setSearchOpen] = useState(false);
 
-  const openSearch = useCallback(() => {
+  const openSearch = useCallback((trigger: "hotkey" | "button") => {
+    trackEvent("search-opened", { trigger });
     setSearchOpen(true);
   }, []);
 
@@ -133,7 +135,7 @@ export function SiteHeader() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
-        openSearch();
+        openSearch("hotkey");
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -192,7 +194,7 @@ export function SiteHeader() {
               {/* Search: icon button on mobile, pill on desktop */}
               <Tooltip title="Search">
                 <IconButton
-                  onClick={openSearch}
+                  onClick={() => openSearch("button")}
                   size="small"
                   sx={{
                     display: { xs: "flex", sm: "none" },
@@ -204,7 +206,7 @@ export function SiteHeader() {
                 </IconButton>
               </Tooltip>
               <Button
-                onClick={openSearch}
+                onClick={() => openSearch("button")}
                 size="small"
                 sx={{
                   display: { xs: "none", sm: "inline-flex" },

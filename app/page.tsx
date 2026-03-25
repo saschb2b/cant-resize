@@ -116,12 +116,25 @@ export default function LandingPage() {
                   size="large"
                   endIcon={<ArrowRight size={18} />}
                   sx={{
-                    px: { xs: 4, md: 5 },
-                    py: { xs: 1.25, md: 1.5 },
-                    fontSize: { xs: "1rem", md: "1.05rem" },
+                    px: { xs: 3, md: 5 },
+                    py: { xs: 1, md: 1.5 },
+                    fontSize: { xs: "0.9rem", md: "1.05rem" },
                   }}
                 >
                   Open Viewer
+                </Button>
+              </NextLink>
+              <NextLink href="/learn" style={{ textDecoration: "none" }}>
+                <Button
+                  variant="text"
+                  size="large"
+                  sx={{
+                    px: { xs: 2, md: 3 },
+                    py: { xs: 1, md: 1.5 },
+                    fontSize: { xs: "0.9rem", md: "1.05rem" },
+                  }}
+                >
+                  Browse Patterns
                 </Button>
               </NextLink>
             </Stack>

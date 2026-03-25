@@ -7,8 +7,7 @@ import Stack from "@mui/material/Stack";
 import Paper from "@mui/material/Paper";
 import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
-import Link from "@mui/material/Link";
-import { ArrowLeft, ArrowRight, Check, ExternalLink, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, X } from "lucide-react";
 import { getHighlighter, highlightDual } from "@/lib/shiki";
 import { codeBlockStyles } from "@/lib/code-styles";
 import { challenges } from "@/lib/learn/challenges";
@@ -20,6 +19,7 @@ import {
 import type { ChallengeCategory, Difficulty } from "@/lib/learn/types";
 import { FormattedText } from "@/components/formatted-text";
 import { ChallengeAnchor } from "@/components/challenge-anchor";
+import { SourceLink } from "@/components/source-link";
 
 const categorySet = new Set<string>(CATEGORY_ORDER);
 
@@ -288,24 +288,12 @@ export default async function CategoryPage({ params }: PageProps) {
               >
                 <FormattedText text={challenge.explanationCorrect} />
               </Box>
-              <Link
+              <SourceLink
                 href={challenge.sourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                underline="hover"
-                sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 0.5,
-                  mt: 1.5,
-                  typography: "caption",
-                  fontFamily: "var(--font-geist-mono), monospace",
-                  fontWeight: 500,
-                }}
-              >
-                <ExternalLink size={12} />
-                {challenge.sourceLabel}
-              </Link>
+                label={challenge.sourceLabel}
+                challengeId={challenge.id}
+                category={challenge.category}
+              />
             </Box>
           </Paper>
         ))}
