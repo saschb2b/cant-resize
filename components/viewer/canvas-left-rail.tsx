@@ -16,6 +16,7 @@ import {
   Camera,
   Check,
   Columns3,
+  Grid3x3,
 } from "lucide-react";
 import { toPng } from "html-to-image";
 import { useViewer } from "./viewer-provider";
@@ -391,6 +392,8 @@ interface LeftRailProps {
   onToggleBreakpoints: () => void;
   showRulers: boolean;
   onToggleRulers: () => void;
+  gridSnap: boolean;
+  onToggleGridSnap: () => void;
 }
 
 export function CanvasLeftRail({
@@ -398,6 +401,8 @@ export function CanvasLeftRail({
   onToggleBreakpoints,
   showRulers,
   onToggleRulers,
+  gridSnap,
+  onToggleGridSnap,
 }: LeftRailProps) {
   const { addViewport } = useViewer();
   const [flyout, setFlyout] = useState<"phone" | "tablet" | "desktop" | null>(
@@ -526,6 +531,17 @@ export function CanvasLeftRail({
             sx={iconBtnSx(showRulers)}
           >
             <Ruler size={16} />
+          </IconButton>
+        </Tooltip>
+
+        {/* Snap to grid */}
+        <Tooltip title="Snap to grid" placement="right">
+          <IconButton
+            size="small"
+            onClick={onToggleGridSnap}
+            sx={iconBtnSx(gridSnap)}
+          >
+            <Grid3x3 size={16} />
           </IconButton>
         </Tooltip>
 

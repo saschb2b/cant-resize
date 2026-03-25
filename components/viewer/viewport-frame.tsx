@@ -18,15 +18,22 @@ import { useViewportDrag } from "@/lib/viewer/use-viewport-drag";
 import { useViewportResize } from "@/lib/viewer/use-viewport-resize";
 import { useIframeSync } from "@/lib/viewer/use-iframe-sync";
 import type { Viewport } from "@/lib/viewer/types";
+import type { GuideLine } from "@/lib/viewer/use-snap";
 
 interface ViewportFrameProps {
   viewport: Viewport;
   isGridMode?: boolean;
+  gridSnap?: boolean;
+  onGuidesChange?: (guides: GuideLine[]) => void;
 }
+
+const noopGuides = () => {};
 
 export function ViewportFrame({
   viewport,
   isGridMode = false,
+  gridSnap = false,
+  onGuidesChange,
 }: ViewportFrameProps) {
   const {
     state,
@@ -58,11 +65,16 @@ export function ViewportFrame({
       viewportId: viewport.id,
       viewportX: viewport.x,
       viewportY: viewport.y,
+      viewportWidth: viewport.width,
+      viewportHeight: viewport.height,
       canvasScale: state.canvasTransform.scale,
       isGridMode,
+      allViewports: state.viewports,
+      gridSnap,
       onSelect: selectViewport,
       onMove: (id, x, y) =>
         dispatch({ type: "UPDATE_VIEWPORT", id, updates: { x, y } }),
+      onGuidesChange: onGuidesChange ?? noopGuides,
     });
 
   const {

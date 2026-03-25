@@ -31,6 +31,8 @@ import {
   Hand,
   Navigation,
   ArrowUpDown,
+  AlignHorizontalSpaceAround,
+  LayoutDashboard,
 } from "lucide-react";
 import { useViewer } from "./viewer-provider";
 import { DevicePicker } from "./device-picker";
@@ -39,6 +41,7 @@ import {
   BreakpointMarkers,
   CanvasRulers,
 } from "./canvas-left-rail";
+import { arrangeHorizontal, arrangeGrid } from "@/lib/viewer/use-snap";
 import { useZoomControls } from "@/lib/viewer/use-zoom-controls";
 import { SearchPalette } from "@/components/search-palette";
 import { trackEvent } from "@/lib/analytics";
@@ -157,8 +160,13 @@ function CompactThemeToggle() {
 
 // ── Main overlay ────────────────────────────────────────────────────────────
 
-export function CanvasOverlay() {
-  const { state, setUrl, setLayoutMode, setCanvasTransform, setSyncSettings } =
+interface CanvasOverlayProps {
+  gridSnap: boolean;
+  onToggleGridSnap: () => void;
+}
+
+export function CanvasOverlay({ gridSnap, onToggleGridSnap }: CanvasOverlayProps) {
+  const { state, dispatch, setUrl, setLayoutMode, setCanvasTransform, setSyncSettings } =
     useViewer();
   const [urlInput, setUrlInput] = useState(state.url);
   const [syncAnchorEl, setSyncAnchorEl] = useState<HTMLElement | null>(null);
@@ -367,6 +375,8 @@ export function CanvasOverlay() {
             onToggleBreakpoints={() => setShowBreakpoints((v) => !v)}
             showRulers={showRulers}
             onToggleRulers={() => setShowRulers((v) => !v)}
+            gridSnap={gridSnap}
+            onToggleGridSnap={onToggleGridSnap}
           />
         </Box>
 
@@ -432,6 +442,49 @@ export function CanvasOverlay() {
                     <RefreshCw size={14} />
                   </IconButton>
                 </Tooltip>
+
+                {state.layoutMode === "freeform" && (
+                  <>
+                    <Tooltip title="Arrange in a row">
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          const updates = arrangeHorizontal(state.viewports);
+                          for (const u of updates) {
+                            if ("id" in u && u.id) {
+                              dispatch({
+                                type: "UPDATE_VIEWPORT",
+                                id: u.id as string,
+                                updates: { x: u.x, y: u.y },
+                              });
+                            }
+                          }
+                        }}
+                      >
+                        <AlignHorizontalSpaceAround size={14} />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Auto-arrange grid">
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          const updates = arrangeGrid(state.viewports);
+                          for (const u of updates) {
+                            if ("id" in u && u.id) {
+                              dispatch({
+                                type: "UPDATE_VIEWPORT",
+                                id: u.id as string,
+                                updates: { x: u.x, y: u.y },
+                              });
+                            }
+                          }
+                        }}
+                      >
+                        <LayoutDashboard size={14} />
+                      </IconButton>
+                    </Tooltip>
+                  </>
+                )}
               </>
             )}
           </Box>

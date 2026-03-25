@@ -1,15 +1,22 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { computeSnap, type GuideLine } from "./use-snap";
+import type { Viewport } from "./types";
 
 interface UseViewportDragOptions {
   viewportId: string;
   viewportX: number;
   viewportY: number;
+  viewportWidth: number;
+  viewportHeight: number;
   canvasScale: number;
   isGridMode: boolean;
+  allViewports: Viewport[];
+  gridSnap: boolean;
   onSelect: (id: string) => void;
   onMove: (id: string, x: number, y: number) => void;
+  onGuidesChange: (guides: GuideLine[]) => void;
 }
 
 export function useViewportDrag(options: UseViewportDragOptions) {
@@ -17,14 +24,23 @@ export function useViewportDrag(options: UseViewportDragOptions) {
     viewportId,
     viewportX,
     viewportY,
+    viewportWidth,
+    viewportHeight,
     canvasScale,
     isGridMode,
+    allViewports,
+    gridSnap,
     onSelect,
     onMove,
+    onGuidesChange,
   } = options;
 
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef({ x: 0, y: 0, viewportX: 0, viewportY: 0 });
+
+  // Keep refs for values read during drag to avoid recreating handlers
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
 
   const handleDragStart = useCallback(
     (e: React.PointerEvent) => {
@@ -50,16 +66,33 @@ export function useViewportDrag(options: UseViewportDragOptions) {
     (e: React.PointerEvent) => {
       if (!isDragging) return;
 
-      const deltaX = (e.clientX - dragStart.current.x) / canvasScale;
-      const deltaY = (e.clientY - dragStart.current.y) / canvasScale;
+      const opts = optionsRef.current;
+      const deltaX = (e.clientX - dragStart.current.x) / opts.canvasScale;
+      const deltaY = (e.clientY - dragStart.current.y) / opts.canvasScale;
 
-      onMove(viewportId, dragStart.current.viewportX + deltaX, dragStart.current.viewportY + deltaY);
+      const rawX = dragStart.current.viewportX + deltaX;
+      const rawY = dragStart.current.viewportY + deltaY;
+
+      const snap = computeSnap(
+        opts.viewportId,
+        rawX,
+        rawY,
+        opts.viewportWidth,
+        opts.viewportHeight,
+        opts.allViewports,
+        opts.canvasScale,
+        opts.gridSnap,
+      );
+
+      opts.onMove(opts.viewportId, snap.x, snap.y);
+      opts.onGuidesChange(snap.guides);
     },
-    [isDragging, canvasScale, viewportId, onMove],
+    [isDragging],
   );
 
   const handleDragEnd = useCallback(() => {
     setIsDragging(false);
+    optionsRef.current.onGuidesChange([]);
   }, []);
 
   return {

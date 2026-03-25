@@ -10,6 +10,7 @@ import { useViewer } from "./viewer-provider";
 import { useCanvas } from "@/lib/viewer/use-canvas";
 import { ViewportFrame } from "./viewport-frame";
 import { DevicePicker } from "./device-picker";
+import type { GuideLine } from "@/lib/viewer/use-snap";
 
 // ── Grid drag-to-reorder state ──────────────────────────────────────────────
 
@@ -266,8 +267,13 @@ function GridCanvas() {
 
 // ── Main canvas export ──────────────────────────────────────────────────────
 
-export function Canvas() {
+interface CanvasProps {
+  gridSnap?: boolean;
+}
+
+export function Canvas({ gridSnap = false }: CanvasProps) {
   const { state, setCanvasTransform } = useViewer();
+  const [guides, setGuides] = useState<GuideLine[]>([]);
 
   const {
     containerRef,
@@ -321,9 +327,65 @@ export function Canvas() {
         }}
       >
         {state.viewports.map((viewport) => (
-          <ViewportFrame key={viewport.id} viewport={viewport} />
+          <ViewportFrame
+            key={viewport.id}
+            viewport={viewport}
+            gridSnap={gridSnap}
+            onGuidesChange={setGuides}
+          />
         ))}
       </Box>
+
+      {/* Alignment guide lines */}
+      {guides.map((guide, i) => {
+        if (guide.axis === "v") {
+          const screenX = transform.x + guide.position * transform.scale;
+          const screenFrom = transform.y + guide.from * transform.scale;
+          const screenTo = transform.y + guide.to * transform.scale;
+          return (
+            <Box
+              key={`g${String(i)}`}
+              sx={{
+                position: "absolute",
+                width: 0,
+                borderLeft: "1px solid",
+                borderColor: "primary.main",
+                opacity: 0.6,
+                pointerEvents: "none",
+                zIndex: 50,
+              }}
+              style={{
+                left: screenX,
+                top: screenFrom,
+                height: screenTo - screenFrom,
+              }}
+            />
+          );
+        }
+        // Horizontal guide
+        const screenY = transform.y + guide.position * transform.scale;
+        const screenFrom = transform.x + guide.from * transform.scale;
+        const screenTo = transform.x + guide.to * transform.scale;
+        return (
+          <Box
+            key={`g${String(i)}`}
+            sx={{
+              position: "absolute",
+              height: 0,
+              borderTop: "1px solid",
+              borderColor: "primary.main",
+              opacity: 0.6,
+              pointerEvents: "none",
+              zIndex: 50,
+            }}
+            style={{
+              top: screenY,
+              left: screenFrom,
+              width: screenTo - screenFrom,
+            }}
+          />
+        );
+      })}
 
       {/* Empty state */}
       {state.viewports.length === 0 && (
