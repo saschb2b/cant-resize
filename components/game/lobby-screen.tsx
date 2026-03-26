@@ -84,7 +84,7 @@ function ChallengeCard({
         sx={{
           px: 2,
           py: 1,
-          bgcolor: "secondary.main",
+          bgcolor: "action.selected",
           borderBottom: 1,
           borderColor: "divider",
         }}
@@ -642,7 +642,7 @@ export function LobbyScreen({
               sx={{
                 px: 2,
                 py: 1,
-                bgcolor: "secondary.main",
+                bgcolor: "action.selected",
                 borderBottom: 1,
                 borderColor: "divider",
               }}
@@ -836,7 +836,7 @@ export function LobbyScreen({
               sx={{
                 px: 2,
                 py: 1,
-                bgcolor: "secondary.main",
+                bgcolor: "action.selected",
                 borderBottom: 1,
                 borderColor: "divider",
               }}

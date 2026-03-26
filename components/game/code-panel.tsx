@@ -89,7 +89,7 @@ export function CodePanel({
       ? "rgba(var(--mui-palette-success-mainChannel) / 0.1)"
       : result === "wrong"
         ? "rgba(var(--mui-palette-error-mainChannel) / 0.1)"
-        : "secondary.main";
+        : "action.selected";
 
   const headerBorderColor =
     result === "correct"

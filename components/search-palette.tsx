@@ -639,7 +639,7 @@ export function SearchPalette({ open, onClose }: SearchPaletteProps) {
                       color: "text.secondary",
                       cursor: "pointer",
                       "&:hover": {
-                        bgcolor: "secondary.main",
+                        bgcolor: "action.selected",
                         borderColor: "text.secondary",
                       },
                     }}
