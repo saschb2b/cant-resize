@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useSyncExternalStore } from "react";
+import { useState, useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 import NextLink from "next/link";
 import Image from "next/image";
 import Box from "@mui/material/Box";
@@ -180,6 +180,11 @@ export function CanvasOverlay({
     setSyncSettings,
   } = useViewer();
   const [urlInput, setUrlInput] = useState(state.url);
+  const prevUrlRef = useRef(state.url);
+  if (prevUrlRef.current !== state.url) {
+    prevUrlRef.current = state.url;
+    setUrlInput(state.url);
+  }
   const [syncAnchorEl, setSyncAnchorEl] = useState<HTMLElement | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
 
