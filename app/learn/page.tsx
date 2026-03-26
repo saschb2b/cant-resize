@@ -172,7 +172,7 @@ export default async function LearnPage() {
                       sx={{
                         height: 22,
                         fontSize: "0.7rem",
-                        bgcolor: "action.hover",
+                        bgcolor: "background.paper",
                       }}
                     />
                   </Stack>
@@ -205,7 +205,7 @@ export default async function LearnPage() {
                     borderTop: 1,
                     borderColor: "divider",
                     bgcolor:
-                      "rgba(var(--mui-palette-secondary-mainChannel) / 0.5)",
+                      "background.paper",
                   }}
                 >
                   <Box sx={{ flex: "1 1 50%", minWidth: 0 }}>

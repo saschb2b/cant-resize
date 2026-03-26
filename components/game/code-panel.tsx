@@ -205,7 +205,7 @@ export function CodePanel({
       <Box
         sx={{
           flex: 1,
-          bgcolor: "rgba(var(--mui-palette-secondary-mainChannel) / 0.5)",
+          bgcolor: "background.paper",
           ...codeBlockStyles,
         }}
       >

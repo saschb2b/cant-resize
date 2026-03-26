@@ -130,7 +130,7 @@ export default async function CategoryPage({ params }: PageProps) {
             sx={{
               height: 24,
               fontSize: "0.75rem",
-              bgcolor: "action.hover",
+              bgcolor: "background.paper",
             }}
           />
         </Stack>
@@ -185,8 +185,9 @@ export default async function CategoryPage({ params }: PageProps) {
                 sx={{
                   flex: "1 1 50%",
                   minWidth: 0,
-                  bgcolor:
-                    "rgba(var(--mui-palette-secondary-mainChannel) / 0.5)",
+                  display: "flex",
+                  flexDirection: "column",
+                  bgcolor: "background.paper",
                 }}
               >
                 <Stack
@@ -220,7 +221,7 @@ export default async function CategoryPage({ params }: PageProps) {
                   </Typography>
                 </Stack>
                 <Box
-                  sx={codeBlockStyles}
+                  sx={{ ...codeBlockStyles, flex: 1 }}
                   dangerouslySetInnerHTML={{
                     __html: highlighted.get(challenge.id)?.badHtml ?? "",
                   }}
@@ -233,8 +234,9 @@ export default async function CategoryPage({ params }: PageProps) {
                 sx={{
                   flex: "1 1 50%",
                   minWidth: 0,
-                  bgcolor:
-                    "rgba(var(--mui-palette-secondary-mainChannel) / 0.5)",
+                  display: "flex",
+                  flexDirection: "column",
+                  bgcolor: "background.paper",
                 }}
               >
                 <Stack
@@ -268,7 +270,7 @@ export default async function CategoryPage({ params }: PageProps) {
                   </Typography>
                 </Stack>
                 <Box
-                  sx={codeBlockStyles}
+                  sx={{ ...codeBlockStyles, flex: 1 }}
                   dangerouslySetInnerHTML={{
                     __html: highlighted.get(challenge.id)?.goodHtml ?? "",
                   }}
