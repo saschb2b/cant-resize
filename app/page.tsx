@@ -320,55 +320,69 @@ export default function LandingPage() {
               Responsive design patterns. You are here.
             </Typography>
           </Paper>
-          <NextLink
-            href="https://cant-maintain.saschb2b.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              textDecoration: "none",
-              color: "inherit",
-              flex: 1,
-              display: "flex",
-              maxWidth: 280,
-            }}
-          >
-            <Paper
-              elevation={0}
-              sx={{
+          {[
+            {
+              name: "Can't Maintain",
+              href: "https://cant-maintain.saschb2b.com",
+              desc: "React component API design. Same format, different topic.",
+            },
+            {
+              name: "Can't Type",
+              href: "https://cant-type.saschb2b.com",
+              desc: "TypeScript patterns. Generics, narrowing, utility types, and more.",
+            },
+          ].map((site) => (
+            <NextLink
+              key={site.name}
+              href={site.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                textDecoration: "none",
+                color: "inherit",
                 flex: 1,
-                p: 2.5,
-                border: 1,
-                borderColor: "divider",
-                transition: "all 0.2s ease",
-                "&:hover": {
-                  borderColor: "text.secondary",
-                  transform: "translateY(-1px)",
-                },
+                display: "flex",
+                maxWidth: 280,
               }}
             >
-              <Stack
-                direction="row"
-                alignItems="center"
-                spacing={0.75}
-                sx={{ mb: 0.5 }}
+              <Paper
+                elevation={0}
+                sx={{
+                  flex: 1,
+                  p: 2.5,
+                  border: 1,
+                  borderColor: "divider",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    borderColor: "text.secondary",
+                    transform: "translateY(-1px)",
+                  },
+                }}
               >
-                <Typography variant="body2" fontWeight={600}>
-                  {"Can't Maintain"}
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={0.75}
+                  sx={{ mb: 0.5 }}
+                >
+                  <Typography variant="body2" fontWeight={600}>
+                    {site.name}
+                  </Typography>
+                  <ExternalLink
+                    size={12}
+                    color="var(--mui-palette-text-disabled)"
+                  />
+                </Stack>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ lineHeight: 1.5 }}
+                >
+                  {site.desc}
                 </Typography>
-                <ExternalLink
-                  size={12}
-                  color="var(--mui-palette-text-disabled)"
-                />
-              </Stack>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ lineHeight: 1.5 }}
-              >
-                React component API design. Same format, different topic.
-              </Typography>
-            </Paper>
-          </NextLink>
+              </Paper>
+            </NextLink>
+          ))}
         </Stack>
       </Container>
 

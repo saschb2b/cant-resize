@@ -804,81 +804,97 @@ export function LobbyScreen({
         >
           More topics
         </Typography>
-        <Box
-          component="a"
-          href="https://cant-maintain.saschb2b.com/play"
-          target="_blank"
-          rel="noopener noreferrer"
-          sx={{
-            display: "block",
-            textDecoration: "none",
-            color: "inherit",
-            maxWidth: { sm: 360 },
-          }}
-        >
-          <Paper
-            elevation={0}
-            sx={{
-              border: 1,
-              borderColor: "divider",
-              overflow: "hidden",
-              transition: "all 0.2s ease",
-              "&:hover": {
-                borderColor: "text.secondary",
-                transform: "translateY(-1px)",
-              },
-            }}
-          >
-            <Stack
-              direction="row"
-              alignItems="center"
-              spacing={0.75}
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+          {[
+            {
+              name: "Can't Maintain",
+              href: "https://cant-maintain.saschb2b.com/play",
+              desc: "Think you can spot clean React component APIs? Same game, same format, different topic.",
+              tags: "Props, composition, patterns",
+            },
+            {
+              name: "Can't Type",
+              href: "https://cant-type.saschb2b.com/play",
+              desc: "Test your TypeScript instincts. Generics, narrowing, utility types, and common mistakes.",
+              tags: "Generics, narrowing, utility types",
+            },
+          ].map((site) => (
+            <Box
+              key={site.name}
+              component="a"
+              href={site.href}
+              target="_blank"
+              rel="noopener noreferrer"
               sx={{
-                px: 2,
-                py: 1,
-                bgcolor: "action.selected",
-                borderBottom: 1,
-                borderColor: "divider",
+                display: "block",
+                textDecoration: "none",
+                color: "inherit",
               }}
             >
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                fontWeight={600}
-                sx={{ fontSize: "0.72rem" }}
-              >
-                {"Can't Maintain"}
-              </Typography>
-              <Box
+              <Paper
+                elevation={0}
                 sx={{
-                  ml: "auto",
-                  color: "text.disabled",
-                  display: "flex",
+                  border: 1,
+                  borderColor: "divider",
+                  overflow: "hidden",
+                  transition: "all 0.2s ease",
+                  "&:hover": {
+                    borderColor: "text.secondary",
+                    transform: "translateY(-1px)",
+                  },
                 }}
               >
-                <ExternalLink size={12} />
-              </Box>
-            </Stack>
-            <Box sx={{ p: 2 }}>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ lineHeight: 1.5 }}
-              >
-                Think you can spot clean React component APIs? Same game, same
-                format, different topic.
-              </Typography>
-              <Typography
-                variant="caption"
-                color="text.disabled"
-                fontFamily="var(--font-geist-mono), monospace"
-                sx={{ mt: 1, display: "block", fontSize: "0.65rem" }}
-              >
-                Props, composition, TypeScript patterns
-              </Typography>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={0.75}
+                  sx={{
+                    px: 2,
+                    py: 1,
+                    bgcolor: "action.selected",
+                    borderBottom: 1,
+                    borderColor: "divider",
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    fontWeight={600}
+                    sx={{ fontSize: "0.72rem" }}
+                  >
+                    {site.name}
+                  </Typography>
+                  <Box
+                    sx={{
+                      ml: "auto",
+                      color: "text.disabled",
+                      display: "flex",
+                    }}
+                  >
+                    <ExternalLink size={12} />
+                  </Box>
+                </Stack>
+                <Box sx={{ p: 2 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ lineHeight: 1.5 }}
+                  >
+                    {site.desc}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.disabled"
+                    fontFamily="var(--font-geist-mono), monospace"
+                    sx={{ mt: 1, display: "block", fontSize: "0.65rem" }}
+                  >
+                    {site.tags}
+                  </Typography>
+                </Box>
+              </Paper>
             </Box>
-          </Paper>
-        </Box>
+          ))}
+        </Stack>
       </Box>
     </>
   );
